@@ -20,7 +20,12 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        setTableData(data as TableData[]);
+        const transformedData: TableData[] = data.map((item: any) => ({
+          ...item,
+          latitude: item.latitude ? Number(item.latitude) : undefined,
+          longitude: item.longitude ? Number(item.longitude) : undefined,
+        }));
+        setTableData(transformedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
