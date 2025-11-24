@@ -286,5 +286,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/6/6f/Rapolla-Stemma1.png",
         "latitude": "40.978634",
         "longitude": "15.669772"
+    },
+    {
+        "location": "Comune di Roccaraso (AQ)",
+        "deadline": "2025-09-28",
+        "url": "https://www.comune.roccaraso.aq.it/bando-di-pubblico-concorso-assegnazione-di-autorizzazioni-per-il-servizio-di-noleggio-con-conducente-ncc/",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/f/f6/Roccaraso-Stemma.png",
+        "latitude": "41.84466",
+        "longitude": "14.079786"
     }
 ]
