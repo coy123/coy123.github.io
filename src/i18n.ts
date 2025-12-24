@@ -21,7 +21,12 @@ export interface Translations {
     tabs?: {
       table: string;
       map: string;
+      search: string;
       mapComingSoon?: string;
+    };
+    search?: {
+      placeholder: string;
+      noResults: string;
     };
   };
   pages: {

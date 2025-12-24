@@ -16,7 +16,12 @@
     "tabs": {
       "table": "Tabella",
       "map": "Mappa",
+      "search": "Cerca",
       "mapComingSoon": "La vista mappa sarà disponibile a breve."
+    },
+    "search": {
+      "placeholder": "Cerca località",
+      "noResults": "Nessuna località trovata corrispondente alla tua ricerca."
     }
   },
   "pages": {

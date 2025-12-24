@@ -16,7 +16,12 @@
     "tabs": {
       "table": "Table",
       "map": "Map",
+      "search": "Search",
       "mapComingSoon": "Map view coming soon."
+    },
+    "search": {
+      "placeholder": "Search locations",
+      "noResults": "No locations found matching your search."
     }
   },
   "pages": {

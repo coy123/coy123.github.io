@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Table from '../components/Table';
 import MapView from '../components/MapView';
 import { TableData } from '../types';
@@ -12,9 +12,28 @@ const Home: React.FC = () => {
   const [tableData, setTableData] = useState<TableData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'table' | 'map'>('table');
+  const [activeTab, setActiveTab] = useState<'table' | 'map' | 'search'>('table');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const t = (key: string) => getTranslation(language, key);
+
+  // Fuzzy search function for location field
+  const searchLocations = (query: string, data: TableData[]): TableData[] => {
+    const trimmedQuery = query.trim();
+    if (trimmedQuery.length === 0) {
+      return [];
+    }
+    
+    const lowerQuery = trimmedQuery.toLowerCase();
+    return data.filter((item) => {
+      const location = item.location.toLowerCase();
+      return location.includes(lowerQuery);
+    });
+  };
+
+  const filteredSearchResults = useMemo(() => {
+    return searchLocations(searchQuery, tableData);
+  }, [searchQuery, tableData]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -83,7 +102,7 @@ const Home: React.FC = () => {
       <div className="bg-gray-700 rounded-lg shadow-sm p-4 sm:p-6">
         <div className="mb-4">
           <div className="w-full rounded-lg bg-gray-800 p-1 flex">
-            {(['table', 'map'] as const).map((tab) => {
+            {(['table', 'map', 'search'] as const).map((tab) => {
               const isActive = activeTab === tab;
               return (
                 <button
@@ -102,7 +121,27 @@ const Home: React.FC = () => {
             })}
           </div>
         </div>
-        {activeTab === 'table' ? <Table data={tableData}/> : <MapView data={tableData}/>}
+        {activeTab === 'table' && <Table data={tableData}/>}
+        {activeTab === 'map' && <MapView data={tableData}/>}
+        {activeTab === 'search' && (
+          <div className="w-full">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('dashboard.search.placeholder')}
+              className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+            />
+            {searchQuery.trim().length > 0 && filteredSearchResults.length > 0 && (
+              <Table data={filteredSearchResults} />
+            )}
+            {searchQuery.trim().length > 0 && filteredSearchResults.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                {t('dashboard.search.noResults')}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
