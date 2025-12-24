@@ -15,7 +15,7 @@ const deferStylesPlugin = (): Plugin => ({
 
 export default defineConfig({
   plugins: [react(), deferStylesPlugin()],
-  base: process.env.VITE_BASE_PATH || '/',
+  base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets'
