@@ -1,12 +1,54 @@
 {
+  "nav": {
+    "home": "Home",
+    "howToBecomeDriver": "How to become a driver?",
+    "regionalLaws": "Regional Laws",
+    "utilities": "Utilities",
+    "about": "About",
+    "faq": "FAQ",
+    "openMenu": "Open main menu",
+    "title": "BANDI NCC"
+  },
   "dashboard": {
     "title": "All Italian NCC licenses, in one place",
     "subtitle": "Quickly find the latest NCC licenses, city by city",
-    "description": "This platform collects and organizes every NCC tender published in Italy, including active, expired, and upcoming ones. Each tender is indexed with date, number of licenses, official link, and source so you can immediately see what's open, what has closed, and what might reopen. Let’s find the right tender together.",
+    "description": "This platform collects and organizes every NCC tender published in Italy, including active, expired, and upcoming ones. Each tender is indexed with date, number of licenses, official link, and source so you can immediately see what's open, what has closed, and what might reopen. Let's find the right tender together.",
     "tabs": {
       "table": "Table",
       "map": "Map",
       "mapComingSoon": "Map view coming soon."
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "All Italian NCC licenses, in one place",
+      "subtitle": "Quickly find the latest NCC licenses, city by city",
+      "description": "This platform collects and organizes every NCC tender published in Italy, including active, expired, and upcoming ones. Each tender is indexed with date, number of licenses, official link, and source so you can immediately see what's open, what has closed, and what might reopen. Let's find the right tender together."
+    },
+    "howToBecomeDriver": {
+      "title": "How to become an NCC driver",
+      "subtitle": "Step-by-step guide to obtaining your NCC license",
+      "description": "To become an NCC driver in Italy, you need to meet specific requirements including age, driving experience, and professional qualifications. The process involves applying for a tender when your municipality opens one, submitting the required documentation, and passing the necessary exams. Each region may have slightly different requirements, so it's important to check the local regulations."
+    },
+    "regionalLaws": {
+      "title": "Regional Laws and Regulations",
+      "subtitle": "Understanding NCC license requirements by region",
+      "description": "NCC license regulations vary by region in Italy, with each region having its own specific laws and requirements. These regional differences affect the number of licenses available, application procedures, and operational rules. It's essential to understand the regulations in your specific region before applying for an NCC license."
+    },
+    "utilities": {
+      "title": "Useful Tools and Resources",
+      "subtitle": "Helpful utilities for NCC license applicants",
+      "description": "Find calculators, templates, and other useful tools to help you through the NCC license application process. These utilities can assist with document preparation, deadline tracking, and understanding the requirements. Make your application process smoother with our curated collection of resources."
+    },
+    "about": {
+      "title": "About This Platform",
+      "subtitle": "Your comprehensive resource for NCC licenses in Italy",
+      "description": "This platform was created to help aspiring NCC drivers navigate the complex world of Italian NCC license tenders. We aggregate information from all regions and municipalities to provide a centralized, easy-to-use resource. Our goal is to make the process of finding and applying for NCC licenses as straightforward as possible."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Common questions about NCC licenses and applications",
+      "description": "Find answers to the most common questions about NCC licenses, application procedures, and requirements. Whether you're wondering about eligibility, deadlines, or regional differences, we've compiled the information you need. Can't find your answer? Feel free to reach out for more information."
     }
   },
   "table": {
@@ -23,5 +65,8 @@
   },
   "language": {
     "switch": "Language"
+  },
+  "footer": {
+    "copyright": "© {year} BANDI NCC. All rights reserved."
   }
 }
