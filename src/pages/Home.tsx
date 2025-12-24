@@ -92,10 +92,12 @@ const Home: React.FC = () => {
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
           {t('pages.home.title')}
         </h1>
-        <p className="text-sm sm:text-base text-gray-300 mb-3 inline-block px-2 py-1 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+        <p className="text-sm sm:text-base text-gray-300 mb-3 block px-2 py-1 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
           {t('pages.home.subtitle')}
         </p>
-        <p className="text-sm sm:text-base text-gray-200 block px-2 py-1 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+      </div>
+      <div className="mb-6 sm:mb-8">
+        <p className="text-sm sm:text-base text-gray-400">
           {t('pages.home.description')}
         </p>
       </div>
