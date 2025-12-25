@@ -36,7 +36,7 @@ let baseHtml = fs.readFileSync(indexPath, 'utf-8');
 // Route metadata for prerendering
 const routeMetadata = {
   '/': {
-    title: 'Bandi NCC Italia | BANDI NCC',
+    title: 'Bandi NCC',
     description: 'Trova tutti i bandi NCC d\'Italia in un unico posto. Licenze disponibili, scadenze e informazioni aggiornate per ogni città.',
     canonical: 'https://bandincc.it/'
   },

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Blue rounded square background -->
+  <rect width="64" height="64" rx="12" ry="12" fill="#0b82f6" style="--darkreader-inline-fill: var(--darkreader-background-0b82f6, #0767c4);" data-darkreader-inline-fill=""></rect>
+  
+  <!-- Taxi/car body -->
+  <path d="M18 32h28l4 12H14l4-12zm8-8h12l2 8H24z" fill="#fff" style="--darkreader-inline-fill: var(--darkreader-background-ffffff, #181a1b);" data-darkreader-inline-fill=""></path>
+  
+  <!-- Wheels -->
+  <circle cx="22" cy="44" r="4" fill="#021a33" style="--darkreader-inline-fill: var(--darkreader-text-021a33, #d7d4cf);" data-darkreader-inline-fill=""></circle>
+  <circle cx="42" cy="44" r="4" fill="#021a33" style="--darkreader-inline-fill: var(--darkreader-text-021a33, #d7d4cf);" data-darkreader-inline-fill=""></circle>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>
