@@ -2,15 +2,12 @@
   command = "npm run build:prerender"
   publish = "dist"
 
-# Prerendering: Serve static HTML to bots and crawlers
-# Regular users get the SPA experience
+# SPA fallback: Serve index.html for client-side routing
+# Prerendered HTML files will be served first if they exist
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
-  # This allows the prerendered HTML files to be served first
-  conditions = {Role = ["user"]}
 
 [build.environment]
   NODE_VERSION = "18"
