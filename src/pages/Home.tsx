@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import Table from '../components/Table';
-import MapView from '../components/MapView';
 import { TableData } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../i18n';
@@ -8,6 +7,9 @@ import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useStructuredData } from '../hooks/useStructuredData';
 import data from '../data/data.json';
 import driverImage from '../images/driver.png';
+
+// Lazy load MapView only when map tab is active
+const MapView = lazy(() => import('../components/MapView'));
 
 const Home: React.FC = () => {
   const { language } = useLanguage();
@@ -138,7 +140,18 @@ const Home: React.FC = () => {
           </div>
         </div>
         {activeTab === 'table' && <Table data={tableData}/>}
-        {activeTab === 'map' && <MapView data={tableData}/>}
+        {activeTab === 'map' && (
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-[360px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+                <p className="mt-4 text-gray-300">{t('table.loading')}</p>
+              </div>
+            </div>
+          }>
+            <MapView data={tableData}/>
+          </Suspense>
+        )}
         {activeTab === 'search' && (
           <div className="w-full">
             <input

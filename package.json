@@ -7,10 +7,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:prerender": "npm run build && node scripts/prerender.js",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build:prerender",
     "deploy": "gh-pages -d dist"
   },
+  "type": "module",
   "dependencies": {
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",

@@ -35,6 +35,8 @@ const TableRow: React.FC<TableRowProps> = ({data}) => {
                     src={data.image}
                     alt={`${t('table.headers.crest')} ${data.location}`}
                     className="w-8 h-8 rounded-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                 />
             </div>
 

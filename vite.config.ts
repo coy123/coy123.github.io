@@ -18,6 +18,37 @@ export default defineConfig({
   base: '/',
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    // Optimize chunk size and splitting
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks for better caching
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'leaflet-vendor': ['leaflet']
+        }
+      }
+    },
+    // Chunk size warnings
+    chunkSizeWarningLimit: 1000,
+    // Minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console logs in production
+        drop_debugger: true
+      }
+    },
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+    // Source maps for production debugging (optional, disable for smaller builds)
+    sourcemap: false
+  },
+  // Server configuration for development
+  server: {
+    // Enable compression in dev mode
+    headers: {
+      'Cache-Control': 'public, max-age=31536000'
+    }
   }
 })

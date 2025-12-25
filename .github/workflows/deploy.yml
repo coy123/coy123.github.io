@@ -5,6 +5,19 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -18,12 +31,63 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
+        cache: 'npm'
 
     - name: Install dependencies
       run: npm ci
 
-    - name: Build
-      run: npm run build
+    - name: Build with prerendering
+      run: npm run build:prerender
+      env:
+        NODE_ENV: production
+
+    - name: Create _headers file for GitHub Pages
+      run: |
+        cat > dist/_headers << 'EOF'
+        # Cache static assets aggressively
+        /assets/*
+          Cache-Control: public, max-age=31536000, immutable
+
+        # Cache images
+        /*.png
+          Cache-Control: public, max-age=31536000, immutable
+        /*.jpg
+          Cache-Control: public, max-age=31536000, immutable
+        /*.svg
+          Cache-Control: public, max-age=31536000, immutable
+        /*.webp
+          Cache-Control: public, max-age=31536000, immutable
+
+        # Cache fonts
+        /*.woff2
+          Cache-Control: public, max-age=31536000, immutable
+
+        # Cache HTML with shorter time
+        /*.html
+          Cache-Control: public, max-age=3600, must-revalidate
+          X-Frame-Options: DENY
+          X-Content-Type-Options: nosniff
+          X-XSS-Protection: 1; mode=block
+          Referrer-Policy: strict-origin-when-cross-origin
+
+        # Cache JSON
+        /*.json
+          Cache-Control: public, max-age=3600, must-revalidate
+
+        # Security headers for all pages
+        /*
+          X-Frame-Options: DENY
+          X-Content-Type-Options: nosniff
+          X-XSS-Protection: 1; mode=block
+          Referrer-Policy: strict-origin-when-cross-origin
+          Permissions-Policy: geolocation=(), microphone=(), camera=()
+        EOF
+
+    - name: Create 404.html for SPA routing
+      run: cp dist/index.html dist/404.html
+
+    - name: Add .nojekyll file
+      run: touch dist/.nojekyll
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
