@@ -27,10 +27,25 @@ const Home: React.FC = () => {
   });
 
   useStructuredData({
-    type: 'webpage',
+    type: 'dataset',
     breadcrumbs: [
       { name: t('nav.home'), url: '/' }
-    ]
+    ],
+    dataset: {
+      name: language === 'it'
+        ? 'Database Bandi e Licenze NCC in Italia'
+        : 'NCC Licenses and Tenders Database in Italy',
+      description: language === 'it'
+        ? 'Raccolta completa di tutti i bandi e le licenze NCC (Noleggio Con Conducente) pubblicati dai comuni italiani. Include informazioni su numero di licenze disponibili, scadenze, e link ai bandi ufficiali.'
+        : 'Complete collection of all NCC (Rental with Driver) licenses and tenders published by Italian municipalities. Includes information on available licenses, deadlines, and links to official tenders.',
+      items: tableData.map(item => ({
+        location: item.location,
+        amount: item.amount,
+        deadline: item.deadline,
+        url: item.url,
+        image: item.image
+      }))
+    }
   });
 
   // Fuzzy search function for location field
