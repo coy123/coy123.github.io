@@ -1,11 +1,17 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../i18n';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import driverImage from '../images/driver.png';
 
 const RegionalLaws: React.FC = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(language, key);
+
+  useDocumentMeta({
+    title: t('pages.regionalLaws.metaTitle'),
+    description: t('pages.regionalLaws.metaDescription'),
+  });
 
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">

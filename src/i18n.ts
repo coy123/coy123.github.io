@@ -34,31 +34,43 @@ export interface Translations {
       title: string;
       subtitle: string;
       description: string;
+      metaTitle: string;
+      metaDescription: string;
     };
     howToBecomeDriver: {
       title: string;
       subtitle: string;
       description: string;
+      metaTitle: string;
+      metaDescription: string;
     };
     regionalLaws: {
       title: string;
       subtitle: string;
       description: string;
+      metaTitle: string;
+      metaDescription: string;
     };
     utilities: {
       title: string;
       subtitle: string;
       description: string;
+      metaTitle: string;
+      metaDescription: string;
     };
     about: {
       title: string;
       subtitle: string;
       description: string;
+      metaTitle: string;
+      metaDescription: string;
     };
     faq: {
       title: string;
       subtitle: string;
       description: string;
+      metaTitle: string;
+      metaDescription: string;
     };
   };
   table: {

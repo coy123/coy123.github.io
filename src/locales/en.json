@@ -28,32 +28,44 @@
     "home": {
       "title": "All Italian NCC licenses, in one place",
       "subtitle": "Quickly find the latest NCC licenses, city by city",
-      "description": "This platform collects and organizes every NCC tender published in Italy, including active, expired, and upcoming ones. Each tender is indexed with date, number of licenses, official link, and source so you can immediately see what's open, what has closed, and what might reopen. Let's find the right tender together."
+      "description": "This platform collects and organizes every NCC tender published in Italy, including active, expired, and upcoming ones. Each tender is indexed with date, number of licenses, official link, and source so you can immediately see what's open, what has closed, and what might reopen. Let's find the right tender together.",
+      "metaTitle": "NCC Licenses Italy",
+      "metaDescription": "Find all Italian NCC licenses in one place. Available licenses, deadlines, and updated information for every city."
     },
     "howToBecomeDriver": {
       "title": "How to become an NCC driver",
       "subtitle": "Step-by-step guide to obtaining your NCC license",
-      "description": "To become an NCC driver in Italy, you need to meet specific requirements including age, driving experience, and professional qualifications. The process involves applying for a tender when your municipality opens one, submitting the required documentation, and passing the necessary exams. Each region may have slightly different requirements, so it's important to check the local regulations."
+      "description": "To become an NCC driver in Italy, you need to meet specific requirements including age, driving experience, and professional qualifications. The process involves applying for a tender when your municipality opens one, submitting the required documentation, and passing the necessary exams. Each region may have slightly different requirements, so it's important to check the local regulations.",
+      "metaTitle": "How to Become NCC Driver",
+      "metaDescription": "Complete guide to becoming an NCC driver in Italy: requirements, exams, documentation, and procedures to obtain your license."
     },
     "regionalLaws": {
       "title": "Regional Laws and Regulations",
       "subtitle": "Understanding NCC license requirements by region",
-      "description": "NCC license regulations vary by region in Italy, with each region having its own specific laws and requirements. These regional differences affect the number of licenses available, application procedures, and operational rules. It's essential to understand the regulations in your specific region before applying for an NCC license."
+      "description": "NCC license regulations vary by region in Italy, with each region having its own specific laws and requirements. These regional differences affect the number of licenses available, application procedures, and operational rules. It's essential to understand the regulations in your specific region before applying for an NCC license.",
+      "metaTitle": "Regional NCC Laws",
+      "metaDescription": "Regional regulations and laws for NCC licenses in Italy. Specific requirements and rules for each Italian region."
     },
     "utilities": {
       "title": "Useful Tools and Resources",
       "subtitle": "Helpful utilities for NCC license applicants",
-      "description": "Find calculators, templates, and other useful tools to help you through the NCC license application process. These utilities can assist with document preparation, deadline tracking, and understanding the requirements. Make your application process smoother with our curated collection of resources."
+      "description": "Find calculators, templates, and other useful tools to help you through the NCC license application process. These utilities can assist with document preparation, deadline tracking, and understanding the requirements. Make your application process smoother with our curated collection of resources.",
+      "metaTitle": "NCC Tools and Utilities",
+      "metaDescription": "Useful tools, calculators, and resources for NCC license applications. Simplify the process with our utilities."
     },
     "about": {
       "title": "About This Platform",
       "subtitle": "Your comprehensive resource for NCC licenses in Italy",
-      "description": "This platform was created to help aspiring NCC drivers navigate the complex world of Italian NCC license tenders. We aggregate information from all regions and municipalities to provide a centralized, easy-to-use resource. Our goal is to make the process of finding and applying for NCC licenses as straightforward as possible."
+      "description": "This platform was created to help aspiring NCC drivers navigate the complex world of Italian NCC license tenders. We aggregate information from all regions and municipalities to provide a centralized, easy-to-use resource. Our goal is to make the process of finding and applying for NCC licenses as straightforward as possible.",
+      "metaTitle": "About Us",
+      "metaDescription": "The complete platform to find NCC licenses and tenders in Italy. Centralized information from all regions and municipalities."
     },
     "faq": {
       "title": "Frequently Asked Questions",
       "subtitle": "Common questions about NCC licenses and applications",
-      "description": "Find answers to the most common questions about NCC licenses, application procedures, and requirements. Whether you're wondering about eligibility, deadlines, or regional differences, we've compiled the information you need. Can't find your answer? Feel free to reach out for more information."
+      "description": "Find answers to the most common questions about NCC licenses, application procedures, and requirements. Whether you're wondering about eligibility, deadlines, or regional differences, we've compiled the information you need. Can't find your answer? Feel free to reach out for more information.",
+      "metaTitle": "FAQ - Frequently Asked Questions",
+      "metaDescription": "Answers to the most common questions about NCC licenses, requirements, deadlines, and application procedures in Italy."
     }
   },
   "table": {

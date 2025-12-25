@@ -4,6 +4,7 @@ import MapView from '../components/MapView';
 import { TableData } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../i18n';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import data from '../data/data.json';
 import driverImage from '../images/driver.png';
 
@@ -16,6 +17,11 @@ const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const t = (key: string) => getTranslation(language, key);
+
+  useDocumentMeta({
+    title: t('pages.home.metaTitle'),
+    description: t('pages.home.metaDescription'),
+  });
 
   // Fuzzy search function for location field
   const searchLocations = (query: string, data: TableData[]): TableData[] => {
