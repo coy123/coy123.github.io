@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../i18n';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useStructuredData } from '../hooks/useStructuredData';
 import driverImage from '../images/driver.png';
 
 const Utilities: React.FC = () => {
@@ -11,6 +12,14 @@ const Utilities: React.FC = () => {
   useDocumentMeta({
     title: t('pages.utilities.metaTitle'),
     description: t('pages.utilities.metaDescription'),
+  });
+
+  useStructuredData({
+    type: 'webpage',
+    breadcrumbs: [
+      { name: t('nav.home'), url: '/' },
+      { name: t('nav.utilities'), url: '/utilities' }
+    ]
   });
 
   return (

@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../i18n';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useStructuredData } from '../hooks/useStructuredData';
 import driverImage from '../images/driver.png';
 
 const RegionalLaws: React.FC = () => {
@@ -11,6 +12,14 @@ const RegionalLaws: React.FC = () => {
   useDocumentMeta({
     title: t('pages.regionalLaws.metaTitle'),
     description: t('pages.regionalLaws.metaDescription'),
+  });
+
+  useStructuredData({
+    type: 'webpage',
+    breadcrumbs: [
+      { name: t('nav.home'), url: '/' },
+      { name: t('nav.regionalLaws'), url: '/regional-laws' }
+    ]
   });
 
   return (

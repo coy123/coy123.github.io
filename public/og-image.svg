@@ -1,0 +1,43 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg-gradient)"/>
+  
+  <!-- Blue accent bar -->
+  <rect x="0" y="0" width="1200" height="8" fill="#0b82f6"/>
+  
+  <!-- Taxi icon -->
+  <rect x="80" y="200" width="240" height="140" rx="20" ry="20" fill="#0b82f6"/>
+  <path d="M130 260h140l20 60H110l20-60zm40-40h60l10 40h-80z" fill="#fff"/>
+  <circle cx="150" cy="340" r="20" fill="#1e293b"/>
+  <circle cx="270" cy="340" r="20" fill="#1e293b"/>
+  
+  <!-- Main text -->
+  <text x="400" y="240" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#ffffff">
+    BANDI NCC
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="400" y="310" font-family="Arial, sans-serif" font-size="36" fill="#94a3b8">
+    Tutti i bandi NCC d'Italia
+  </text>
+  
+  <text x="400" y="360" font-family="Arial, sans-serif" font-size="36" fill="#94a3b8">
+    in un unico posto
+  </text>
+  
+  <!-- URL -->
+  <text x="400" y="480" font-family="Arial, sans-serif" font-size="32" fill="#0b82f6">
+    bandincc.it
+  </text>
+  
+  <!-- Bottom accent -->
+  <rect x="0" y="622" width="1200" height="8" fill="#0b82f6"/>
+</svg>

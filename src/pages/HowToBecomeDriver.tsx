@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../i18n';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useStructuredData } from '../hooks/useStructuredData';
 import driverImage from '../images/driver.png';
 
 const HowToBecomeDriver: React.FC = () => {
@@ -11,6 +12,14 @@ const HowToBecomeDriver: React.FC = () => {
   useDocumentMeta({
     title: t('pages.howToBecomeDriver.metaTitle'),
     description: t('pages.howToBecomeDriver.metaDescription'),
+  });
+
+  useStructuredData({
+    type: 'webpage',
+    breadcrumbs: [
+      { name: t('nav.home'), url: '/' },
+      { name: t('nav.howToBecomeDriver'), url: '/how-to-become-driver' }
+    ]
   });
 
   return (

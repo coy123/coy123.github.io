@@ -5,6 +5,7 @@ import { TableData } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../i18n';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useStructuredData } from '../hooks/useStructuredData';
 import data from '../data/data.json';
 import driverImage from '../images/driver.png';
 
@@ -21,6 +22,13 @@ const Home: React.FC = () => {
   useDocumentMeta({
     title: t('pages.home.metaTitle'),
     description: t('pages.home.metaDescription'),
+  });
+
+  useStructuredData({
+    type: 'webpage',
+    breadcrumbs: [
+      { name: t('nav.home'), url: '/' }
+    ]
   });
 
   // Fuzzy search function for location field

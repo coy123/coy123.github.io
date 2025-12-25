@@ -33,7 +33,7 @@ const TableRow: React.FC<TableRowProps> = ({data}) => {
         <div className="p-2 w-16 sm:w-24 flex items-center justify-center">
                 <img
                     src={data.image}
-                    alt="Crest"
+                    alt={`${t('table.headers.crest')} ${data.location}`}
                     className="w-8 h-8 rounded-full object-cover"
                 />
             </div>
