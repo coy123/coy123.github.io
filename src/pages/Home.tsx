@@ -24,6 +24,7 @@ const Home: React.FC = () => {
   useDocumentMeta({
     title: t('pages.home.metaTitle'),
     description: t('pages.home.metaDescription'),
+    isHomepage: true,
   });
 
   useStructuredData({

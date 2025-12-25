@@ -13,15 +13,16 @@ interface UseDocumentMetaProps {
   description: string;
   image?: string;
   additionalMeta?: MetaTag[];
+  isHomepage?: boolean;
 }
 
-export const useDocumentMeta = ({ title, description, image, additionalMeta = [] }: UseDocumentMetaProps) => {
+export const useDocumentMeta = ({ title, description, image, additionalMeta = [], isHomepage = false }: UseDocumentMetaProps) => {
   const { language } = useLanguage();
 
   useEffect(() => {
     // Update document title
     const siteTitle = translations[language].nav.title;
-    document.title = `${title} | ${siteTitle}`;
+    document.title = isHomepage ? siteTitle : `${title} | ${siteTitle}`;
 
     // Get base URL and image
     const baseUrl = window.location.origin;
@@ -55,7 +56,9 @@ export const useDocumentMeta = ({ title, description, image, additionalMeta = []
       meta.setAttribute('content', content);
     };
 
-    updateMetaTag('og:title', `${title} | ${siteTitle}`);
+    const pageTitle = isHomepage ? siteTitle : `${title} | ${siteTitle}`;
+
+    updateMetaTag('og:title', pageTitle);
     updateMetaTag('og:description', description);
     updateMetaTag('og:type', 'website');
     updateMetaTag('og:url', canonicalUrl);
@@ -78,7 +81,7 @@ export const useDocumentMeta = ({ title, description, image, additionalMeta = []
     };
 
     updateTwitterTag('twitter:card', 'summary_large_image');
-    updateTwitterTag('twitter:title', `${title} | ${siteTitle}`);
+    updateTwitterTag('twitter:title', pageTitle);
     updateTwitterTag('twitter:description', description);
     updateTwitterTag('twitter:image', ogImage);
 
