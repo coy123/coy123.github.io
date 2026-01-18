@@ -304,5 +304,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Lugo_%28Italia%29-Stemma.svg/960px-Lugo_%28Italia%29-Stemma.svg.png",
         "latitude": "44.4875",
         "longitude": "11.9138"
+    },
+    {
+        "location": "Comune di Catania (CA)",
+        "deadline": "2025-02-02",
+        "url": "https://www.cittametropolitana.ct.it/it/news/bando-di-pubblico-concorso-per-soli-titoli-per-lassegnazione-di-n-17-autorizzazioni-allesercizio-del-servizio-di-noleggio-autovettura-con-conducente-con-stazionamento-in-rimessa",
+        "amount": 17,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Catania-Stemma.svg/500px-Catania-Stemma.svg.png",
+        "latitude": "37.50800",
+        "longitude": "15.06362"
+    },
+    {
+        "location": "Comune di Castiglione della Pescaia (GR)",
+        "deadline": "2025-02-07",
+        "url": "https://www.comune.castiglionedellapescaia.gr.it/it/news/bando-pubblico-per-lassegnazionedi-n-5-autorizzazioni-per-l-esercizio-del-servizio-di-trasporto-pubblico-non-di-linea",
+        "amount": 5,
+        "image": "https://upload.wikimedia.org/wikipedia/it/8/83/Castiglione_della_Pescaia-Stemma.png",
+        "latitude": "42.773004",
+        "longitude": "10.889780"
     }
 ]
