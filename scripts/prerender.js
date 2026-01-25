@@ -37,7 +37,7 @@ let baseHtml = fs.readFileSync(indexPath, 'utf-8');
 const routeMetadata = {
   '/': {
     title: 'Bandi NCC',
-    description: 'Trova tutti i bandi NCC d\'Italia in un unico posto. Licenze disponibili, scadenze e informazioni aggiornate per ogni città.',
+    description: 'Bandi NCC – Bandi di Concorso NCC Aggiornati Ogni Giorno. Licenze disponibili, scadenze e informazioni aggiornate per ogni città.',
     canonical: 'https://bandincc.it/'
   },
   '/how-to-become-driver': {

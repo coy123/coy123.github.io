@@ -1,14 +1,16 @@
 # Project description
 This is a project for showing the latest italian ncc licenses on a table and a map.
-The language of the website is italian but in dev mode, english is also implemented.
+The language of the website is Italian but talk to me in English.
 
 # Tech Stack
-The project uses React with Typescript.
+The project uses React, NextJS with Typescript.
 
 # Folder Structure
 The folder structure follows a general common sense approach. The react code lives in src.
 
 # Git and Deployment
+Do not ever use git commands! Dont commit or push or anything!
+Do not ever try to deploy. You can only run on dev mode locally.
 There are two branches: staging and master. Development is done on staging. Staging is connected to netlify for deployment and master is connected to github pages for deployment. The domain is www.bandincc.it
 
 # Bash commands
