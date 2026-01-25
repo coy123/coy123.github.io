@@ -3,10 +3,10 @@ This is a project for showing the latest italian ncc licenses on a table and a m
 The language of the website is Italian but talk to me in English.
 
 # Tech Stack
-The project uses React, NextJS with Typescript.
+The project uses React, NextJS with Typescript and Tailwind.
 
 # Folder Structure
-The folder structure follows a general common sense approach. The react code lives in src.
+The folder structure follows a general common sense approach. The react code lives in app.
 
 # Git and Deployment
 Do not ever use git commands! Dont commit or push or anything!
