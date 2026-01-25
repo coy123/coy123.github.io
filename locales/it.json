@@ -5,7 +5,7 @@
     "regionalLaws": "Leggi Regionali",
     "utilities": "Utilità",
     "incomeCalculator": "Calcolatore Guadagni",
-    "about": "Chi Siamo",
+    "disclaimer": "Disclaimer",
     "faq": "FAQ",
     "openMenu": "Apri menu principale",
     "title": "BANDI NCC"
@@ -54,19 +54,19 @@
       "metaTitle": "Strumenti e Utilità NCC",
       "metaDescription": "Strumenti utili, calcolatori e risorse per la richiesta di licenze NCC. Semplifica il processo con le nostre utilità."
     },
-    "about": {
-      "title": "Chi Siamo",
-      "subtitle": "La tua risorsa completa per le licenze NCC in Italia",
-      "description": "Questa piattaforma è stata creata per aiutare gli aspiranti autisti NCC a navigare nel complesso mondo dei bandi per licenze NCC in Italia. Aggreghiamo informazioni da tutte le regioni e i comuni per fornire una risorsa centralizzata e facile da usare. Il nostro obiettivo è rendere il processo di ricerca e richiesta delle licenze NCC il più semplice possibile.",
-      "metaTitle": "Chi Siamo",
-      "metaDescription": "La piattaforma completa per trovare bandi e licenze NCC in Italia. Informazioni centralizzate da tutte le regioni e comuni."
+    "disclaimer": {
+      "title": "Disclaimer",
+      "subtitle": "Informazioni legali e limitazioni di responsabilità",
+      "description": ["Il sito bandincc.it non costituisce testata giornalistica e non ha carattere periodico, essendo aggiornato in base alla disponibilità dei contenuti. Non può pertanto essere considerato un prodotto editoriale ai sensi della Legge n. 62 del 07/03/2001.","Le informazioni pubblicate sono fornite con la massima attenzione possibile, tuttavia bandincc.it non garantisce l’assenza di errori, omissioni o imprecisioni e declina ogni responsabilità per l’uso che gli utenti fanno dei contenuti presenti sul sito. I contenuti possono essere modificati in qualsiasi momento senza preavviso.","bandincc.it non è responsabile di eventuali malfunzionamenti del sito, né di danni diretti o indiretti derivanti dall’accesso, dall’uso o dall’impossibilità di utilizzo del sito stesso.","Eventuali collegamenti a siti web esterni sono forniti esclusivamente a scopo informativo. bandincc.it non è responsabile dei contenuti, dei servizi o delle politiche adottate da siti di terze parti, né della loro correttezza, affidabilità o aggiornamento. La presenza di link non implica alcuna approvazione dei contenuti collegati.","Qualora il sito consenta l’invio di commenti o messaggi da parte degli utenti, gli autori dei contenuti inviati ne sono gli unici responsabili. bandincc.it si riserva il diritto di rimuovere, senza preavviso, contenuti ritenuti offensivi, illeciti, pubblicitari o non pertinenti.","Per quanto riguarda immagini, testi o altri materiali presenti sul sito, qualora fossero pubblicati contenuti che violano diritti d’autore, si invita a segnalarlo tramite i contatti del sito: bandincc.it provvederà alla rimozione nel più breve tempo possibile.","Per informazioni sull’utilizzo dei cookie e sul trattamento dei dati personali, si rimanda alle rispettive informative presenti sul sito."],
+      "metaTitle": "Disclaimer",
+      "metaDescription": "Disclaimer e informazioni legali per la piattaforma bandi e licenze NCC in Italia."
     },
     "faq": {
-      "title": "Domande Frequenti",
-      "subtitle": "Domande comuni su licenze NCC e domande",
+      "title": "FAQ – Tutto quello che devi sapere per iniziare con NCC",
+      "subtitle": "Questa sezione raccoglie le domande più frequenti di chi vuole entrare nel mondo NCC. Risposte pratiche, numeri realistici e considerazioni operative.",
       "description": "Trova risposte alle domande più comuni su licenze NCC, procedure di domanda e requisiti. Che tu ti stia chiedendo sull'idoneità, le scadenze o le differenze regionali, abbiamo raccolto le informazioni di cui hai bisogno. Non trovi la tua risposta? Sentiti libero di contattarci per maggiori informazioni.",
-      "metaTitle": "FAQ - Domande Frequenti",
-      "metaDescription": "Risposte alle domande più comuni su licenze NCC, requisiti, scadenze e procedure di domanda in Italia."
+      "metaTitle": "FAQ – Tutto quello che devi sapere per iniziare con NCC",
+      "metaDescription": "Questa sezione raccoglie le domande più frequenti di chi vuole entrare nel mondo NCC. Risposte pratiche, numeri realistici e considerazioni operative."
     },
     "incomeCalculator": {
       "title": "Calcolatore Guadagni NCC",

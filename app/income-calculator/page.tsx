@@ -126,7 +126,7 @@ export default function IncomeCalculatorPage() {
             </div>
 
             {/* Fuel type */}
-            <div>
+            <div className="md:col-span-2 md:max-w-md md:mx-auto md:w-full">
               <label htmlFor="fuel" className="block text-sm font-medium text-gray-300 mb-2">
                 Tipo di carburante
               </label>

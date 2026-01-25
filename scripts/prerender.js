@@ -16,7 +16,7 @@ const routes = [
   '/how-to-become-driver',
   '/regional-laws',
   '/utilities',
-  '/about',
+  '/disclaimer',
   '/faq'
 ];
 
@@ -55,10 +55,10 @@ const routeMetadata = {
     description: 'Strumenti utili, calcolatori e risorse per la richiesta di licenze NCC. Semplifica il processo con le nostre utilità.',
     canonical: 'https://bandincc.it/utilities'
   },
-  '/about': {
+  '/disclaimer': {
     title: 'Chi Siamo | BANDI NCC',
     description: 'La piattaforma completa per trovare bandi e licenze NCC in Italia. Informazioni centralizzate da tutte le regioni e comuni.',
-    canonical: 'https://bandincc.it/about'
+    canonical: 'https://bandincc.it/disclaimer'
   },
   '/faq': {
     title: 'FAQ - Domande Frequenti | BANDI NCC',
