@@ -1,5 +1,8 @@
 import { Metadata } from 'next'
 import { getTranslations } from '@/lib/translations'
+import LawsContent from '@/components/LawsContent'
+import lawsData from '@/data/laws.json'
+import { LawData } from '@/types'
 
 export const metadata: Metadata = {
   title: 'Normative Regionali',
@@ -34,6 +37,8 @@ export default function RegionalLawsPage() {
           {t.pages.regionalLaws.description}
         </p>
       </div>
+
+      <LawsContent data={lawsData as LawData[]} />
     </div>
   )
 }

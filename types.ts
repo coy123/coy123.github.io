@@ -7,3 +7,9 @@ export interface TableData {
   latitude?: number;
   longitude?: number;
 }
+
+export interface LawData {
+  image: string;
+  location: string;
+  url: string;
+}
