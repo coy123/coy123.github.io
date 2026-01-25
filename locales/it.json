@@ -4,6 +4,7 @@
     "howToBecomeDriver": "Come diventare autista?",
     "regionalLaws": "Leggi Regionali",
     "utilities": "Utilità",
+    "incomeCalculator": "Calcolatore Guadagni",
     "about": "Chi Siamo",
     "faq": "FAQ",
     "openMenu": "Apri menu principale",
@@ -66,6 +67,12 @@
       "description": "Trova risposte alle domande più comuni su licenze NCC, procedure di domanda e requisiti. Che tu ti stia chiedendo sull'idoneità, le scadenze o le differenze regionali, abbiamo raccolto le informazioni di cui hai bisogno. Non trovi la tua risposta? Sentiti libero di contattarci per maggiori informazioni.",
       "metaTitle": "FAQ - Domande Frequenti",
       "metaDescription": "Risposte alle domande più comuni su licenze NCC, requisiti, scadenze e procedure di domanda in Italia."
+    },
+    "incomeCalculator": {
+      "title": "Calcolatore Guadagni NCC",
+      "subtitle": "Stima i tuoi guadagni mensili come autista NCC",
+      "metaTitle": "Calcolatore Guadagni NCC",
+      "metaDescription": "Calcola i tuoi potenziali guadagni mensili come autista NCC in Italia."
     }
   },
   "table": {

@@ -1,5 +1,9 @@
 import { Metadata } from 'next'
 import { getTranslations } from '@/lib/translations'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export const metadata: Metadata = {
   title: 'Utilità',
@@ -8,6 +12,13 @@ export const metadata: Metadata = {
 
 export default function UtilitiesPage() {
   const t = getTranslations()
+
+  // Read the markdown file
+  const markdownPath = join(process.cwd(), 'app', 'utilities', 'utilities.md')
+  let markdownContent = readFileSync(markdownPath, 'utf-8')
+
+  // Preserve empty lines by replacing them with line breaks
+  markdownContent = markdownContent.replace(/\n\n/g, '\n\n&nbsp;\n\n')
 
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
@@ -29,10 +40,10 @@ export default function UtilitiesPage() {
           {t.pages.utilities.subtitle}
         </h2>
       </div>
-      <div className="mb-6 sm:mb-8">
-        <p className="text-sm sm:text-base text-gray-400">
-          {t.pages.utilities.description}
-        </p>
+      <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-gray-400 [&_p]:text-gray-400 [&_li]:text-gray-400 [&_td]:text-gray-400 [&_th]:text-gray-400 [&_strong]:text-gray-400 [&_a]:text-blue-400 [&_a:hover]:text-blue-300 [&_table]:border [&_table]:border-gray-400 [&_td]:border [&_td]:border-gray-400 [&_th]:border [&_th]:border-gray-400 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {markdownContent}
+        </ReactMarkdown>
       </div>
     </div>
   )

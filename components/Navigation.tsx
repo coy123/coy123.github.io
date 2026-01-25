@@ -15,6 +15,7 @@ export default function Navigation() {
     { path: '/how-to-become-driver', key: 'howToBecomeDriver' },
     { path: '/regional-laws', key: 'regionalLaws' },
     { path: '/utilities', key: 'utilities' },
+    { path: '/income-calculator', key: 'incomeCalculator' },
     { path: '/about', key: 'about' },
     { path: '/faq', key: 'faq' },
   ]
