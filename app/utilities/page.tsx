@@ -6,7 +6,7 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 
 export const metadata: Metadata = {
-  title: 'Utilità',
+  title: 'Strumenti Utili',
   description: 'Risorse e strumenti utili per autisti NCC',
 }
 

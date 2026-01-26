@@ -150,6 +150,9 @@ export default function IncomeCalculatorPage() {
           >
             Calcola Guadagno
           </button>
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            {t.pages.incomeCalculator.disclaimer}
+          </p>
         </form>
       </div>
 

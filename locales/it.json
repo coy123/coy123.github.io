@@ -3,7 +3,7 @@
     "home": "Home",
     "howToBecomeDriver": "Come diventare autista?",
     "regionalLaws": "Leggi Regionali",
-    "utilities": "Utilità",
+    "utilities": "Strumenti Utili",
     "incomeCalculator": "Calcolatore Guadagni",
     "disclaimer": "Disclaimer",
     "faq": "FAQ",
@@ -72,7 +72,8 @@
       "title": "Calcolatore Guadagni NCC",
       "subtitle": "Stima i tuoi guadagni mensili come autista NCC",
       "metaTitle": "Calcolatore Guadagni NCC",
-      "metaDescription": "Calcola i tuoi potenziali guadagni mensili come autista NCC in Italia."
+      "metaDescription": "Calcola i tuoi potenziali guadagni mensili come autista NCC in Italia.",
+      "disclaimer": "Stima basata su medie e scenari tipici. I risultati reali dipendono da tariffe, domanda locale, accordi con piattaforme e costi auto."
     }
   },
   "table": {
