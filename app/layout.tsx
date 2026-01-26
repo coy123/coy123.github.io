@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import GoogleAdsense from '@/components/GoogleAdsense'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -29,8 +28,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it">
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-9161475235821616" />
+      </head>
       <body>
-        <GoogleAdsense />
         <div className="min-h-screen bg-gray-800 flex flex-col">
           <Navigation />
           <div className="flex-1 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
