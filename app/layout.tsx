@@ -3,6 +3,7 @@ import type {Metadata} from 'next'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import './globals.css'
+import Script from "next/script";
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://bandincc.it'),
@@ -28,16 +29,17 @@ export default function RootLayout({children}: {
     return (
         <html lang="it">
         <head>
-            <script defer src="https://cloud.umami.is/script.js" data-website-id="693859c4-b639-4fb6-b482-eaf0a08a7bbb"></script>
-            {/* <meta name="google-adsense-account" content="ca-pub-9161475235821616"/> */}
+            <script defer src="https://cloud.umami.is/script.js"
+                    data-website-id="693859c4-b639-4fb6-b482-eaf0a08a7bbb"></script>
+            <meta name="google-adsense-account" content="ca-pub-9161475235821616"/>
         </head>
         <body>
-        {/* <Script
+        {<Script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9161475235821616"
             crossOrigin="anonymous"
             strategy="afterInteractive"
-        /> */}
+        />}
         <div className="min-h-screen bg-gray-800 flex flex-col">
             <Navigation/>
             <div className="flex-1 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
