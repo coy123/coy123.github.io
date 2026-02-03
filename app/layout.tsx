@@ -22,14 +22,13 @@ export const metadata: Metadata = {
     },
 }
 
-export default function RootLayout({
-                                       children,
-                                   }: {
+export default function RootLayout({children}: {
     children: React.ReactNode
 }) {
     return (
         <html lang="it">
         <head>
+            <script defer src="https://cloud.umami.is/script.js" data-website-id="693859c4-b639-4fb6-b482-eaf0a08a7bbb"></script>
             {/* <meta name="google-adsense-account" content="ca-pub-9161475235821616"/> */}
         </head>
         <body>
