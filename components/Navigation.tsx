@@ -18,6 +18,8 @@ export default function Navigation() {
     { path: '/income-calculator', key: 'incomeCalculator' },
     { path: '/disclaimer', key: 'disclaimer' },
     { path: '/faq', key: 'faq' },
+    { path: '/about-us', key: 'aboutUs' },
+    { path: '/contact', key: 'contact' },
   ]
 
   const isActive = (path: string) => pathname === path

@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 // import Script from 'next/script'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import CookieBanner from '@/components/CookieBanner'
 import './globals.css'
 import Script from "next/script";
 
@@ -46,6 +47,7 @@ export default function RootLayout({children}: {
                 {children}
             </div>
             <Footer/>
+            <CookieBanner/>
         </div>
         </body>
         </html>
