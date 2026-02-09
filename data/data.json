@@ -322,5 +322,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Coat_of_arms_of_Calabria.svg/960px-Coat_of_arms_of_Calabria.svg.png",
         "latitude": "39.107793",
         "longitude": "16.444898"
+    },
+    {
+        "location": "Comune di Moretta (CN)",
+        "deadline": "2026-02-21",
+        "url": "https://www.comune.moretta.cn.it/servizi/gara-dett/87/BANDO-DI-SELEZIONE-PUBBLICA-PER-L-27ASSEGNAZIONE-A-TITOLO-GRATUITO-DI-N--2--due--AUTORIZZAZIONI-PER-L-27ESERCIZIO-DEL-SERVIZIO-NOLEGGIO-CON-CONDUCENTE-CON-AUTOVETTURA-FINO-A-9-POSTI",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Moretta_%28Italia%29-Stemma.svg/960px-Moretta_%28Italia%29-Stemma.svg.png",
+        "latitude": "44.760622",
+        "longitude": " 7.521695"
+    },
+    {
+        "location": "Comune di Sannazzaro de' Burgondi (PV)",
+        "deadline": "2026-03-04",
+        "url": "https:
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Sannazzaro_de%27_Burgondi-Stemma.svg/960px-Sannazzaro_de%27_Burgondi-Stemma.svg.png",
+        "latitude": "45.109657",
+        "longitude": " 8.912213"
     }
 ]
