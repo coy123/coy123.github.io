@@ -31,7 +31,8 @@ export default function RootLayout({children}: {
         <html lang="it">
         <head>
             <script defer src="https://cloud.umami.is/script.js"
-                    data-website-id="693859c4-b639-4fb6-b482-eaf0a08a7bbb"></script>
+                    data-website-id="693859c4-b639-4fb6-b482-eaf0a08a7bbb"
+                    data-domains="bandincc.it,www.bandincc.it"></script>
             <meta name="google-adsense-account" content="ca-pub-9161475235821616"/>
         </head>
         <body>
