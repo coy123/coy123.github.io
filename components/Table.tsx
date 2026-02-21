@@ -42,7 +42,12 @@ const TableRow: React.FC<TableRowProps> = ({ data, now }) => {
       </div>
 
       <div className="p-2 flex-1 min-w-[15ch] flex items-center justify-center sm:justify-start">
-        <p className="text-white break-words text-center sm:text-left">{data.location}</p>
+        <a
+          href={`/bandi/${data.location.replace(/\s+/g, '-')}`}
+          className="text-blue-400 hover:text-blue-300 break-words text-center sm:text-left transition-colors"
+        >
+          {data.location}
+        </a>
       </div>
 
       <div className="p-2 w-14 sm:w-24 flex justify-center sm:justify-end">
@@ -55,9 +60,7 @@ const TableRow: React.FC<TableRowProps> = ({ data, now }) => {
 
       <div className="p-2 w-14 sm:w-24 flex justify-center">
         <a
-          href={data.url}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={`/bandi/${data.location.replace(/\s+/g, '-')}`}
           className="inline-flex items-center justify-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto"
           aria-label={t.table.headers.view}
         >

@@ -56,22 +56,25 @@ Why: Below the table/map, add sections explaining what NCC bids are, why they ma
 trends in license availability, etc.
 Done: Added 4 content sections below the table/map: "Cosa sono i Bandi NCC?", "Perché i Bandi NCC sono Importanti?", "Come Usare Questa Piattaforma", "Tendenze del Settore NCC in Italia". Added links from the top of the page to the info below.
 ────────────────────────────────────────
-#: 7
+#: 7 ✅ FINISHED
 Action: Create individual bid detail pages
 Why: Instead of just linking to external URLs, create /bandi/[municipality] pages with context about each
 municipality,
 historical bids, local regulations, and the link to the official source. This massively increases unique page count.
+Done: Created dynamic /bandi/[slug] page with bid details card, mini map, law link (if match in laws.json), "Cos'è un bando NCC?" and "Come partecipare" sections. Table locations now link to detail pages.
 ────────────────────────────────────────
 #: 8
 Action: Expand the Regional Laws page
 Why: Currently it's just 12 links to PDFs. Add summaries/explanations of each regional law, key differences between
 regions, and practical implications for drivers.
+SKIPPED, davide check this.
 
 Medium Impact (User Experience & SEO)
 
-#: 9
+#: 9 ✅ FINISHED
 Action: Add a "Last Updated" date visible on the homepage
 Why: Shows Google the content is actively maintained.
+Done: Added "Ultimo aggiornamento: [date]" above the table, using server-side Date.now() so it reflects deployment date.
 ────────────────────────────────────────
 #: 10
 Action: Improve internal linking

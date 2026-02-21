@@ -77,6 +77,11 @@ export default async function HomePage() {
           </div>
         </div>
 
+        {/* Last Updated */}
+        <p className="text-xs text-gray-500 mb-2 text-right">
+          {t.table.lastUpdated}: {new Date(Date.now()).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
+
         {/* Client Component per tabs interattivi */}
         <HomeContent data={tableData} />
 

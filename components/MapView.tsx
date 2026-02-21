@@ -83,8 +83,8 @@ export default function MapView({ data }: MapViewProps) {
           <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-700">
             <span><strong>${t.table.headers.amount}:</strong> ${numberFormatter.format(item.amount)}</span>
             <span><strong>${t.table.headers.deadline}:</strong> ${new Date(item.deadline).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline">
-              ${t.table.headers.view} ↗
+            <a href="/bandi/${item.location.replace(/\s+/g, '-')}" class="inline-flex items-center gap-1 text-blue-600 hover:underline">
+              ${t.table.headers.view} →
             </a>
           </div>
         </div>

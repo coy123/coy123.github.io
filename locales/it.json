@@ -234,6 +234,28 @@
         }
       ],
       "lastUpdated": "Ultimo aggiornamento: 21 febbraio 2026"
+    },
+    "bidDetail": {
+      "subtitle": "Dettagli del bando NCC",
+      "metaDescription": "Bando NCC per {location}: {amount} licenze disponibili, scadenza {deadline}. Consulta i dettagli e partecipa.",
+      "labels": {
+        "licensesAvailable": "Licenze disponibili",
+        "deadline": "Scadenza",
+        "status": "Stato",
+        "active": "Bando attivo",
+        "expired": "Bando scaduto",
+        "officialSource": "Fonte ufficiale",
+        "viewBid": "Vai al bando ufficiale",
+        "localRegulation": "Normativa locale"
+      },
+      "whatIsNcc": {
+        "heading": "Cos'è un bando NCC?",
+        "content": "I bandi NCC (Noleggio Con Conducente) sono concorsi pubblici indetti dai comuni italiani per l'assegnazione di nuove licenze di trasporto. Quando un comune decide di rilasciare nuove autorizzazioni NCC, pubblica un bando ufficiale sul proprio sito istituzionale con tutti i requisiti, le scadenze e le modalità di partecipazione. Questi bandi rappresentano l'unica via legale per ottenere una nuova licenza NCC in Italia. Le licenze sono un bene limitato e molto richiesto, e i bandi vengono pubblicati in modo irregolare, rendendo essenziale monitorarli costantemente."
+      },
+      "howToParticipate": {
+        "heading": "Come partecipare a un bando NCC",
+        "content": "Per partecipare a un bando NCC è generalmente necessario: possedere la patente di guida di categoria B o superiore, aver ottenuto il Certificato di Abilitazione Professionale (CAP) tipo KB, essere in possesso dei requisiti morali e professionali previsti dalla normativa, presentare la domanda di partecipazione entro la scadenza indicata nel bando, allegare tutta la documentazione richiesta (certificati, attestati, dichiarazioni). Ogni bando può avere requisiti specifici aggiuntivi, pertanto è fondamentale leggere attentamente il testo integrale del bando ufficiale prima di presentare domanda."
+      }
     }
   },
   "table": {
