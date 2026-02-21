@@ -9,7 +9,7 @@ import { join } from 'path'
 
 export const metadata: Metadata = {
   title: 'Come Diventare Autista NCC',
-  description: 'Guida completa su come diventare autista NCC in Italia',
+  description: 'Guida passo passo per diventare autista NCC: requisiti, esame CQC, iscrizione al ruolo conducenti, costi e tempi per ottenere la licenza.',
 }
 
 export default function HowToBecomeDriverPage() {
@@ -22,8 +22,30 @@ export default function HowToBecomeDriverPage() {
   // Preserve empty lines by replacing them with line breaks
   markdownContent = markdownContent.replace(/\n\n/g, '\n\n&nbsp;\n\n')
 
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Come Diventare Autista NCC in Italia',
+    description: 'Guida passo passo per diventare autista NCC: requisiti, esame CQC, iscrizione al ruolo conducenti, costi e tempi per ottenere la licenza.',
+    author: {
+      '@type': 'Organization',
+      name: 'BandiNCC.it',
+      url: 'https://bandincc.it/about-us',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'BandiNCC.it',
+      url: 'https://bandincc.it',
+    },
+    mainEntityOfPage: 'https://bandincc.it/how-to-become-driver',
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
         style={{
@@ -70,7 +92,7 @@ export default function HowToBecomeDriverPage() {
         </p>
         <p className="text-sm">
           <Link href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
-            Domande frequenti sull&apos;attività NCC →
+            FAQ e Glossario NCC →
           </Link>
         </p>
       </div>

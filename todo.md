@@ -37,9 +37,10 @@ Why: Add team credibility, methodology for data collection, how often data is up
 Google wants to know who is behind the site.
 Done: Restructured page with 5 sections: Il Nostro Team (generic team description, founding story), La Nostra Missione (4 pillars: accessibility, equal opportunity, transparency, timeliness), Come Raccogliamo i Dati (automated monitoring + manual verification), Il Nostro Impegno (daily updates, free service, ongoing improvements), Contattaci.
 ────────────────────────────────────────
-#: 4 
+#: 4 ✅ FINISHED
 Action: Update the sitemap
 Why: Add all 9 pages including /about-us, /contact, /income-calculator, and the new privacy/cookie pages.
+Done: Updated sitemap.xml from 6 URLs to 50 URLs. Added missing static pages: /about-us, /contact, /income-calculator, /privacy-policy, /cookie-policy. Added all 39 individual /bandi/ detail pages. Set appropriate changefreq and priority for each (legal pages yearly/0.3, content pages monthly/0.6-0.8, homepage weekly/1.0).
 
 High Impact (Content Depth)
 
@@ -83,10 +84,11 @@ rewards
 sites with good internal link structure.
 Done: Added internal links across all pages: Homepage sections link to guide/FAQ/regional laws. FAQ answers link to bandi list, regional laws, calculator, guide, and utilities. How to Become Driver has "Risorse utili" box linking to bandi/laws/calculator/FAQ. Income Calculator links to bandi/guide/FAQ. Bid detail pages link to guide/laws/calculator and back to bandi list. About Us links to bandi/utilities/calculator.
 ────────────────────────────────────────
-#: 11
+#: 11 ✅ FINISHED
 Action: Add structured data (Schema.org) to more pages
 Why: Currently only the homepage has JSON-LD. Add FAQ schema to /faq, HowTo schema to /how-to-become-driver, Article
 schema to blog posts.
+Done: Added JSON-LD structured data to all pages: WebSite schema in root layout, FAQPage schema on /faq (includes all FAQ + glossary terms for rich results), Article schema on /how-to-become-driver and /utilities, AboutPage+Organization on /about-us, ContactPage on /contact, WebPage on /regional-laws, WebApplication on /income-calculator, GovernmentService on /bandi/[slug] with geo coordinates.
 ────────────────────────────────────────
 #: 12 ✅ FINISHED
 Action: Move Disclaimer out of main navigation
@@ -105,17 +107,20 @@ Nice-to-Have (Polish)
 Action: Add user testimonials or success stories
 Why: Original content showing real value the site provides.
 ────────────────────────────────────────
-#: 15
+#: 15 ✅ FINISHED
 Action: Create a glossary page (/glossario)
 Why: Define NCC-specific terms. Adds keyword-rich content.
+Done: Added glossary section to the FAQ page with 14 NCC-specific terms (NCC, Licenza, Bando, CAP, CQC, Rimessa, Foglio di Servizio, etc.) using the same accordion component. Removed standalone /glossario page in favor of integrating it into /faq for better content density. Updated FAQ page title/subtitle/description/meta to reflect glossary inclusion. Added pill-style anchor links ("Domande Frequenti" / "Glossario NCC") at the top of the page. Updated nav label to "FAQ e Glossario". Updated links from homepage, how-to-become-driver, and income-calculator to mention glossary.
 ────────────────────────────────────────
-#: 16
+#: 16 ✅ FINISHED
 Action: Add a "How to Use This Site" guide
 Why: Helps with both UX and content depth.
+Done: Already covered by the "Come Usare Questa Piattaforma" section on the homepage (added in #6).
 ────────────────────────────────────────
-#: 17
+#: 17 ✅ FINISHED
 Action: Improve meta descriptions
 Why: Some are generic. Make each unique and compelling (150-160 chars).
+Done: Rewrote meta descriptions for all pages to be unique, keyword-rich and ~150 chars: Home, Layout default, How-to-become-driver, Utilities, Disclaimer, About Us, Regional Laws, Contact. Added missing metadata for Income Calculator via layout.tsx. FAQ was already updated in #15.
 
   ---
 Recommended Strategy

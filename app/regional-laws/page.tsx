@@ -6,14 +6,34 @@ import { LawData } from '@/types'
 
 export const metadata: Metadata = {
   title: 'Normative Regionali',
-  description: 'Informazioni sulle normative regionali per le licenze NCC',
+  description: 'Leggi regionali NCC in Italia: normative, regolamenti e delibere di ogni regione sul Noleggio Con Conducente con link ai testi ufficiali.',
 }
 
 export default function RegionalLawsPage() {
   const t = getTranslations()
 
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Normative Regionali NCC',
+    description: 'Leggi regionali NCC in Italia: normative, regolamenti e delibere di ogni regione sul Noleggio Con Conducente.',
+    publisher: {
+      '@type': 'Organization',
+      name: 'BandiNCC.it',
+      url: 'https://bandincc.it',
+    },
+    about: {
+      '@type': 'Thing',
+      name: 'Normative regionali sul Noleggio Con Conducente in Italia',
+    },
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
         style={{

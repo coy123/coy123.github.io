@@ -8,7 +8,7 @@ export const revalidate = 3600 // ISR: rivalidazione ogni ora
 
 export const metadata: Metadata = {
   title: 'Home',
-  description: 'Database completo dei bandi NCC in Italia',
+  description: 'Consulta tutti i bandi NCC attivi in Italia: licenze disponibili, scadenze e link ufficiali aggiornati ogni giorno, comune per comune.',
 }
 
 export default async function HomePage() {
@@ -107,7 +107,7 @@ export default async function HomePage() {
               {index === 2 && (
                 <p className="mt-2 text-sm">
                   <Link href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
-                    Hai altre domande? Consulta le FAQ →
+                    Hai altre domande? Consulta le FAQ e il Glossario NCC →
                   </Link>
                 </p>
               )}

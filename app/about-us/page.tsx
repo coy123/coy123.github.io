@@ -4,14 +4,34 @@ import { getTranslations } from '@/lib/translations'
 
 export const metadata: Metadata = {
   title: 'Chi Siamo',
-  description: 'Chi siamo - Bandi NCC Italia',
+  description: 'Scopri il team di BandiNCC.it: la nostra missione, come raccogliamo i dati sui bandi NCC e perché monitoriamo ogni giorno i comuni italiani.',
 }
 
 export default function AboutUsPage() {
   const t = getTranslations()
 
+  const aboutSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'BandiNCC.it',
+      url: 'https://bandincc.it',
+      description: 'Piattaforma italiana che raccoglie e monitora tutti i bandi NCC pubblicati dai comuni italiani.',
+      email: 'info@bandincc.it',
+      areaServed: {
+        '@type': 'Country',
+        name: 'Italia',
+      },
+    },
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
+      />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
         style={{

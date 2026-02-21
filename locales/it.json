@@ -8,7 +8,7 @@
     "disclaimer": "Disclaimer",
     "aboutUs": "Chi Siamo",
     "contact": "Contatti",
-    "faq": "FAQ",
+    "faq": "FAQ e Glossario",
     "openMenu": "Apri menu principale",
     "title": "BANDI NCC"
   },
@@ -120,11 +120,11 @@
       "metaDescription": "Contattaci per domande, suggerimenti o segnalazioni sui bandi NCC in Italia."
     },
     "faq": {
-      "title": "FAQ – Tutto quello che devi sapere per iniziare con NCC",
-      "subtitle": "Questa sezione raccoglie le domande più frequenti di chi vuole entrare nel mondo NCC. Risposte pratiche, numeri realistici e considerazioni operative.",
-      "description": "Trova risposte alle domande più comuni su licenze NCC, procedure di domanda e requisiti. Che tu ti stia chiedendo sull'idoneità, le scadenze o le differenze regionali, abbiamo raccolto le informazioni di cui hai bisogno. Non trovi la tua risposta? Sentiti libero di contattarci per maggiori informazioni.",
-      "metaTitle": "FAQ – Tutto quello che devi sapere per iniziare con NCC",
-      "metaDescription": "Questa sezione raccoglie le domande più frequenti di chi vuole entrare nel mondo NCC. Risposte pratiche, numeri realistici e considerazioni operative."
+      "title": "FAQ e Glossario NCC",
+      "subtitle": "Domande frequenti e glossario dei termini per chi vuole entrare nel mondo NCC. Risposte pratiche, definizioni chiare e considerazioni operative.",
+      "description": "Trova risposte alle domande più comuni su licenze NCC, procedure di domanda e requisiti. Che tu ti stia chiedendo sull'idoneità, le scadenze o le differenze regionali, abbiamo raccolto le informazioni di cui hai bisogno. In fondo alla pagina trovi anche il glossario con le definizioni di tutti i termini del settore NCC.",
+      "metaTitle": "FAQ e Glossario NCC – Domande Frequenti e Termini del Settore",
+      "metaDescription": "Domande frequenti e glossario dei termini NCC: risposte pratiche su licenze, bandi, requisiti e definizioni di sigle e concetti chiave del settore."
     },
     "incomeCalculator": {
       "title": "Calcolatore Guadagni NCC",

@@ -3,7 +3,7 @@ import { getTranslations } from '@/lib/translations'
 
 export const metadata: Metadata = {
   title: 'Disclaimer',
-  description: 'Informazioni su Bandi NCC Italia',
+  description: 'Disclaimer e note legali del sito BandiNCC.it: limitazioni di responsabilità, fonti dei dati e condizioni di utilizzo della piattaforma.',
 }
 
 export default function DisclaimerPage() {

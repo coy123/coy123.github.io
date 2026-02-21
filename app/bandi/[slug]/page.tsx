@@ -56,8 +56,36 @@ export default async function BidDetailPage({ params }: { params: Promise<{ slug
     })
   }
 
+  const bidSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'GovernmentService',
+    name: `Bando NCC – ${bid.location}`,
+    description: `Bando di concorso per ${bid.amount} licenze NCC nel comune di ${bid.location}. Scadenza: ${formatDate(bid.deadline)}.`,
+    serviceType: 'Rilascio licenze NCC',
+    provider: {
+      '@type': 'GovernmentOrganization',
+      name: `Comune di ${bid.location}`,
+    },
+    areaServed: {
+      '@type': 'City',
+      name: bid.location,
+      ...(hasCoordinates && {
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: Number(bid.latitude),
+          longitude: Number(bid.longitude),
+        },
+      }),
+    },
+    url: bid.url,
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(bidSchema) }}
+      />
       {/* Hero Section */}
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"

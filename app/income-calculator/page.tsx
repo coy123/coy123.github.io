@@ -170,7 +170,7 @@ export default function IncomeCalculatorPage() {
           </p>
           <p className="text-sm">
             <a href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
-              Domande frequenti →
+              FAQ e Glossario NCC →
             </a>
           </p>
         </div>

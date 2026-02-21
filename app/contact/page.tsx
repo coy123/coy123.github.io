@@ -3,14 +3,35 @@ import { getTranslations } from '@/lib/translations'
 
 export const metadata: Metadata = {
   title: 'Contatti',
-  description: 'Contattaci - Bandi NCC Italia',
+  description: 'Contatta il team di BandiNCC.it per segnalazioni, domande sui bandi NCC o collaborazioni. Rispondiamo entro 24 ore.',
 }
 
 export default function ContactPage() {
   const t = getTranslations()
 
+  const contactSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'BandiNCC.it',
+      url: 'https://bandincc.it',
+      email: 'info@bandincc.it',
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'info@bandincc.it',
+        contactType: 'customer service',
+        availableLanguage: 'Italian',
+      },
+    },
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactSchema) }}
+      />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
         style={{

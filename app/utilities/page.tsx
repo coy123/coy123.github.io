@@ -8,7 +8,7 @@ import { join } from 'path'
 
 export const metadata: Metadata = {
   title: 'Strumenti Utili',
-  description: 'Risorse e strumenti utili per autisti NCC',
+  description: 'Strumenti essenziali per autisti NCC: app di navigazione, gestione prenotazioni, contabilità e risorse per avviare e gestire la tua attività.',
 }
 
 export default function UtilitiesPage() {
@@ -21,8 +21,30 @@ export default function UtilitiesPage() {
   // Preserve empty lines by replacing them with line breaks
   markdownContent = markdownContent.replace(/\n\n/g, '\n\n&nbsp;\n\n')
 
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Strumenti Utili per Autisti NCC',
+    description: 'Strumenti essenziali per autisti NCC: app di navigazione, gestione prenotazioni, contabilità e risorse per la tua attività.',
+    author: {
+      '@type': 'Organization',
+      name: 'BandiNCC.it',
+      url: 'https://bandincc.it/about-us',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'BandiNCC.it',
+      url: 'https://bandincc.it',
+    },
+    mainEntityOfPage: 'https://bandincc.it/utilities',
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
         style={{

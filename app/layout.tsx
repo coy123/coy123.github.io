@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         default: 'Bandi NCC Italia | Licenze Noleggio Con Conducente',
         template: '%s | Bandi NCC Italia'
     },
-    description: 'Database completo dei bandi e licenze NCC (Noleggio Con Conducente) pubblicati dai comuni italiani.',
+    description: 'Tutti i bandi NCC in Italia aggiornati ogni giorno. Trova licenze Noleggio Con Conducente disponibili, scadenze e requisiti comune per comune.',
     openGraph: {
         type: 'website',
         locale: 'it_IT',
@@ -36,6 +36,25 @@ export default function RootLayout({children}: {
             <meta name="google-adsense-account" content="ca-pub-9161475235821616"/>
         </head>
         <body>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                    '@context': 'https://schema.org',
+                    '@type': 'WebSite',
+                    name: 'Bandi NCC Italia',
+                    url: 'https://bandincc.it',
+                    description: 'Tutti i bandi NCC in Italia aggiornati ogni giorno. Trova licenze Noleggio Con Conducente disponibili, scadenze e requisiti comune per comune.',
+                    publisher: {
+                        '@type': 'Organization',
+                        name: 'BandiNCC.it',
+                        url: 'https://bandincc.it',
+                        email: 'info@bandincc.it',
+                    },
+                    inLanguage: 'it',
+                }),
+            }}
+        />
         {<Script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9161475235821616"
