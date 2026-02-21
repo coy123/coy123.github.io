@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
 
 export const metadata: Metadata = {
@@ -30,7 +31,7 @@ export default function AboutUsPage() {
         </h2>
       </div>
       <div className="mb-6 sm:mb-8 space-y-6">
-        <p className="text-sm sm:text-base text-gray-400">
+        <p className="text-sm sm:text-base text-white">
           {t.pages.aboutUs.intro}
         </p>
         {t.pages.aboutUs.sections.map((section: { heading: string; content: string }, index: number) => (
@@ -38,7 +39,7 @@ export default function AboutUsPage() {
             <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
               {section.heading}
             </h3>
-            <p className="text-sm sm:text-base text-gray-400">
+            <p className="text-sm sm:text-base text-white">
               {section.content}
             </p>
           </div>
@@ -46,6 +47,26 @@ export default function AboutUsPage() {
         <p className="text-xs text-gray-500 mt-4">
           {t.pages.aboutUs.legal}
         </p>
+
+        {/* Internal links */}
+        <div className="mt-6 bg-gray-700 rounded-lg p-4 sm:p-6 space-y-2">
+          <h3 className="text-lg font-semibold text-white mb-3">Esplora il sito</h3>
+          <p className="text-sm">
+            <Link href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Trova i bandi NCC disponibili →
+            </Link>
+          </p>
+          <p className="text-sm">
+            <Link href="/utilities" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Strumenti e risorse utili →
+            </Link>
+          </p>
+          <p className="text-sm">
+            <Link href="/income-calculator" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Calcolatore guadagni NCC →
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

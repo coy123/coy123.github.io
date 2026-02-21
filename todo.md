@@ -37,13 +37,13 @@ Why: Add team credibility, methodology for data collection, how often data is up
 Google wants to know who is behind the site.
 Done: Restructured page with 5 sections: Il Nostro Team (generic team description, founding story), La Nostra Missione (4 pillars: accessibility, equal opportunity, transparency, timeliness), Come Raccogliamo i Dati (automated monitoring + manual verification), Il Nostro Impegno (daily updates, free service, ongoing improvements), Contattaci.
 ────────────────────────────────────────
-#: 4
+#: 4 
 Action: Update the sitemap
 Why: Add all 9 pages including /about-us, /contact, /income-calculator, and the new privacy/cookie pages.
 
 High Impact (Content Depth)
 
-#: 5
+#: 5 NOT FINISHED
 Action: Add a blog/news section (/blog)
 Why: Publish original articles like "New NCC bids in Lombardia - February 2025", "How NCC regulations changed in
 2025",
@@ -63,7 +63,7 @@ municipality,
 historical bids, local regulations, and the link to the official source. This massively increases unique page count.
 Done: Created dynamic /bandi/[slug] page with bid details card, mini map, law link (if match in laws.json), "Cos'è un bando NCC?" and "Come partecipare" sections. Table locations now link to detail pages.
 ────────────────────────────────────────
-#: 8
+#: 8 SKIPPED
 Action: Expand the Regional Laws page
 Why: Currently it's just 12 links to PDFs. Add summaries/explanations of each regional law, key differences between
 regions, and practical implications for drivers.
@@ -76,30 +76,32 @@ Action: Add a "Last Updated" date visible on the homepage
 Why: Shows Google the content is actively maintained.
 Done: Added "Ultimo aggiornamento: [date]" above the table, using server-side Date.now() so it reflects deployment date.
 ────────────────────────────────────────
-#: 10
+#: 10 ✅ FINISHED
 Action: Improve internal linking
 Why: Cross-link between pages (e.g., FAQ answers linking to the guide, guide linking to the calculator). Google
 rewards
 sites with good internal link structure.
+Done: Added internal links across all pages: Homepage sections link to guide/FAQ/regional laws. FAQ answers link to bandi list, regional laws, calculator, guide, and utilities. How to Become Driver has "Risorse utili" box linking to bandi/laws/calculator/FAQ. Income Calculator links to bandi/guide/FAQ. Bid detail pages link to guide/laws/calculator and back to bandi list. About Us links to bandi/utilities/calculator.
 ────────────────────────────────────────
 #: 11
 Action: Add structured data (Schema.org) to more pages
 Why: Currently only the homepage has JSON-LD. Add FAQ schema to /faq, HowTo schema to /how-to-become-driver, Article
 schema to blog posts.
 ────────────────────────────────────────
-#: 12
+#: 12 ✅ FINISHED
 Action: Move Disclaimer out of main navigation
 Why: Put it in the footer instead. Main nav should highlight valuable content pages. Replace with Blog or a more
 content-rich page.
 ────────────────────────────────────────
-#: 13
+#: 13 ✅ FINISHED
 Action: Add author attribution
 Why: Blog posts and guides should have author names/bios. Google's E-E-A-T (Experience, Expertise, Authoritativeness,
 Trustworthiness) guidelines value this.
+Done: Created reusable AuthorBox component ("La Redazione di BandiNCC" + bio + link to About Us). Added to /how-to-become-driver, /bandi/[slug], /faq, and /utilities pages.
 
 Nice-to-Have (Polish)
 
-#: 14
+#: 14 SKIPPED
 Action: Add user testimonials or success stories
 Why: Original content showing real value the site provides.
 ────────────────────────────────────────

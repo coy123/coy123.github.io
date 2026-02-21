@@ -16,7 +16,6 @@ export default function Navigation() {
     { path: '/regional-laws', key: 'regionalLaws' },
     { path: '/utilities', key: 'utilities' },
     { path: '/income-calculator', key: 'incomeCalculator' },
-    { path: '/disclaimer', key: 'disclaimer' },
     { path: '/faq', key: 'faq' },
     { path: '/about-us', key: 'aboutUs' },
     { path: '/contact', key: 'contact' },

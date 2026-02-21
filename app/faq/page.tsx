@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { getTranslations } from '@/lib/translations'
 import FAQAccordion from '@/components/FAQAccordion'
+import AuthorBox from '@/components/AuthorBox'
 import faqData from '@/data/faq.json'
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default function FAQPage() {
           backgroundPosition: 'center',
         }}
       >
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-400 mb-2 inline-block px-2 py-1 rounded"
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
           style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
           {t.pages.faq.title}
         </h1>
@@ -32,12 +33,16 @@ export default function FAQPage() {
         </h2>
       </div>
       <div className="mb-6 sm:mb-8">
-        <p className="text-sm sm:text-base text-gray-400">
+        <p className="text-sm sm:text-base text-white">
           {t.pages.faq.description}
         </p>
       </div>
 
       <FAQAccordion items={faqData} />
+
+      <div className="mt-6">
+        <AuthorBox />
+      </div>
     </div>
   )
 }

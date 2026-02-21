@@ -1,8 +1,10 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import data from '@/data/data.json'
 import laws from '@/data/laws.json'
 import { getTranslations } from '@/lib/translations'
+import AuthorBox from '@/components/AuthorBox'
 import BidStatus from './BidStatus'
 import BidDetailMapWrapper from './BidDetailMapWrapper'
 
@@ -96,21 +98,21 @@ export default async function BidDetailPage({ params }: { params: Promise<{ slug
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <span className="text-sm text-gray-400">{t.pages.bidDetail.labels.licensesAvailable}</span>
+                <span className="text-sm text-white">{t.pages.bidDetail.labels.licensesAvailable}</span>
                 <p className="text-lg font-semibold text-green-400">
                   {new Intl.NumberFormat('de-DE').format(bid.amount)}
                 </p>
               </div>
               <div>
-                <span className="text-sm text-gray-400">{t.pages.bidDetail.labels.deadline}</span>
+                <span className="text-sm text-white">{t.pages.bidDetail.labels.deadline}</span>
                 <p className="text-lg font-semibold text-white">{formatDate(bid.deadline)}</p>
               </div>
               <div>
-                <span className="text-sm text-gray-400">{t.pages.bidDetail.labels.status}</span>
+                <span className="text-sm text-white">{t.pages.bidDetail.labels.status}</span>
                 <BidStatus deadline={bid.deadline} activeLabel={t.pages.bidDetail.labels.active} expiredLabel={t.pages.bidDetail.labels.expired} />
               </div>
               <div>
-                <span className="text-sm text-gray-400">{t.pages.bidDetail.labels.officialSource}</span>
+                <span className="text-sm text-white">{t.pages.bidDetail.labels.officialSource}</span>
                 <p className="mt-1">
                   <a
                     href={bid.url}
@@ -168,7 +170,7 @@ export default async function BidDetailPage({ params }: { params: Promise<{ slug
           <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
             {t.pages.bidDetail.whatIsNcc.heading}
           </h3>
-          <p className="text-sm sm:text-base text-gray-400">
+          <p className="text-sm sm:text-base text-white">
             {t.pages.bidDetail.whatIsNcc.content}
           </p>
         </div>
@@ -176,10 +178,37 @@ export default async function BidDetailPage({ params }: { params: Promise<{ slug
           <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
             {t.pages.bidDetail.howToParticipate.heading}
           </h3>
-          <p className="text-sm sm:text-base text-gray-400">
+          <p className="text-sm sm:text-base text-white">
             {t.pages.bidDetail.howToParticipate.content}
           </p>
+          <p className="mt-2 text-sm">
+            <Link href="/how-to-become-driver" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Leggi la guida completa per diventare autista NCC →
+            </Link>
+          </p>
         </div>
+      </div>
+
+      <AuthorBox />
+
+      {/* Internal links */}
+      <div className="mb-6 bg-gray-700 rounded-lg p-4 sm:p-6 space-y-2">
+        <h3 className="text-lg font-semibold text-white mb-3">Esplora</h3>
+        <p className="text-sm">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+            ← Torna alla lista dei bandi
+          </Link>
+        </p>
+        <p className="text-sm">
+          <Link href="/regional-laws" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Leggi regionali e normative NCC →
+          </Link>
+        </p>
+        <p className="text-sm">
+          <Link href="/income-calculator" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Calcola i tuoi potenziali guadagni →
+          </Link>
+        </p>
       </div>
     </div>
   )

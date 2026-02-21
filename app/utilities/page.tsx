@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { getTranslations } from '@/lib/translations'
+import AuthorBox from '@/components/AuthorBox'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { readFileSync } from 'fs'
@@ -40,11 +41,13 @@ export default function UtilitiesPage() {
           {t.pages.utilities.subtitle}
         </h2>
       </div>
-      <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-gray-400 [&_p]:text-gray-400 [&_li]:text-gray-400 [&_td]:text-gray-400 [&_th]:text-gray-400 [&_strong]:text-gray-400 [&_a]:text-blue-400 [&_a:hover]:text-blue-300 [&_table]:border [&_table]:border-gray-400 [&_td]:border [&_td]:border-gray-400 [&_th]:border [&_th]:border-gray-400 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6">
+      <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300 [&_table]:border [&_table]:border-gray-400 [&_td]:border [&_td]:border-gray-400 [&_th]:border [&_th]:border-gray-400 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {markdownContent}
         </ReactMarkdown>
       </div>
+
+      <AuthorBox />
     </div>
   )
 }

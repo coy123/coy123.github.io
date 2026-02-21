@@ -32,12 +32,12 @@ export default function DisclaimerPage() {
       <div className="mb-6 sm:mb-8 space-y-4">
         {Array.isArray(t.pages.disclaimer.description) ? (
           t.pages.disclaimer.description.map((paragraph, index) => (
-            <p key={index} className="text-sm sm:text-base text-gray-400">
+            <p key={index} className="text-sm sm:text-base text-white">
               {paragraph}
             </p>
           ))
         ) : (
-          <p className="text-sm sm:text-base text-gray-400">
+          <p className="text-sm sm:text-base text-white">
             {t.pages.disclaimer.description}
           </p>
         )}

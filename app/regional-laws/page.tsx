@@ -33,7 +33,7 @@ export default function RegionalLawsPage() {
         </h2>
       </div>
       <div className="mb-6 sm:mb-8">
-        <p className="text-sm sm:text-base text-gray-400">
+        <p className="text-sm sm:text-base text-white">
           {t.pages.regionalLaws.description}
         </p>
       </div>

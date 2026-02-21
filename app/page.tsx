@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { getTableData } from '@/lib/data'
 import { getTranslations } from '@/lib/translations'
 import HomeContent from '@/components/HomeContent'
@@ -60,8 +61,8 @@ export default async function HomePage() {
           </h2>
         </div>
 
-        <div className="mb-6 sm:mb-8">
-          <p className="text-sm sm:text-base text-gray-400">
+        <div className="mb-1 sm:mb-2">
+          <p className="text-sm sm:text-base text-white">
             {t.pages.home.description}
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
@@ -69,7 +70,7 @@ export default async function HomePage() {
               <a
                 key={index}
                 href={`#section-${index}`}
-                className="text-xs sm:text-sm text-blue-400 hover:text-blue-300 border border-gray-600 hover:border-blue-400 rounded-full px-3 py-1 transition-colors"
+                className="text-xs sm:text-sm text-blue-400 hover:text-blue-300 border border-gray-600 hover:border-blue-400 rounded-full px-2 py-1 transition-colors"
               >
                 {section.heading}
               </a>
@@ -92,9 +93,31 @@ export default async function HomePage() {
               <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
                 {section.heading}
               </h3>
-              <p className="text-sm sm:text-base text-gray-400">
+              <p className="text-sm sm:text-base text-white">
                 {section.content}
               </p>
+              {/* Section-specific internal links */}
+              {index === 0 && (
+                <p className="mt-2 text-sm">
+                  <Link href="/how-to-become-driver" className="text-blue-400 hover:text-blue-300 transition-colors">
+                    Scopri come diventare autista NCC →
+                  </Link>
+                </p>
+              )}
+              {index === 2 && (
+                <p className="mt-2 text-sm">
+                  <Link href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
+                    Hai altre domande? Consulta le FAQ →
+                  </Link>
+                </p>
+              )}
+              {index === 3 && (
+                <p className="mt-2 text-sm">
+                  <Link href="/regional-laws" className="text-blue-400 hover:text-blue-300 transition-colors">
+                    Consulta le leggi regionali NCC →
+                  </Link>
+                </p>
+              )}
             </div>
           ))}
         </div>

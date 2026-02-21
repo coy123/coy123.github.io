@@ -235,6 +235,75 @@
       ],
       "lastUpdated": "Ultimo aggiornamento: 21 febbraio 2026"
     },
+    "glossario": {
+      "title": "Glossario NCC",
+      "subtitle": "Tutti i termini del settore NCC spiegati in modo semplice",
+      "description": "In questa pagina trovi le definizioni dei termini più utilizzati nel mondo del Noleggio Con Conducente (NCC). Un riferimento utile per chi si avvicina al settore e vuole comprendere sigle, procedure e concetti chiave.",
+      "metaTitle": "Glossario NCC - Termini e Definizioni",
+      "metaDescription": "Glossario dei termini più comuni nel settore NCC: definizioni, sigle e concetti utili per aspiranti autisti e operatori.",
+      "terms": [
+        {
+          "term": "NCC – Noleggio Con Conducente",
+          "definition": "Servizio di trasporto di persone effettuato con autoveicoli, messo a disposizione del pubblico con conducente e a titolo oneroso. A differenza del taxi, il servizio NCC non può essere svolto su piazza ma solo su prenotazione, con partenza dalla rimessa autorizzata."
+        },
+        {
+          "term": "Licenza NCC",
+          "definition": "Autorizzazione amministrativa rilasciata dal comune che consente di svolgere l'attività di noleggio con conducente. La licenza è personale, nominativa e non cedibile (salvo casi previsti dalla legge). È obbligatoria per operare legalmente nel settore NCC."
+        },
+        {
+          "term": "Bando di Concorso NCC",
+          "definition": "Avviso pubblico emanato da un comune per l'assegnazione di nuove licenze NCC. Contiene i requisiti di partecipazione, le scadenze, la documentazione richiesta e le modalità di presentazione della domanda. È l'unico canale ufficiale per ottenere una nuova licenza NCC."
+        },
+        {
+          "term": "CAP – Certificato di Abilitazione Professionale",
+          "definition": "Abilitazione obbligatoria per chi svolge attività di trasporto di persone a titolo oneroso. Per l'attività NCC è richiesto il CAP di tipo KB, che si ottiene superando un esame teorico-pratico presso la Motorizzazione Civile. Dal 2015 è stato sostituito dalla Carta di Qualificazione del Conducente (CQC) per i nuovi richiedenti."
+        },
+        {
+          "term": "CQC – Carta di Qualificazione del Conducente",
+          "definition": "Documento obbligatorio che attesta la qualificazione professionale del conducente per il trasporto di persone. Ha sostituito il CAP per i nuovi richiedenti ed è necessaria per guidare veicoli adibiti al trasporto di persone su strada. Ha validità quinquennale e deve essere rinnovata tramite corso di formazione periodica."
+        },
+        {
+          "term": "Rimessa",
+          "definition": "Il luogo fisico (garage, parcheggio autorizzato) dove il veicolo NCC deve stazionare quando non è in servizio. Per legge, ogni veicolo NCC deve essere associato a una rimessa situata nel territorio del comune che ha rilasciato la licenza. Il servizio deve partire e tornare alla rimessa."
+        },
+        {
+          "term": "Foglio di Servizio",
+          "definition": "Documento obbligatorio che deve essere compilato prima dell'inizio di ogni servizio NCC. Riporta i dati del conducente, del veicolo, del committente, il luogo di partenza (rimessa) e la destinazione. Deve essere conservato a bordo del veicolo durante il servizio e rappresenta una prova della regolarità del trasporto."
+        },
+        {
+          "term": "Autorizzazione Comunale",
+          "definition": "Il provvedimento amministrativo con cui il comune autorizza l'esercizio dell'attività NCC nel proprio territorio. L'autorizzazione viene rilasciata in seguito alla partecipazione a un bando pubblico e al soddisfacimento di tutti i requisiti previsti dalla legge e dal regolamento comunale."
+        },
+        {
+          "term": "Ruolo Conducenti",
+          "definition": "Registro istituito presso le Camere di Commercio in cui devono essere iscritti tutti i conducenti di veicoli adibiti a servizi pubblici non di linea (NCC e taxi). L'iscrizione al ruolo è un requisito indispensabile per ottenere e mantenere la licenza NCC."
+        },
+        {
+          "term": "SCIA – Segnalazione Certificata di Inizio Attività",
+          "definition": "Dichiarazione che consente di iniziare un'attività economica nel momento stesso in cui viene presentata alla pubblica amministrazione competente. Nel settore NCC, può essere richiesta in alcuni comuni come parte della procedura di avvio dell'attività, in aggiunta o in sostituzione dell'autorizzazione tradizionale."
+        },
+        {
+          "term": "Trasporto Pubblico Non di Linea",
+          "definition": "Categoria di trasporto che comprende i servizi taxi e NCC. Si distingue dal trasporto pubblico di linea (autobus, tram, metro) perché non segue percorsi e orari prestabiliti, ma risponde alla domanda individuale dell'utente. È regolato dalla Legge quadro n. 21/1992."
+        },
+        {
+          "term": "Legge 21/1992",
+          "definition": "La legge quadro che disciplina il trasporto di persone mediante autoservizi pubblici non di linea in Italia. Stabilisce i principi generali per taxi e NCC, definendo le modalità di accesso alla professione, le competenze di Stato, Regioni e Comuni, e i diritti e doveri degli operatori."
+        },
+        {
+          "term": "Ride-hailing",
+          "definition": "Termine inglese che indica i servizi di trasporto prenotabili tramite app o piattaforme digitali (come Uber, Bolt, Free Now). In Italia, i conducenti che operano tramite piattaforme di ride-hailing devono essere in possesso di regolare licenza NCC o taxi."
+        },
+        {
+          "term": "Tariffe NCC",
+          "definition": "I prezzi applicati per i servizi di noleggio con conducente. A differenza dei taxi, le tariffe NCC non sono fissate dal comune ma vengono concordate liberamente tra il conducente e il cliente prima del servizio. Non è previsto l'uso del tassametro, ma il prezzo deve essere comunicato in anticipo."
+        },
+        {
+          "term": "Motorizzazione Civile",
+          "definition": "Ufficio periferico del Ministero delle Infrastrutture e dei Trasporti competente per l'immatricolazione dei veicoli, il rilascio delle patenti di guida e delle abilitazioni professionali (CQC/CAP). È l'ente presso cui si sostengono gli esami per ottenere la qualificazione necessaria all'attività NCC."
+        }
+      ]
+    },
     "bidDetail": {
       "subtitle": "Dettagli del bando NCC",
       "metaDescription": "Bando NCC per {location}: {amount} licenze disponibili, scadenza {deadline}. Consulta i dettagli e partecipa.",

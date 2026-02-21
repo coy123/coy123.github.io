@@ -41,7 +41,7 @@ export default function IncomeCalculatorPage() {
           backgroundPosition: 'center',
         }}
       >
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-400 mb-2 inline-block px-2 py-1 rounded"
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
           style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
           {t.pages.incomeCalculator.title}
         </h1>
@@ -154,6 +154,26 @@ export default function IncomeCalculatorPage() {
             {t.pages.incomeCalculator.disclaimer}
           </p>
         </form>
+
+        {/* Internal links */}
+        <div className="mt-6 bg-gray-700 rounded-lg p-4 sm:p-6 space-y-2">
+          <h3 className="text-lg font-semibold text-white mb-3">Risorse utili</h3>
+          <p className="text-sm">
+            <a href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Trova il tuo bando NCC →
+            </a>
+          </p>
+          <p className="text-sm">
+            <a href="/how-to-become-driver" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Come diventare autista NCC →
+            </a>
+          </p>
+          <p className="text-sm">
+            <a href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Domande frequenti →
+            </a>
+          </p>
+        </div>
       </div>
 
       {/* Modal */}
@@ -171,7 +191,7 @@ export default function IncomeCalculatorPage() {
               {/* Close button */}
               <button
                 onClick={closeModal}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                className="absolute top-4 right-4 text-white hover:text-white"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

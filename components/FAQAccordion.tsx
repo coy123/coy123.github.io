@@ -27,11 +27,11 @@ function FAQItemComponent({ item, index, isOpen, onToggle }: FAQItemProps) {
         }`}
       >
         <span className="text-white font-medium pr-4">
-          <span className="text-gray-400 mr-3">{index + 1}.</span>
+          <span className="text-white mr-3">{index + 1}.</span>
           {item.question}
         </span>
         <span
-          className={`text-gray-400 transition-transform duration-300 flex-shrink-0 ${
+          className={`text-white transition-transform duration-300 flex-shrink-0 ${
             isOpen ? 'rotate-180' : ''
           }`}
         >
@@ -56,7 +56,7 @@ function FAQItemComponent({ item, index, isOpen, onToggle }: FAQItemProps) {
         }`}
       >
         <div className="overflow-hidden">
-          <div className="px-4 pb-4 pl-10 prose prose-invert prose-sm max-w-none [&>*]:text-gray-400 [&_p]:text-gray-400 [&_li]:text-gray-400 [&_strong]:text-gray-300 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4">
+          <div className="px-4 pb-4 pl-10 prose prose-invert prose-sm max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_strong]:text-gray-300 [&_a]:text-blue-400 [&_a:hover]:text-blue-300 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4">
             <ReactMarkdown>{item.answer}</ReactMarkdown>
           </div>
         </div>

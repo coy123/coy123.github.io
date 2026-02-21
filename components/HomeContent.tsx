@@ -74,7 +74,7 @@ export default function HomeContent({ data }: HomeContentProps) {
           {filteredData.length > 0 ? (
             <Table data={filteredData} />
           ) : (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-white">
               {t.dashboard.search.noResults}
             </div>
           )}

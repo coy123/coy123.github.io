@@ -40,7 +40,7 @@ export default function LawsContent({ data }: LawsContentProps) {
       {filteredData.length > 0 ? (
         <LawsTable data={filteredData} />
       ) : (
-        <div className="text-center py-8 text-gray-400">
+        <div className="text-center py-8 text-white">
           {t.dashboard.search.noResults}
         </div>
       )}

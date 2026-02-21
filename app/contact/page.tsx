@@ -32,12 +32,12 @@ export default function ContactPage() {
       <div className="mb-6 sm:mb-8 space-y-4">
         {Array.isArray(t.pages.contact.description) ? (
           t.pages.contact.description.map((paragraph, index) => (
-            <p key={index} className="text-sm sm:text-base text-gray-400">
+            <p key={index} className="text-sm sm:text-base text-white">
               {paragraph}
             </p>
           ))
         ) : (
-          <p className="text-sm sm:text-base text-gray-400">
+          <p className="text-sm sm:text-base text-white">
             {t.pages.contact.description}
           </p>
         )}

@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
+import AuthorBox from '@/components/AuthorBox'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { readFileSync } from 'fs'
@@ -30,7 +32,7 @@ export default function HowToBecomeDriverPage() {
           backgroundPosition: 'center',
         }}
       >
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-400 mb-2 inline-block px-2 py-1 rounded"
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
           style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
           {t.pages.howToBecomeDriver.title}
         </h1>
@@ -40,10 +42,37 @@ export default function HowToBecomeDriverPage() {
           {t.pages.howToBecomeDriver.subtitle}
         </h2>
       </div>
-      <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-gray-400 [&_p]:text-gray-400 [&_li]:text-gray-400 [&_td]:text-gray-400 [&_th]:text-gray-400 [&_strong]:text-gray-400 [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
+      <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {markdownContent}
         </ReactMarkdown>
+      </div>
+
+      <AuthorBox />
+
+      {/* Internal links */}
+      <div className="mb-6 sm:mb-8 bg-gray-700 rounded-lg p-4 sm:p-6 space-y-2">
+        <h3 className="text-lg font-semibold text-white mb-3">Risorse utili</h3>
+        <p className="text-sm">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Consulta i bandi NCC disponibili →
+          </Link>
+        </p>
+        <p className="text-sm">
+          <Link href="/regional-laws" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Leggi regionali e normative NCC →
+          </Link>
+        </p>
+        <p className="text-sm">
+          <Link href="/income-calculator" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Calcola i tuoi potenziali guadagni →
+          </Link>
+        </p>
+        <p className="text-sm">
+          <Link href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Domande frequenti sull&apos;attività NCC →
+          </Link>
+        </p>
       </div>
     </div>
   )

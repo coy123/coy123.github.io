@@ -16,7 +16,7 @@ export default function BidStatus({ deadline, activeLabel, expiredLabel }: BidSt
   }, [deadline])
 
   if (isActive === null) {
-    return <p className="text-lg font-semibold text-gray-400">—</p>
+    return <p className="text-lg font-semibold text-white">—</p>
   }
 
   return (

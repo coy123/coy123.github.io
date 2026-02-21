@@ -37,7 +37,7 @@ export default function PrivacyPolicyPage() {
             <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
               {section.heading}
             </h3>
-            <p className="text-sm sm:text-base text-gray-400">
+            <p className="text-sm sm:text-base text-white">
               {section.content}
             </p>
           </div>
