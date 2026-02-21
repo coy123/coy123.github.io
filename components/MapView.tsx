@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
@@ -32,7 +32,7 @@ export default function MapView({ data }: MapViewProps) {
   )
 
   const positions = useMemo(() => markers.map((item) => L.latLng(item.latitude, item.longitude)), [markers])
-  const now = Date.now()
+  const [now] = useState(() => Date.now())
   const center = useMemo(() => L.latLng(41.8719, 12.5674), [])
 
   useEffect(() => {

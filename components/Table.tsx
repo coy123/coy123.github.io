@@ -1,9 +1,12 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
 
 interface TableRowProps {
   data: TableData
+  now: number
 }
 
 const formatDate = (dateString: string, locale: string = 'it-IT') => {
@@ -19,10 +22,10 @@ const formatAmount = (amount: number) => {
   return new Intl.NumberFormat('de-DE').format(amount)
 }
 
-const TableRow: React.FC<TableRowProps> = ({ data }) => {
+const TableRow: React.FC<TableRowProps> = ({ data, now }) => {
   const t = getTranslations()
   const locale = 'it-IT'
-  const isDeadlineUpcoming = new Date(data.deadline).getTime() >= Date.now()
+  const isDeadlineUpcoming = new Date(data.deadline).getTime() >= now
   const backgroundClass = isDeadlineUpcoming ? 'bg-green-900/40' : 'bg-gray-900/20'
   const hoverBackgroundClass = isDeadlineUpcoming ? 'hover:bg-green-800' : 'hover:bg-gray-600'
 
@@ -76,6 +79,12 @@ interface TableProps {
 
 const Table: React.FC<TableProps> = ({ data }) => {
   const t = getTranslations()
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    setNow(Date.now())
+  }, [])
+
   const sortedData = React.useMemo(() => {
     return [...data].sort((a, b) => {
       const deadlineA = new Date(a.deadline).getTime()
@@ -115,7 +124,7 @@ const Table: React.FC<TableProps> = ({ data }) => {
 
       <div className="divide-y divide-gray-600">
         {sortedData.map((row, index) => (
-          <TableRow key={index} data={row} />
+          <TableRow key={index} data={row} now={now} />
         ))}
       </div>
     </div>

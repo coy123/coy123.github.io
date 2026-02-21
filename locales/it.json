@@ -33,7 +33,25 @@
       "subtitle": "Trova rapidamente gli ultimi bandi per licenze NCC, città per città",
       "description": "Questa piattaforma raccoglie e organizza tutti i bandi NCC pubblicati in Italia, inclusi quelli attivi, scaduti e futuri. Ogni bando è indicizzato con data, numero di licenze, link ufficiale e fonte, così puoi capire subito cosa è aperto, cosa è scaduto e cosa potrebbe riaprirsi. Troviamo insieme il bando giusto.",
       "metaTitle": "Bandi NCC Italia",
-      "metaDescription": "Bandi di Concorso NCC Aggiornati Ogni Giorno. Licenze disponibili, scadenze e informazioni aggiornate per ogni città."
+      "metaDescription": "Bandi di Concorso NCC Aggiornati Ogni Giorno. Licenze disponibili, scadenze e informazioni aggiornate per ogni città.",
+      "sections": [
+        {
+          "heading": "Cosa sono i Bandi NCC?",
+          "content": "I bandi NCC (Noleggio Con Conducente) sono concorsi pubblici indetti dai comuni italiani per l'assegnazione di nuove licenze di trasporto. Quando un comune decide di rilasciare nuove autorizzazioni NCC, pubblica un bando ufficiale sul proprio sito istituzionale con tutti i requisiti, le scadenze e le modalità di partecipazione. Questi bandi rappresentano l'unica via legale per ottenere una nuova licenza NCC in Italia."
+        },
+        {
+          "heading": "Perché i Bandi NCC sono Importanti?",
+          "content": "Le licenze NCC sono un bene limitato e molto richiesto. I bandi vengono pubblicati in modo irregolare e spesso con scadenze ravvicinate, rendendo facile perderli se non si monitora costantemente. Una licenza NCC permette di avviare un'attività di trasporto privato con conducente, un settore in forte crescita grazie alla domanda di mobilità personalizzata e alle piattaforme di ride-hailing. Perdere un bando può significare attendere mesi o addirittura anni prima che lo stesso comune ne pubblichi un altro."
+        },
+        {
+          "heading": "Come Usare Questa Piattaforma",
+          "content": "Utilizzare bandincc.it è semplice e immediato. Nella tabella qui sopra puoi consultare tutti i bandi NCC attualmente pubblicati in Italia: quelli con sfondo verde hanno una scadenza futura e sono ancora aperti, mentre quelli in grigio sono già scaduti ma rimangono visibili come riferimento storico. Puoi usare la barra di ricerca per filtrare per località, oppure passare alla vista mappa per esplorare geograficamente i bandi disponibili. Cliccando su \"Visualizza\" verrai reindirizzato al bando ufficiale sul sito del comune."
+        },
+        {
+          "heading": "Tendenze del Settore NCC in Italia",
+          "content": "Il mercato NCC in Italia è in costante evoluzione. Negli ultimi anni si è assistito a un aumento dei bandi pubblicati, soprattutto nelle grandi città e nelle aree metropolitane dove la domanda di trasporto privato è in crescita. Le normative regionali variano significativamente e influenzano il numero di licenze disponibili e i requisiti di accesso. Monitorare queste tendenze è fondamentale per chi vuole entrare nel settore o espandere la propria attività."
+        }
+      ]
     },
     "howToBecomeDriver": {
       "title": "Come diventare autista NCC",
@@ -66,9 +84,32 @@
     "aboutUs": {
       "title": "Chi Siamo",
       "subtitle": "La Nostra Visione",
-      "description": ["bandincc.it è una piattaforma indipendente nata con l'obiettivo di raccogliere e organizzare tutti i bandi NCC pubblicati in Italia. Rendiamo più semplice per aspiranti autisti e operatori del settore trovare le opportunità di licenza disponibili.", "Il nostro team monitora costantemente i siti istituzionali dei comuni italiani per individuare nuovi bandi, scadenze e aggiornamenti. Ogni informazione viene verificata e indicizzata con data, numero di licenze, link ufficiale e fonte.", "Crediamo nella trasparenza e nell'accessibilità delle informazioni. Il nostro servizio è gratuito e mira a democratizzare l'accesso alle opportunità nel settore NCC, aiutando chi vuole intraprendere questa attività a non perdere nessuna occasione.", "Per segnalazioni, suggerimenti o collaborazioni, non esitate a contattarci all'indirizzo info@bandincc.it. Il vostro feedback ci aiuta a migliorare continuamente il servizio.", "Utilizzando questo sito, l'utente accetta i termini e le condizioni d'uso e l'informativa sulla privacy indicati nella sezione Disclaimer."],
+      "intro": "bandincc.it è una piattaforma indipendente nata con l'obiettivo di raccogliere e organizzare tutti i bandi NCC pubblicati in Italia. Rendiamo più semplice per aspiranti autisti e operatori del settore trovare le opportunità di licenza disponibili.",
+      "sections": [
+        {
+          "heading": "Il Nostro Team",
+          "content": "Dietro bandincc.it c'è un team di professionisti del settore tecnologico e dei trasporti, appassionati del mondo NCC e con anni di esperienza nel seguire l'evoluzione del settore. Il progetto è nato da una constatazione semplice: le informazioni sui bandi NCC sono disperse tra migliaia di siti comunali, spesso difficili da trovare e consultare. Troppe persone perdevano opportunità importanti semplicemente perché non avevano controllato il sito giusto al momento giusto. Abbiamo deciso di cambiare le cose."
+        },
+        {
+          "heading": "La Nostra Missione",
+          "content": "Crediamo che tutti meritino pari accesso alle opportunità di licenza NCC. Troppo spesso i bandi vengono pubblicati su pagine comunali poco visibili e passano inosservati. Noi esistiamo per fare in modo che nessun aspirante autista NCC perda un'opportunità semplicemente perché non ha controllato il sito giusto al momento giusto. La nostra missione si basa su quattro pilastri: accessibilità, perché centralizziamo informazioni sparse su migliaia di siti comunali in un unico punto di riferimento; pari opportunità, perché i piccoli operatori e gli aspiranti autisti spesso non hanno il tempo di monitorare ogni comune, e noi livelliamo il campo di gioco; trasparenza, perché rendiamo le informazioni pubbliche veramente accessibili, non solo tecnicamente pubbliche; tempestività, perché le scadenze dei bandi sono rigide e perderne una significa attendere mesi o anni per la prossima occasione."
+        },
+        {
+          "heading": "Come Raccogliamo i Dati",
+          "content": "Utilizziamo un sistema avanzato di monitoraggio automatizzato che analizza quotidianamente i siti istituzionali di tutti i comuni italiani alla ricerca di nuovi bandi NCC. Ogni bando individuato viene verificato manualmente prima della pubblicazione per garantire l'accuratezza delle informazioni. Ogni voce è indicizzata con data di scadenza, numero di licenze disponibili, link ufficiale alla fonte e stemma del comune. Il nostro obiettivo è fornire dati sempre aggiornati, completi e affidabili."
+        },
+        {
+          "heading": "Il Nostro Impegno",
+          "content": "Il nostro servizio è completamente gratuito e mira a democratizzare l'accesso alle opportunità nel settore NCC. Ci impegniamo ad aggiornare la piattaforma quotidianamente, monitorando centinaia di fonti istituzionali in tutta Italia. Lavoriamo costantemente per migliorare la copertura e l'affidabilità dei dati, aggiungendo nuove funzionalità come la mappa interattiva, il calcolatore di guadagni e le guide pratiche per aspiranti autisti."
+        },
+        {
+          "heading": "Contattaci",
+          "content": "Per segnalazioni, suggerimenti o collaborazioni, non esitate a contattarci all'indirizzo info@bandincc.it. Il vostro feedback ci aiuta a migliorare continuamente il servizio. Ogni segnalazione di un bando mancante o di un'informazione da aggiornare è preziosa per noi e per tutta la community."
+        }
+      ],
+      "legal": "Utilizzando questo sito, l'utente accetta i termini e le condizioni d'uso e l'informativa sulla privacy indicati nella sezione Disclaimer e Privacy Policy.",
       "metaTitle": "Chi Siamo - Bandi NCC Italia",
-      "metaDescription": "Scopri chi siamo e la nostra missione di rendere accessibili i bandi NCC in tutta Italia."
+      "metaDescription": "Scopri chi siamo e la nostra missione di rendere accessibili i bandi NCC in tutta Italia. Un team di professionisti al servizio degli aspiranti autisti NCC."
     },
     "contact": {
       "title": "Contatti",
@@ -91,6 +132,108 @@
       "metaTitle": "Calcolatore Guadagni NCC",
       "metaDescription": "Calcola i tuoi potenziali guadagni mensili come autista NCC in Italia.",
       "disclaimer": "Stima basata su medie e scenari tipici. I risultati reali dipendono da tariffe, domanda locale, accordi con piattaforme e costi auto."
+    },
+    "privacyPolicy": {
+      "title": "Informativa sulla Privacy",
+      "subtitle": "Come raccogliamo e proteggiamo i tuoi dati personali",
+      "metaTitle": "Privacy Policy - Bandi NCC Italia",
+      "metaDescription": "Informativa sulla privacy di bandincc.it: come raccogliamo, utilizziamo e proteggiamo i tuoi dati personali.",
+      "sections": [
+        {
+          "heading": "1. Titolare del Trattamento",
+          "content": "Il titolare del trattamento dei dati personali è bandincc.it. Per qualsiasi informazione relativa al trattamento dei dati personali, è possibile contattarci all'indirizzo email: info@bandincc.it."
+        },
+        {
+          "heading": "2. Tipologie di Dati Raccolti",
+          "content": "Durante la navigazione su bandincc.it, possono essere raccolti automaticamente alcuni dati tecnici, tra cui: indirizzo IP (in forma anonimizzata), tipo di browser e sistema operativo, pagine visitate e tempo di permanenza, pagina di provenienza (referrer). Non raccogliamo dati personali identificativi come nome, cognome, email o numero di telefono, salvo che l'utente non li fornisca volontariamente tramite il modulo di contatto."
+        },
+        {
+          "heading": "3. Finalità del Trattamento",
+          "content": "I dati raccolti sono utilizzati esclusivamente per le seguenti finalità: garantire il corretto funzionamento del sito, analizzare in forma aggregata e anonima il traffico del sito per migliorarne i contenuti, adempiere ad obblighi di legge."
+        },
+        {
+          "heading": "4. Cookie Tecnici",
+          "content": "Il sito utilizza cookie tecnici necessari al funzionamento del sito stesso. Questi cookie non raccolgono informazioni personali e non possono essere disattivati. Includono i cookie di sessione e il cookie di consenso (cookie-consent) che memorizza la tua scelta riguardo l'accettazione dei cookie."
+        },
+        {
+          "heading": "5. Cookie di Analisi – Umami Analytics",
+          "content": "Per l'analisi del traffico web utilizziamo Umami Analytics, una piattaforma di analisi rispettosa della privacy. Umami non utilizza cookie di tracciamento, non raccoglie dati personali identificativi, non traccia gli utenti tra sessioni diverse, e tutti i dati sono aggregati e anonimi. Umami è conforme al GDPR e non richiede il consenso dell'utente per il suo funzionamento, in quanto non raccoglie dati personali."
+        },
+        {
+          "heading": "6. Google AdSense",
+          "content": "Il sito potrebbe utilizzare Google AdSense per la visualizzazione di annunci pubblicitari. Google AdSense può utilizzare cookie e tecnologie simili per mostrare annunci pertinenti in base alle visite dell'utente su questo e altri siti web. Google utilizza il cookie DART per pubblicare annunci basati sulle visite precedenti. L'utente può disattivare l'utilizzo del cookie DART visitando la pagina delle impostazioni degli annunci di Google (https://adssettings.google.com). Per maggiori informazioni su come Google gestisce i dati, è possibile consultare l'informativa sulla privacy di Google (https://policies.google.com/privacy)."
+        },
+        {
+          "heading": "7. Base Giuridica del Trattamento",
+          "content": "Il trattamento dei dati personali si basa su: il legittimo interesse del titolare per i cookie tecnici e il funzionamento del sito (art. 6, par. 1, lett. f del GDPR), il consenso dell'utente per i cookie di profilazione e pubblicitari (art. 6, par. 1, lett. a del GDPR)."
+        },
+        {
+          "heading": "8. Conservazione dei Dati",
+          "content": "I dati tecnici di navigazione vengono conservati per il tempo strettamente necessario alla gestione del sito e comunque non oltre 26 mesi. I dati analitici aggregati tramite Umami sono conservati in forma anonima e non sono riconducibili a singoli utenti."
+        },
+        {
+          "heading": "9. Diritti dell'Utente",
+          "content": "In conformità al Regolamento UE 2016/679 (GDPR), l'utente ha il diritto di: accedere ai propri dati personali, richiedere la rettifica o la cancellazione dei propri dati, opporsi al trattamento dei propri dati, richiedere la limitazione del trattamento, richiedere la portabilità dei dati, revocare il consenso in qualsiasi momento. Per esercitare i propri diritti, è possibile contattarci all'indirizzo email: info@bandincc.it. L'utente ha inoltre il diritto di proporre reclamo all'Autorità Garante per la Protezione dei Dati Personali (www.garanteprivacy.it)."
+        },
+        {
+          "heading": "10. Trasferimento dei Dati",
+          "content": "I dati raccolti non vengono trasferiti al di fuori dello Spazio Economico Europeo (SEE), ad eccezione dei dati eventualmente trattati da Google AdSense, il cui trasferimento avviene nel rispetto delle garanzie previste dal GDPR (Clausole Contrattuali Standard)."
+        },
+        {
+          "heading": "11. Modifiche alla Privacy Policy",
+          "content": "La presente informativa sulla privacy può essere aggiornata periodicamente per riflettere modifiche nelle pratiche di trattamento dei dati o nella normativa vigente. Eventuali modifiche saranno pubblicate su questa pagina con indicazione della data di ultimo aggiornamento."
+        },
+        {
+          "heading": "12. Contatti",
+          "content": "Per qualsiasi domanda o richiesta relativa alla presente informativa sulla privacy, è possibile contattarci all'indirizzo email: info@bandincc.it."
+        }
+      ],
+      "lastUpdated": "Ultimo aggiornamento: 21 febbraio 2026"
+    },
+    "cookiePolicy": {
+      "title": "Cookie Policy",
+      "subtitle": "Informativa sull'utilizzo dei cookie su bandincc.it",
+      "metaTitle": "Cookie Policy - Bandi NCC Italia",
+      "metaDescription": "Informativa completa sull'utilizzo dei cookie su bandincc.it: tipologie, finalità e gestione dei cookie.",
+      "sections": [
+        {
+          "heading": "1. Cosa sono i Cookie",
+          "content": "I cookie sono piccoli file di testo che i siti web visitati inviano al browser dell'utente, dove vengono memorizzati per essere ritrasmessi agli stessi siti alla visita successiva. I cookie sono utilizzati per diverse finalità, tra cui memorizzare le preferenze dell'utente, migliorare l'esperienza di navigazione e raccogliere informazioni statistiche anonime sulle visite."
+        },
+        {
+          "heading": "2. Cookie Tecnici (Necessari)",
+          "content": "Questi cookie sono essenziali per il corretto funzionamento del sito e non possono essere disattivati. Non memorizzano informazioni personali identificabili. bandincc.it utilizza i seguenti cookie tecnici: cookie-consent – memorizza la tua scelta riguardo l'accettazione o il rifiuto dei cookie. Durata: permanente (fino alla cancellazione manuale). Cookie di sessione – necessari per il funzionamento base del sito. Durata: fino alla chiusura del browser."
+        },
+        {
+          "heading": "3. Cookie di Analisi – Umami Analytics",
+          "content": "Per monitorare le prestazioni del sito e comprendere come gli utenti interagiscono con i contenuti, utilizziamo Umami Analytics. A differenza di molti strumenti di analisi, Umami è progettato per rispettare la privacy degli utenti: non utilizza cookie di tracciamento, non raccoglie indirizzi IP o dati personali, non traccia gli utenti tra sessioni o siti diversi, tutti i dati sono aggregati e completamente anonimi. Per queste ragioni, Umami è conforme al GDPR senza necessità di consenso preventivo, poiché non tratta dati personali."
+        },
+        {
+          "heading": "4. Cookie Pubblicitari – Google AdSense",
+          "content": "Il sito potrebbe utilizzare Google AdSense per la visualizzazione di annunci pubblicitari personalizzati. In tal caso, Google e i suoi partner pubblicitari possono utilizzare i seguenti cookie: cookie DART (DoubleClick) – utilizzato per pubblicare annunci pertinenti in base alle visite precedenti dell'utente su questo e altri siti web; cookie NID e altri cookie Google – utilizzati per memorizzare le preferenze pubblicitarie e personalizzare gli annunci. Questi cookie vengono installati solo previo consenso dell'utente tramite il banner cookie. L'utente può gestire le preferenze pubblicitarie di Google visitando: https://adssettings.google.com. Per maggiori informazioni, consultare l'informativa sulla privacy di Google: https://policies.google.com/privacy."
+        },
+        {
+          "heading": "5. Cookie di Terze Parti",
+          "content": "Alcuni contenuti del sito possono essere forniti da servizi esterni (ad esempio mappe, video, widget social) che potrebbero impostare i propri cookie. bandincc.it non ha controllo su questi cookie di terze parti. Per maggiori informazioni, si consiglia di consultare le informative sulla privacy dei rispettivi servizi."
+        },
+        {
+          "heading": "6. Gestione dei Cookie",
+          "content": "Al primo accesso al sito, viene mostrato un banner che consente di accettare o rifiutare l'utilizzo dei cookie non essenziali. È possibile modificare le proprie preferenze in qualsiasi momento cancellando i cookie del sito dal browser. Ogni browser offre metodi diversi per la gestione dei cookie. Di seguito i link alle guide dei principali browser: Google Chrome – chrome://settings/cookies; Mozilla Firefox – about:preferences#privacy; Safari – Preferenze > Privacy; Microsoft Edge – edge://settings/content/cookies. La disattivazione dei cookie tecnici potrebbe compromettere alcune funzionalità del sito."
+        },
+        {
+          "heading": "7. Base Giuridica",
+          "content": "I cookie tecnici sono installati sulla base del legittimo interesse del titolare del sito (art. 6, par. 1, lett. f del GDPR), in quanto necessari al funzionamento del sito. I cookie di profilazione e pubblicitari sono installati solo previo consenso dell'utente (art. 6, par. 1, lett. a del GDPR), espresso tramite il banner cookie al primo accesso al sito."
+        },
+        {
+          "heading": "8. Aggiornamenti alla Cookie Policy",
+          "content": "La presente Cookie Policy può essere aggiornata periodicamente per riflettere modifiche nelle tecnologie utilizzate o nella normativa vigente. Eventuali aggiornamenti saranno pubblicati su questa pagina. Si consiglia di consultare periodicamente questa pagina per essere informati su come utilizziamo i cookie."
+        },
+        {
+          "heading": "9. Contatti",
+          "content": "Per qualsiasi domanda relativa alla presente Cookie Policy o all'utilizzo dei cookie su bandincc.it, è possibile contattarci all'indirizzo email: info@bandincc.it."
+        }
+      ],
+      "lastUpdated": "Ultimo aggiornamento: 21 febbraio 2026"
     }
   },
   "table": {

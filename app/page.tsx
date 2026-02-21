@@ -64,10 +64,35 @@ export default async function HomePage() {
           <p className="text-sm sm:text-base text-gray-400">
             {t.pages.home.description}
           </p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {t.pages.home.sections.map((section: { heading: string }, index: number) => (
+              <a
+                key={index}
+                href={`#section-${index}`}
+                className="text-xs sm:text-sm text-blue-400 hover:text-blue-300 border border-gray-600 hover:border-blue-400 rounded-full px-3 py-1 transition-colors"
+              >
+                {section.heading}
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Client Component per tabs interattivi */}
         <HomeContent data={tableData} />
+
+        {/* Descriptive content sections */}
+        <div className="mt-8 sm:mt-12 space-y-6">
+          {t.pages.home.sections.map((section: { heading: string; content: string }, index: number) => (
+            <div key={index} id={`section-${index}`} className="scroll-mt-20">
+              <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
+                {section.heading}
+              </h3>
+              <p className="text-sm sm:text-base text-gray-400">
+                {section.content}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   )

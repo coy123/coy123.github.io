@@ -21,18 +21,21 @@ Actionable Improvements (Priority Order)
 
 Must-Do (AdSense Requirements)
 
-#: 1
+#: 1 ✅ FINISHED
 Action: Add a dedicated Privacy Policy page (/privacy-policy)
 Why: Hard requirement for AdSense. Must detail data collection, cookies, analytics (Umami), and AdSense data usage.
+Done: Created /app/privacy-policy/page.tsx with 12 sections covering data controller, data types, cookies, Umami, AdSense, GDPR rights, etc. Added translations to it.json. Added link in footer and cookie banner.
 ────────────────────────────────────────
-#: 2
+#: 2 ✅ FINISHED
 Action: Add a Cookie Policy page (/cookie-policy)
-Why: Currently only handled by a banner component. Needs a full page, especially with AdSense cookies.
+Why: Currently only handleds by a banner component. Needs a full page, especially with AdSense cookies.
+Done: Created /app/cookie-policy/page.tsx with 9 sections covering cookie types, technical cookies, Umami, AdSense cookies, third-party cookies, cookie management, and legal basis. Added translations to it.json. Added link in footer and cookie banner.
 ────────────────────────────────────────
-#: 3
+#: 3 ✅ FINISHED
 Action: Expand the About Us page
 Why: Add team credibility, methodology for data collection, how often data is updated, your mission in more depth.
 Google wants to know who is behind the site.
+Done: Restructured page with 5 sections: Il Nostro Team (generic team description, founding story), La Nostra Missione (4 pillars: accessibility, equal opportunity, transparency, timeliness), Come Raccogliamo i Dati (automated monitoring + manual verification), Il Nostro Impegno (daily updates, free service, ongoing improvements), Contattaci.
 ────────────────────────────────────────
 #: 4
 Action: Update the sitemap
@@ -45,11 +48,13 @@ Action: Add a blog/news section (/blog)
 Why: Publish original articles like "New NCC bids in Lombardia - February 2025", "How NCC regulations changed in
 2025",
 market analysis, etc. Even 5-10 articles would help significantly.
+NOT FINISHED: Davide check this, how realistic is it?
 ────────────────────────────────────────
-#: 6
+#: 6 ✅ FINISHED
 Action: Add more descriptive content to the homepage
 Why: Below the table/map, add sections explaining what NCC bids are, why they matter, how to use the site, recent
 trends in license availability, etc.
+Done: Added 4 content sections below the table/map: "Cosa sono i Bandi NCC?", "Perché i Bandi NCC sono Importanti?", "Come Usare Questa Piattaforma", "Tendenze del Settore NCC in Italia". Added links from the top of the page to the info below.
 ────────────────────────────────────────
 #: 7
 Action: Create individual bid detail pages

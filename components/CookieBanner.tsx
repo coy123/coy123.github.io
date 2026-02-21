@@ -39,6 +39,13 @@ export default function CookieBanner() {
             >
               Maggiori informazioni
             </button>
+            {' | '}
+            <a
+              href="/cookie-policy"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              Cookie Policy
+            </a>
           </p>
           <div className="flex gap-3">
             <button
