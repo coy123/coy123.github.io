@@ -349,5 +349,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Maranello-Stemma.svg/960px-Maranello-Stemma.svg.png",
         "latitude": "44.533689",
         "longitude": "10.871816"
+    },
+    {
+        "location": "Comune di Mandello del Lario (LC)",
+        "deadline": "2026-03-16",
+        "url": "https://www.comune.mandello.lc.it/it-it/amministrazione/bandi-di-concorso/2026/bando-di-pubblico-concorso-per-il-rilascio-di-n-1-autorizzazione-per-l-esercizio-del-servizio-49790-1-7f9771c5b624d2f4afe932f3979d2508",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/0/00/Mandello_del_Lario-Stemma.png",
+        "latitude": "45.925353",
+        "longitude": "9.317513"
+    },
+    {
+        "location": "Comune di Barberino Tavarnelle (FI)",
+        "deadline": "2026-03-25",
+        "url": "https://www.comune.barberinotavarnelle.fi.it/novita/avvisi/bando-di-concorso-lassegnazione-di-n-4-autorizzazioni-lesercizio-del-servizio",
+        "amount": 4,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Barberino_Tavarnelle-Stemma.svg/250px-Barberino_Tavarnelle-Stemma.svg.png",
+        "latitude": "43.508466",
+        "longitude": "11.214106"
     }
 ]
