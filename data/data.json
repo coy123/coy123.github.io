@@ -367,5 +367,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Barberino_Tavarnelle-Stemma.svg/250px-Barberino_Tavarnelle-Stemma.svg.png",
         "latitude": "43.508466",
         "longitude": "11.214106"
+    },
+    {
+        "location": "Comune di Nova Milanese (MB)",
+        "deadline": "2026-03-26",
+        "url": "https://www.comune.novamilanese.mb.it/it/news/bando-di-pubblico-concorso-per-il-rilascio-di-n-1-autorizzazione-ncc",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Nova_Milanese-Stemma.svg/250px-Nova_Milanese-Stemma.svg.png",
+        "latitude": "45.589760",
+        "longitude": "9.190071"
     }
 ]
