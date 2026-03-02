@@ -376,5 +376,41 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Nova_Milanese-Stemma.svg/250px-Nova_Milanese-Stemma.svg.png",
         "latitude": "45.589760",
         "longitude": "9.190071"
+    },
+    {
+        "location": "Comune di Stornarella (FG)",
+        "deadline": "2026-03-31",
+        "url": "https://comune.stornarella.fg.it/novita/bando-pubblico-di-concorso-per-titoli-ed-esami-per-lassegnazione-di-n-3-autorizzazione-per-il-servizio-di-noleggio-di-autovetture-con-conducente-pubblicato-sul-burp-n-95-del-27-11-2025-integrazi/",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/thumb/8/8f/Stornarella-Stemma.png/250px-Stornarella-Stemma.png",
+        "latitude": "41.255665",
+        "longitude": "15.729419"
+    },
+    {
+        "location": "Comune di Cassano dAdda (MI)",
+        "deadline": "2026-03-13",
+        "url": "https://www.comune.cassanodadda.mi.it/it/news/bando-per-autorizzazioni-di-trasporto-ncc",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Cassano_d%27Adda-Stemma.svg/250px-Cassano_d%27Adda-Stemma.svg.png",
+        "latitude": "45.526371",
+        "longitude": "9.519962"
+    },
+    {
+        "location": "Comune di Badalucco (IM)",
+        "deadline": "2026-03-30",
+        "url": "https://www.comune.badalucco.im.it/Dettaglionews?IDNews=385096",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Badalucco-Stemma.svg/960px-Badalucco-Stemma.svg.png",
+        "latitude": "43.915240",
+        "longitude": "7.846273"
+    },
+    {
+        "location": "Comune di Santa Luce (PI)",
+        "deadline": "2026-04-01",
+        "url": "https://www.comune.santaluce.pi.it/novita/bando-di-concorso-pubblico",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/thumb/6/62/Santa_Luce-Stemma.png/250px-Santa_Luce-Stemma.png",
+        "latitude": "43.472911",
+        "longitude": "10.564299"
     }
 ]
