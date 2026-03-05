@@ -412,5 +412,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/thumb/6/62/Santa_Luce-Stemma.png/250px-Santa_Luce-Stemma.png",
         "latitude": "43.472911",
         "longitude": "10.564299"
+    },
+    {
+        "location": "Comune di Giovinazzo (BA)",
+        "deadline": "2026-03-19",
+        "url": "https://www.comune.giovinazzo.ba.it/novita/pubblicato-bando-assegnazione-9-autorizzazioni-servizio-noleggio-ncc/",
+        "amount": 9,
+        "image": "https://upload.wikimedia.org/wikipedia/it/2/2c/Giovinazzo-Stemma.png",
+        "latitude": "41.188244",
+        "longitude": "16.671041"
     }
 ]
