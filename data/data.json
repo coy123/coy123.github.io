@@ -421,5 +421,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/2/2c/Giovinazzo-Stemma.png",
         "latitude": "41.188244",
         "longitude": "16.671041"
+    },
+    {
+        "location": "Comune di Nettuno (RM)",
+        "deadline": "2026-04-05",
+        "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=9996963820b94526ab1140bc029d4004",
+        "amount": 15,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Nettuno_%28Italia%29-Stemma.svg/960px-Nettuno_%28Italia%29-Stemma.svg.png",
+        "latitude": "41.457982",
+        "longitude": "12.660422"
+    },
+    {
+        "location": "Comune di Perano (CH)",
+        "deadline": "2026-04-09",
+        "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=326a8585139c4b8aab607ebc82f3e14c",
+        "amount": 2,
+        "image": "https://de.wikipedia.org/wiki/Datei:Pesaro-Stemma.svg",
+        "latitude": "42.108284",
+        "longitude": "14.395465"
     }
 ]
