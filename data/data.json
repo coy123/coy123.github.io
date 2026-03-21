@@ -436,8 +436,17 @@
         "deadline": "2026-04-09",
         "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=326a8585139c4b8aab607ebc82f3e14c",
         "amount": 2,
-        "image": "https://de.wikipedia.org/wiki/Datei:Pesaro-Stemma.svg",
+        "image": "https://upload.wikimedia.org/wikipedia/it/a/a6/Perano-Stemma.png",
         "latitude": "42.108284",
         "longitude": "14.395465"
+    },
+    {
+        "location": "Comune di Monopoli (BA)",
+        "deadline": "2026-04-19",
+        "url": "https://www.comune.monopoli.ba.it/Novita/Avvisi/Bando-di-concorso-per-l-assegnazione-di-n.-43-autorizzazioni-per-l-esercizio-del-servizio-di-noleggio-con-conducente-mediante-autovettura",
+        "amount": 43,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/4/47/Monopoli_%28Italia%29-Stemma.svg",
+        "latitude": "40.950657",
+        "longitude": "17.301098"
     }
 ]
