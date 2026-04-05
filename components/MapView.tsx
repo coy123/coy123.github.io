@@ -32,7 +32,11 @@ export default function MapView({ data }: MapViewProps) {
   )
 
   const positions = useMemo(() => markers.map((item) => L.latLng(item.latitude, item.longitude)), [markers])
-  const [now] = useState(() => Date.now())
+  const [now, setNow] = useState<number | null>(null)
+
+  useEffect(() => {
+    setNow(Date.now())
+  }, [])
   const center = useMemo(() => L.latLng(41.8719, 12.5674), [])
 
   useEffect(() => {
@@ -68,7 +72,7 @@ export default function MapView({ data }: MapViewProps) {
     layer.clearLayers()
 
     markers.forEach((item) => {
-      const isFutureDeadline = item.deadlineTime >= now
+      const isFutureDeadline = now !== null ? item.deadlineTime >= now : false
       const marker = L.circleMarker([item.latitude, item.longitude], {
         radius: 8,
         color: isFutureDeadline ? '#22c55e' : '#f87171',

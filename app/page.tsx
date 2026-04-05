@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getTableData } from '@/lib/data'
 import { getTranslations } from '@/lib/translations'
 import HomeContent from '@/components/HomeContent'
+import CurrentDate from '@/components/CurrentDate'
 
 export const revalidate = 3600 // ISR: rivalidazione ogni ora
 
@@ -79,9 +80,7 @@ export default async function HomePage() {
         </div>
 
         {/* Last Updated */}
-        <p className="text-xs text-gray-500 mb-2 text-right">
-          {t.table.lastUpdated}: {new Date(Date.now()).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+        <CurrentDate label={t.table.lastUpdated} />
 
         {/* Client Component per tabs interattivi */}
         <HomeContent data={tableData} />

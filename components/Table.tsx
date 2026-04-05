@@ -6,7 +6,7 @@ import { getTranslations } from '@/lib/translations'
 
 interface TableRowProps {
   data: TableData
-  now: number
+  now: number | null
 }
 
 const formatDate = (dateString: string, locale: string = 'it-IT') => {
@@ -25,8 +25,8 @@ const formatAmount = (amount: number) => {
 const TableRow: React.FC<TableRowProps> = ({ data, now }) => {
   const t = getTranslations()
   const locale = 'it-IT'
-  const isDeadlineUpcoming = new Date(data.deadline).getTime() >= now
-  const backgroundClass = isDeadlineUpcoming ? 'bg-green-900/40' : 'bg-gray-900/20'
+  const isDeadlineUpcoming = now !== null ? new Date(data.deadline).getTime() >= now : null
+  const backgroundClass = isDeadlineUpcoming === null ? 'bg-gray-900/20' : isDeadlineUpcoming ? 'bg-green-900/40' : 'bg-gray-900/20'
   const hoverBackgroundClass = isDeadlineUpcoming ? 'hover:bg-green-800' : 'hover:bg-gray-600'
 
   return (
@@ -82,7 +82,7 @@ interface TableProps {
 
 const Table: React.FC<TableProps> = ({ data }) => {
   const t = getTranslations()
-  const [now, setNow] = useState(Date.now())
+  const [now, setNow] = useState<number | null>(null)
 
   useEffect(() => {
     setNow(Date.now())
