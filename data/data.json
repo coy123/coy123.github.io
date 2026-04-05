@@ -448,5 +448,41 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/4/47/Monopoli_%28Italia%29-Stemma.svg",
         "latitude": "40.950657",
         "longitude": "17.301098"
+    },
+    {
+        "location": "Comune di Manerba del Garda (BS)",
+        "deadline": "2026-05-01",
+        "url": "https://unionecomunivaltenesi.it/documenti/3559444/bando-ncc-comune-manerba-dg",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/thumb/5/55/Moniga_del_Garda-Stemma.png/250px-Moniga_del_Garda-Stemma.png",
+        "latitude": "45.555583",
+        "longitude": "10.557130"
+    },
+    {
+        "location": "Comune di Moniga del Garda (BS)",
+        "deadline": "2026-05-01",
+        "url": "https://unionecomunivaltenesi.it/documenti/3559449/bando-ncc-comune-moniga",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/5/55/Moniga_del_Garda-Stemma.png",
+        "latitude": "45.526557",
+        "longitude": "10.538990"
+    },
+    {
+        "location": "Comune di Padenghe sul Garda (BS)",
+        "deadline": "2026-05-01",
+        "url": "https://unionecomunivaltenesi.it/documenti/3559451/bando-ncc-comune-padenghe-sg",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/thumb/2/24/Padenghe_sul_Garda-Stemma.png/250px-Padenghe_sul_Garda-Stemma.png",
+        "latitude": "45.497766",
+        "longitude": "10.504824"
+    },
+    {
+        "location": "Comune di Soiano del Lago (BS)",
+        "deadline": "2026-05-01",
+        "url": "https://unionecomunivaltenesi.it/documenti/3559452/bando-ncc-comune-soiano-lg",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/a/a7/Soiano_del_Lago-Stemma.png",
+        "latitude": "45.536673",
+        "longitude": "10.512822"
     }
 ]
