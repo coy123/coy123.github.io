@@ -4,6 +4,7 @@ import { getTableData } from '@/lib/data'
 import { getTranslations } from '@/lib/translations'
 import HomeContent from '@/components/HomeContent'
 import CurrentDate from '@/components/CurrentDate'
+import ReactMarkdown from 'react-markdown'
 
 export const revalidate = 3600 // ISR: rivalidazione ogni ora
 
@@ -92,9 +93,9 @@ export default async function HomePage() {
               <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
                 {section.heading}
               </h3>
-              <p className="text-sm sm:text-base text-white">
-                {section.content}
-              </p>
+              <div className="text-sm sm:text-base text-white prose prose-invert prose-sm max-w-none [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
+                <ReactMarkdown>{section.content}</ReactMarkdown>
+              </div>
               {/* Section-specific internal links */}
               {index === 0 && (
                 <p className="mt-2 text-sm">
