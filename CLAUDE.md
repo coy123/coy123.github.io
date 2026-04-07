@@ -10,7 +10,6 @@ Domain: www.bandincc.it
 - **Maps**: Leaflet + react-leaflet (dynamically imported, SSR disabled)
 - **Markdown**: react-markdown + remark-gfm for rendering .md content pages
 - **Analytics**: Umami (self-hosted cloud, script loaded in layout head)
-- **Ads**: Google AdSense (ca-pub-9161475235821616), loaded via next/Script
 - **Package manager**: npm
 - **Node version**: 18 (used in CI)
 
@@ -47,7 +46,7 @@ There are two branches: staging and master. Development is done on staging. Stag
 
 ```
 ├── app/                        # Next.js App Router pages
-│   ├── layout.tsx              # Root layout (Navigation, Footer, CookieBanner, AdSense, Umami, JSON-LD)
+│   ├── layout.tsx              # Root layout (Navigation, Footer, CookieBanner, Umami, JSON-LD)
 │   ├── page.tsx                # Home page (bid table + map)
 │   ├── globals.css             # Tailwind imports + custom animations (fadeIn, scaleIn)
 │   ├── not-found.tsx           # Custom 404 page
@@ -73,7 +72,6 @@ There are two branches: staging and master. Development is done on staging. Stag
 │       ├── page.tsx            # Renders markdown via react-markdown
 │       └── utilities.md        # Article content
 ├── components/                 # Reusable React components
-│   ├── AdBanner.tsx            # Google AdSense ad unit component
 │   ├── AuthorBox.tsx           # Author attribution box
 │   ├── CookieBanner.tsx        # GDPR cookie consent banner + modal
 │   ├── CurrentDate.tsx         # Client-side date display (avoids SSR mismatch)
@@ -256,11 +254,6 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - Animated expand/collapse using CSS grid-rows transition
 - Answers rendered as markdown via `react-markdown`
 - Chevron icon rotates 180° when open
-
-## AdBanner (`components/AdBanner.tsx`)
-- Google AdSense integration component
-- Props: adSlot, adFormat (auto/rectangle/horizontal/vertical), fullWidth
-- Note: publisher ID placeholder needs to be replaced with actual ID
 
 ## AuthorBox (`components/AuthorBox.tsx`)
 - Static attribution: "Scritto da: La Redazione di BandiNCC" with link to about-us page

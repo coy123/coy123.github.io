@@ -160,31 +160,27 @@
           "content": "Per l'analisi del traffico web utilizziamo Umami Analytics, una piattaforma di analisi rispettosa della privacy. Umami non utilizza cookie di tracciamento, non raccoglie dati personali identificativi, non traccia gli utenti tra sessioni diverse, e tutti i dati sono aggregati e anonimi. Umami è conforme al GDPR e non richiede il consenso dell'utente per il suo funzionamento, in quanto non raccoglie dati personali."
         },
         {
-          "heading": "6. Google AdSense",
-          "content": "Il sito potrebbe utilizzare Google AdSense per la visualizzazione di annunci pubblicitari. Google AdSense può utilizzare cookie e tecnologie simili per mostrare annunci pertinenti in base alle visite dell'utente su questo e altri siti web. Google utilizza il cookie DART per pubblicare annunci basati sulle visite precedenti. L'utente può disattivare l'utilizzo del cookie DART visitando la pagina delle impostazioni degli annunci di Google (https://adssettings.google.com). Per maggiori informazioni su come Google gestisce i dati, è possibile consultare l'informativa sulla privacy di Google (https://policies.google.com/privacy)."
+          "heading": "6. Base Giuridica del Trattamento",
+          "content": "Il trattamento dei dati personali si basa su: il legittimo interesse del titolare per i cookie tecnici e il funzionamento del sito (art. 6, par. 1, lett. f del GDPR)."
         },
         {
-          "heading": "7. Base Giuridica del Trattamento",
-          "content": "Il trattamento dei dati personali si basa su: il legittimo interesse del titolare per i cookie tecnici e il funzionamento del sito (art. 6, par. 1, lett. f del GDPR), il consenso dell'utente per i cookie di profilazione e pubblicitari (art. 6, par. 1, lett. a del GDPR)."
-        },
-        {
-          "heading": "8. Conservazione dei Dati",
+          "heading": "7. Conservazione dei Dati",
           "content": "I dati tecnici di navigazione vengono conservati per il tempo strettamente necessario alla gestione del sito e comunque non oltre 26 mesi. I dati analitici aggregati tramite Umami sono conservati in forma anonima e non sono riconducibili a singoli utenti."
         },
         {
-          "heading": "9. Diritti dell'Utente",
+          "heading": "8. Diritti dell'Utente",
           "content": "In conformità al Regolamento UE 2016/679 (GDPR), l'utente ha il diritto di: accedere ai propri dati personali, richiedere la rettifica o la cancellazione dei propri dati, opporsi al trattamento dei propri dati, richiedere la limitazione del trattamento, richiedere la portabilità dei dati, revocare il consenso in qualsiasi momento. Per esercitare i propri diritti, è possibile contattarci all'indirizzo email: info@bandincc.it. L'utente ha inoltre il diritto di proporre reclamo all'Autorità Garante per la Protezione dei Dati Personali (www.garanteprivacy.it)."
         },
         {
-          "heading": "10. Trasferimento dei Dati",
-          "content": "I dati raccolti non vengono trasferiti al di fuori dello Spazio Economico Europeo (SEE), ad eccezione dei dati eventualmente trattati da Google AdSense, il cui trasferimento avviene nel rispetto delle garanzie previste dal GDPR (Clausole Contrattuali Standard)."
+          "heading": "9. Trasferimento dei Dati",
+          "content": "I dati raccolti non vengono trasferiti al di fuori dello Spazio Economico Europeo (SEE)."
         },
         {
-          "heading": "11. Modifiche alla Privacy Policy",
+          "heading": "10. Modifiche alla Privacy Policy",
           "content": "La presente informativa sulla privacy può essere aggiornata periodicamente per riflettere modifiche nelle pratiche di trattamento dei dati o nella normativa vigente. Eventuali modifiche saranno pubblicate su questa pagina con indicazione della data di ultimo aggiornamento."
         },
         {
-          "heading": "12. Contatti",
+          "heading": "11. Contatti",
           "content": "Per qualsiasi domanda o richiesta relativa alla presente informativa sulla privacy, è possibile contattarci all'indirizzo email: info@bandincc.it."
         }
       ],
@@ -209,27 +205,23 @@
           "content": "Per monitorare le prestazioni del sito e comprendere come gli utenti interagiscono con i contenuti, utilizziamo Umami Analytics. A differenza di molti strumenti di analisi, Umami è progettato per rispettare la privacy degli utenti: non utilizza cookie di tracciamento, non raccoglie indirizzi IP o dati personali, non traccia gli utenti tra sessioni o siti diversi, tutti i dati sono aggregati e completamente anonimi. Per queste ragioni, Umami è conforme al GDPR senza necessità di consenso preventivo, poiché non tratta dati personali."
         },
         {
-          "heading": "4. Cookie Pubblicitari – Google AdSense",
-          "content": "Il sito potrebbe utilizzare Google AdSense per la visualizzazione di annunci pubblicitari personalizzati. In tal caso, Google e i suoi partner pubblicitari possono utilizzare i seguenti cookie: cookie DART (DoubleClick) – utilizzato per pubblicare annunci pertinenti in base alle visite precedenti dell'utente su questo e altri siti web; cookie NID e altri cookie Google – utilizzati per memorizzare le preferenze pubblicitarie e personalizzare gli annunci. Questi cookie vengono installati solo previo consenso dell'utente tramite il banner cookie. L'utente può gestire le preferenze pubblicitarie di Google visitando: https://adssettings.google.com. Per maggiori informazioni, consultare l'informativa sulla privacy di Google: https://policies.google.com/privacy."
-        },
-        {
-          "heading": "5. Cookie di Terze Parti",
+          "heading": "4. Cookie di Terze Parti",
           "content": "Alcuni contenuti del sito possono essere forniti da servizi esterni (ad esempio mappe, video, widget social) che potrebbero impostare i propri cookie. bandincc.it non ha controllo su questi cookie di terze parti. Per maggiori informazioni, si consiglia di consultare le informative sulla privacy dei rispettivi servizi."
         },
         {
-          "heading": "6. Gestione dei Cookie",
+          "heading": "5. Gestione dei Cookie",
           "content": "Al primo accesso al sito, viene mostrato un banner che consente di accettare o rifiutare l'utilizzo dei cookie non essenziali. È possibile modificare le proprie preferenze in qualsiasi momento cancellando i cookie del sito dal browser. Ogni browser offre metodi diversi per la gestione dei cookie. Di seguito i link alle guide dei principali browser: Google Chrome – chrome://settings/cookies; Mozilla Firefox – about:preferences#privacy; Safari – Preferenze > Privacy; Microsoft Edge – edge://settings/content/cookies. La disattivazione dei cookie tecnici potrebbe compromettere alcune funzionalità del sito."
         },
         {
-          "heading": "7. Base Giuridica",
-          "content": "I cookie tecnici sono installati sulla base del legittimo interesse del titolare del sito (art. 6, par. 1, lett. f del GDPR), in quanto necessari al funzionamento del sito. I cookie di profilazione e pubblicitari sono installati solo previo consenso dell'utente (art. 6, par. 1, lett. a del GDPR), espresso tramite il banner cookie al primo accesso al sito."
+          "heading": "6. Base Giuridica",
+          "content": "I cookie tecnici sono installati sulla base del legittimo interesse del titolare del sito (art. 6, par. 1, lett. f del GDPR), in quanto necessari al funzionamento del sito."
         },
         {
-          "heading": "8. Aggiornamenti alla Cookie Policy",
+          "heading": "7. Aggiornamenti alla Cookie Policy",
           "content": "La presente Cookie Policy può essere aggiornata periodicamente per riflettere modifiche nelle tecnologie utilizzate o nella normativa vigente. Eventuali aggiornamenti saranno pubblicati su questa pagina. Si consiglia di consultare periodicamente questa pagina per essere informati su come utilizziamo i cookie."
         },
         {
-          "heading": "9. Contatti",
+          "heading": "8. Contatti",
           "content": "Per qualsiasi domanda relativa alla presente Cookie Policy o all'utilizzo dei cookie su bandincc.it, è possibile contattarci all'indirizzo email: info@bandincc.it."
         }
       ],
