@@ -26,7 +26,7 @@ Si tratta di un esame teorico (con domande su codice della strada e normativa tr
 
 Per iscriverti: [https://www.mit.gov.it/node/2712](https://www.mit.gov.it/node/2712)
 
----
+Per il materiale didattico e la preparazione all'esame, consulta [EGAF](https://www.egaf.it/) — un punto di riferimento per la formazione nel settore trasporti.
 
 #### **2\. Iscrizione al Ruolo dei Conducenti**
 

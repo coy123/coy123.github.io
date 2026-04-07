@@ -10,7 +10,7 @@ export default function DisclaimerPage() {
   const t = getTranslations()
 
   return (
-    <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <div className="w-full mx-auto">
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
         style={{

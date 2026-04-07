@@ -22,6 +22,12 @@ export default function HowToBecomeDriverPage() {
   // Preserve empty lines by replacing them with line breaks
   markdownContent = markdownContent.replace(/\n\n/g, '\n\n&nbsp;\n\n')
 
+  // Split after point 1 (the CAP/KB section) to insert ad banner
+  const splitMarker = '#### **2'
+  const splitIndex = markdownContent.indexOf(splitMarker)
+  const markdownPart1 = splitIndex !== -1 ? markdownContent.slice(0, splitIndex) : markdownContent
+  const markdownPart2 = splitIndex !== -1 ? markdownContent.slice(splitIndex) : ''
+
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -41,7 +47,7 @@ export default function HowToBecomeDriverPage() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <div className="w-full mx-auto">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -64,11 +70,24 @@ export default function HowToBecomeDriverPage() {
           {t.pages.howToBecomeDriver.subtitle}
         </h2>
       </div>
-      <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
+      <div className="prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {markdownContent}
+          {markdownPart1}
         </ReactMarkdown>
       </div>
+
+      {/* Banner Ad after point 1 */}
+      <div className="mb-6 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
+        <p className="text-3xl font-bold text-gray-300">EGAF</p>
+      </div>
+
+      {markdownPart2 && (
+        <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {markdownPart2}
+          </ReactMarkdown>
+        </div>
+      )}
 
       <AuthorBox />
 

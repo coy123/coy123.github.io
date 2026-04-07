@@ -42,7 +42,7 @@ export default async function HomePage() {
         }}
       />
 
-      <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <div className="w-full mx-auto">
         {/* Hero Section */}
         <div
           className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
@@ -61,6 +61,11 @@ export default async function HomePage() {
             style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
             {t.pages.home.subtitle}
           </h2>
+        </div>
+
+        {/* Top Banner Ad */}
+        <div className="mb-3 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
+          <p className="text-3xl font-bold text-gray-300">EGAF</p>
         </div>
 
         <div className="mb-1 sm:mb-2">

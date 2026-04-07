@@ -24,6 +24,7 @@ Domain: www.bandincc.it
 # Git and Deployment
 Do not ever use git commands! Don't commit or push or anything!
 Do not ever try to deploy. You can only run on dev mode locally.
+Do not ever run or build the application (no `npm run dev`, `npm run build`, `next build`, etc.). The user runs it themselves and reports back.
 There are two branches: staging and master. Development is done on staging. Staging is connected to Netlify for deployment and master is connected to GitHub Pages for deployment. The domain is www.bandincc.it
 
 ## CI/CD Pipelines (`.github/workflows/`)

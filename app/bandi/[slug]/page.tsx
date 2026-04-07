@@ -81,7 +81,7 @@ export default async function BidDetailPage({ params }: { params: Promise<{ slug
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <div className="w-full mx-auto">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(bidSchema) }}
@@ -108,6 +108,11 @@ export default async function BidDetailPage({ params }: { params: Promise<{ slug
         >
           {t.pages.bidDetail.subtitle}
         </h2>
+      </div>
+
+      {/* Top Banner Ad */}
+      <div className="mb-3 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
+        <p className="text-3xl font-bold text-gray-300">EGAF</p>
       </div>
 
       {/* Bid Details Card */}

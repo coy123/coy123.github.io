@@ -27,7 +27,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto lg:w-4/5 xl:w-3/4">
+      <div className="w-full mx-auto">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(contactSchema) }}
