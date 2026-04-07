@@ -12,11 +12,25 @@ Domain: www.bandincc.it
 - **Analytics**: Umami (self-hosted cloud, script loaded in layout head)
 - **Ads**: Google AdSense (ca-pub-9161475235821616), loaded via next/Script
 - **Package manager**: npm
+- **Node version**: 18 (used in CI)
+
+# Build & Output Mode
+- `next.config.mjs` sets `output: 'export'` — the site is **fully static** (no Node.js server at runtime)
+- All pages are pre-rendered at build time; the `out/` directory is deployed
+- `trailingSlash: true` — all routes end with `/`
+- `reactStrictMode: true`
+- `images.domains`: `['upload.wikimedia.org']` — for coat of arms images
+- Note: `revalidate = 3600` on the home page has no effect in export mode; the page is only updated on rebuild
 
 # Git and Deployment
 Do not ever use git commands! Don't commit or push or anything!
 Do not ever try to deploy. You can only run on dev mode locally.
 There are two branches: staging and master. Development is done on staging. Staging is connected to Netlify for deployment and master is connected to GitHub Pages for deployment. The domain is www.bandincc.it
+
+## CI/CD Pipelines (`.github/workflows/`)
+- **`deploy.yml`**: Triggers on push/PR to `master`. Builds with `npm ci && npm run build`, deploys `out/` to GitHub Pages (with `.nojekyll` file).
+- **`netlify-deploy.yml`**: Triggers on push/PR to `staging`. Builds and deploys `out/` to Netlify via `netlify deploy --dir=out --prod`. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets.
+- **`netlify.toml`**: Also present for Netlify build config (command: `npm run build`, publish: `.next`, uses `@netlify/plugin-nextjs`). Note: the GitHub Action workflow overrides this by deploying `out/` directly.
 
 # Bash Commands
 - `npm run dev`: build and run the project locally (uses Turbopack)
@@ -292,3 +306,95 @@ The JSON structure includes:
 - Generates static HTML for specific routes by modifying `dist/index.html` with route-specific metadata
 - Routes: `/`, `/how-to-become-driver`, `/regional-laws`, `/utilities`, `/disclaimer`, `/faq`
 - Not actively used with Next.js (Next.js handles SSG/ISR natively)
+
+# How to Add/Edit Data
+
+## Adding a new NCC bid
+Add an entry to `data/data.json`. Required fields:
+```json
+{
+  "location": "Comune di NomeCittà (XX)",
+  "deadline": "YYYY-MM-DD",
+  "url": "https://official-bid-url.it/...",
+  "amount": 5,
+  "image": "https://upload.wikimedia.org/.../Stemma.png",
+  "latitude": "41.1234",
+  "longitude": "12.5678"
+}
+```
+- `location`: Municipality name with province code in parentheses. This is used to generate the slug for `/bandi/[slug]` (spaces → hyphens).
+- `latitude`/`longitude`: Stored as **strings** in JSON, converted to numbers by `lib/data.ts`. Optional but needed for map display.
+- `image`: URL to the municipality's coat of arms (usually from Wikimedia).
+- A new bid detail page at `/bandi/{slug}` is automatically generated at build time via `generateStaticParams()`.
+
+## Adding a new regional law
+Add to `data/laws.json`:
+```json
+{
+  "location": "RegionOrCityName",
+  "image": "https://upload.wikimedia.org/.../Stemma.png",
+  "url": "https://link-to-regulation.pdf"
+}
+```
+- The `location` field is also used for matching laws to bids on detail pages (case-insensitive includes).
+
+## Adding a new FAQ
+Add to `data/faq.json`:
+```json
+{
+  "question": "Question text?",
+  "answer": "Answer with **markdown** and [links](/)."
+}
+```
+
+## Adding a glossary term
+Add to `locales/it.json` at `pages.glossario.terms`:
+```json
+{ "term": "Term Name", "definition": "Definition text with **markdown**." }
+```
+
+# Important Patterns & Gotchas
+
+## SSR Hydration Mismatch Avoidance
+Several components use `useEffect` + `useState` to defer date/time calculations to the client. This prevents mismatches between server-rendered HTML and client-rendered HTML (since `Date.now()` differs). Used in:
+- `Table.tsx` — `now` state for deadline coloring
+- `MapView.tsx` — `now` state for marker colors
+- `BidStatus.tsx` — `isActive` state
+- `CurrentDate.tsx` — formatted date string
+
+## Leaflet Dynamic Import Pattern
+Leaflet requires `window` (DOM APIs). All Leaflet components must be dynamically imported with `ssr: false`:
+```tsx
+const MapView = dynamic(() => import('./MapView'), { ssr: false, loading: () => <Spinner /> })
+```
+`BidDetailMapWrapper.tsx` exists solely to wrap `BidDetailMap.tsx` with this pattern.
+
+## Hero Section Pattern
+Every page uses the same hero section structure: background image (`/images/driver.png`), h1 title and h2 subtitle with semi-transparent black background overlays. Text content comes from translations.
+
+## Slug Generation
+Bid detail page slugs are generated from `location.replace(/\s+/g, '-')`. Example: `"Comune di Milano (MI)"` → `"Comune-di-Milano-(MI)"`. Same logic is used in Table/MapView links and in `generateStaticParams()`.
+
+## Law ↔ Bid Matching
+On bid detail pages, `findLaw()` matches a bid's location against law entries using `location.toLowerCase().includes(law.location.toLowerCase())`. So a law with `location: "Milano"` matches a bid with `location: "Comune di Milano (MI)"`.
+
+## Content Sources
+- **Most page text**: Lives in `locales/it.json` under `pages.*` keys (titles, subtitles, descriptions, section content)
+- **Long-form articles**: `howToBecomeDriver.md` and `utilities.md` — read at build time via `fs.readFileSync`, rendered with react-markdown
+- **FAQ/Glossary**: `data/faq.json` (FAQ) + `locales/it.json` `pages.glossario.terms` (glossary)
+
+## Affiliate Link
+The home page section about participating in bids contains a Keliweb affiliate link for PEC (certified email): `https://www.keliweb.it/billing/aff.php?aff=6108`. This is in `locales/it.json` within the `pages.home.sections[3].content` markdown string.
+
+## Image Strategy
+- No local images except `/public/images/driver.png` (hero background)
+- All coat-of-arms images are external URLs (mostly Wikimedia Commons)
+- `next.config.mjs` allows `upload.wikimedia.org` domain for `next/image`, but pages currently use raw `<img>` tags
+
+## Duplicate PostCSS Configs
+Both `postcss.config.mjs` (ESM) and `postcss.config.cjs` (CommonJS) exist. The `.mjs` uses `tailwindcss` plugin, the `.cjs` uses `@tailwindcss/postcss`. This can cause confusion — Next.js picks one based on its module resolution.
+
+# Current Data Stats (as of last update)
+- 54 NCC bid entries in `data/data.json`
+- 13 regional law entries in `data/laws.json`
+- 17 FAQ entries in `data/faq.json`
