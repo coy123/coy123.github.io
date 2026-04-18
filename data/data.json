@@ -484,5 +484,32 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/a/a7/Soiano_del_Lago-Stemma.png",
         "latitude": "45.536673",
         "longitude": "10.512822"
+    },
+    {
+        "location": "Comune di Azzano San Paolo (BG)",
+        "deadline": "2026-04-20",
+        "url": "https://www.comune.azzanosanpaolo.bg.it/it/news/bando-di-concorso-pubblico-per-il-rilascio-n-3-autorizzazioni-noleggio-con-conducente-n-c-c",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Azzano_San_Paolo-Stemma.svg/960px-Azzano_San_Paolo-Stemma.svg.png",
+        "latitude": "45.660373",
+        "longitude": "9.672912"
+    },
+    {
+        "location": "Comune di Turania (RI)",
+        "deadline": "2026-04-30",
+        "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=136f7cb555a444c59fa2696ab11fcf01",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/e/eb/Turania-Stemma.png--",
+        "latitude": "42.137886",
+        "longitude": "13.009932"
+    },
+    {
+        "location": "Comune di Fiorenzuola (PC)",
+        "deadline": "2026-05-09",
+        "url": "https://www.comune.fiorenzuola.pc.it/it/news/bando-di-concorso-pubblico-per-soli-titoli-per-lassegnazione-di-n-2-autorizzazioni-per-lesercizio-del-servizio-di-noleggio-con-conducente-di-veicoli-fino-a-9-posti",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Fiorenzuola_d%27Arda-Stemma.svg/960px-Fiorenzuola_d%27Arda-Stemma.svg.png",
+        "latitude": "44.934636",
+        "longitude": "9.928439"
     }
 ]
