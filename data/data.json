@@ -511,5 +511,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Fiorenzuola_d%27Arda-Stemma.svg/960px-Fiorenzuola_d%27Arda-Stemma.svg.png",
         "latitude": "44.934636",
         "longitude": "9.928439"
+    },
+    {
+        "location": "Comune di Gambassi Terme (FI)",
+        "deadline": "2025-05-02",
+        "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
+        "latitude": "43.537088",
+        "longitude": "10.954536"
     }
 ]
