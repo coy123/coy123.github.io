@@ -514,11 +514,20 @@
     },
     {
         "location": "Comune di Gambassi Terme (FI)",
-        "deadline": "2025-05-02",
+        "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
         "latitude": "43.537088",
         "longitude": "10.954536"
+    },
+    {
+        "location": "Comune di Pieve di Teco (IM)",
+        "deadline": "2026-05-21",
+        "url": "https://www.comune.pievediteco.im.it/wp/2026/04/21/bando-di-pubblico-concorso-per-lassegnazione-di-numero-tre-autorizzazioni-ncc-noleggio-con-conducente-per-conto-del-comune-di-pieve-di-teco/",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Pieve_di_Teco-Stemma.svg/960px-Pieve_di_Teco-Stemma.svg.png",
+        "latitude": "44.047449",
+        "longitude": "7.920145"
     }
 ]
