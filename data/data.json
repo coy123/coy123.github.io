@@ -499,7 +499,7 @@
         "deadline": "2026-04-30",
         "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=136f7cb555a444c59fa2696ab11fcf01",
         "amount": 1,
-        "image": "https://upload.wikimedia.org/wikipedia/it/e/eb/Turania-Stemma.png--",
+        "image": "https://upload.wikimedia.org/wikipedia/it/e/eb/Turania-Stemma.png",
         "latitude": "42.137886",
         "longitude": "13.009932"
     },
@@ -517,7 +517,7 @@
         "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
         "latitude": "43.537088",
         "longitude": "10.954536"
     },
@@ -529,5 +529,32 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Pieve_di_Teco-Stemma.svg/960px-Pieve_di_Teco-Stemma.svg.png",
         "latitude": "44.047449",
         "longitude": "7.920145"
+    },
+    {
+        "location": "Comune di Guarene (CN)",
+        "deadline": "2026-05-29",
+        "url": "https://www.servizipubblicaamministrazione.it/servizi/saturnweb/Dettaglio.aspx?Pub=16008&Tipo=52&CE=grn229",
+        "amount": 4,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Guarene-Stemma.svg/960px-Guarene-Stemma.svg.png",
+        "latitude": "44.737633",
+        "longitude": "8.031355"
+    },
+    {
+        "location": "Comune di Capoterra (CA)",
+        "deadline": "2026-05-27",
+        "url": "https://www.comune.capoterra.ca.it/it/documenti/documento/Autorizzazioni-per-il-servizio-di-noleggio-con-conducente-NCC/",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Capoterra-Stemma.svg/960px-Capoterra-Stemma.svg.png",
+        "latitude": "39.173348",
+        "longitude": "8.974207"
+    },
+    {
+        "location": "Comune di Gambasca (CN)",
+        "deadline": "2026-05-22",
+        "url": "https://www.servizipubblicaamministrazione.it/servizi/saturnweb/Dettaglio.aspx?Pub=3686&RicCro=1&CE=gmbsc1051",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Gambasca-Stemma.svg/960px-Gambasca-Stemma.svg.png",
+        "latitude": "44.625125",
+        "longitude": "7.341359"
     }
 ]
