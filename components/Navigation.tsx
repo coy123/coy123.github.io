@@ -44,6 +44,7 @@ export default function Navigation() {
                       : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                   }`}
                 >
+                  {item.key === 'incomeCalculator' && <span className="mr-1">💶</span>}
                   {t.nav[item.key as keyof typeof t.nav]}
                 </Link>
               ))}
@@ -96,6 +97,13 @@ export default function Navigation() {
           <h1 className="flex-1 text-center text-lg font-semibold text-white">
             {t.nav.title}
           </h1>
+          <Link
+            href="/income-calculator"
+            className="absolute right-4 p-2 text-xl"
+            aria-label={t.nav.incomeCalculator}
+          >
+            💶
+          </Link>
         </div>
       </div>
 
