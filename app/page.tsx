@@ -45,7 +45,7 @@ export default async function HomePage() {
       <div className="w-full mx-auto">
         {/* Hero Section */}
         <div
-          className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
+          className="mb-3 relative rounded-lg overflow-hidden px-4 py-2 sm:px-6 sm:py-3"
           style={{
             backgroundImage: 'url(/images/driver.png)',
             backgroundSize: 'cover',
@@ -57,7 +57,7 @@ export default async function HomePage() {
             {t.pages.home.title}
           </h1>
           <br/>
-          <h2 className="text-sm sm:text-base text-gray-300 mb-3 px-2 py-1 rounded inline-block"
+          <h2 className="text-sm sm:text-base text-gray-300 mb-0 px-2 py-1 rounded inline-block"
             style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
             {t.pages.home.subtitle}
           </h2>
