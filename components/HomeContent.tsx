@@ -37,16 +37,16 @@ export default function HomeContent({ data }: HomeContentProps) {
   }, [data, searchQuery])
 
   return (
-    <div className="bg-gray-700 rounded-lg shadow-sm p-4 sm:p-6">
+    <div className="bg-gray-700 rounded-lg shadow-sm p-2 sm:p-6">
       {/* Tab Buttons */}
-      <div className="mb-4">
+      <div className="mb-2 sm:mb-4">
         <div className="w-full rounded-lg bg-gray-800 p-1 flex">
           {(['table', 'map'] as const).map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 px-4 py-1.5 sm:py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === tab
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-300 hover:text-white'
@@ -67,7 +67,7 @@ export default function HomeContent({ data }: HomeContentProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.dashboard.search.placeholder}
-            className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+            className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2 sm:mb-4"
           />
 
           {/* Table */}
