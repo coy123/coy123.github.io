@@ -73,12 +73,12 @@ export default async function HomePage() {
             <span className="sm:hidden">{t.pages.home.descriptionShort}</span>
             <span className="hidden sm:inline">{t.pages.home.description}</span>
           </p>
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-x-2 gap-y-[9999px] mt-3 max-h-[26px] sm:max-h-[30px] overflow-hidden">
             {t.pages.home.sections.map((section: { heading: string }, index: number) => (
               <a
                 key={index}
                 href={`#section-${index}`}
-                className="text-xs sm:text-sm text-blue-400 hover:text-blue-300 border border-gray-600 hover:border-blue-400 rounded-full px-2 py-1 transition-colors"
+                className="text-xs sm:text-sm text-blue-400 hover:text-blue-300 border border-gray-600 hover:border-blue-400 rounded-full px-2 py-1 transition-colors whitespace-nowrap shrink-0"
               >
                 {section.heading}
               </a>
