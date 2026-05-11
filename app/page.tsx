@@ -70,7 +70,8 @@ export default async function HomePage() {
 
         <div className="mb-1 sm:mb-2">
           <p className="text-sm sm:text-base text-white">
-            {t.pages.home.description}
+            <span className="sm:hidden">{t.pages.home.descriptionShort}</span>
+            <span className="hidden sm:inline">{t.pages.home.description}</span>
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
             {t.pages.home.sections.map((section: { heading: string }, index: number) => (
