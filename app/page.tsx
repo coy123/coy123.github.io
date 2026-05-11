@@ -63,17 +63,19 @@ export default async function HomePage() {
           </h2>
         </div>
 
-        {/* Top Banner Ad */}
-        <div className="mb-3 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
-          <p className="text-3xl font-bold text-gray-300">EGAF</p>
-        </div>
+        <p className="text-sm sm:text-base text-white mb-2 sm:mb-3">
+          <span className="sm:hidden">{t.pages.home.descriptionShort}</span>
+          <span className="hidden sm:inline">{t.pages.home.description}</span>
+        </p>
+
+        {/* Banner Ad */}
+        <a href="https://www.amazon.it/dp/B0GZBHCG5P?crid=3MKXJETSG2ODT&dib=eyJ2IjoiMSJ9.lCgzAblVwfMrdsdr61C0Qg.I8dkvYsEYc_sm7XVDqZQYw3nABhmbt25CxiwguT00r4&dib_tag=se&keywords=NCC%3A+DA+CONDUCENTE+A+IMPRENDITORE%2C&qid=1777721531&sprefix=ncc+da+conducente+a+imprenditore%2C%2Caps%2C555&sr=8-1" target="_blank" rel="noopener noreferrer" className="block mb-3 w-4/5 sm:mx-auto h-[130px] sm:h-[230px] rounded-lg overflow-hidden">
+          <img src="/bookBannerSmall.avif" alt="NCC: Da Conducente a Imprenditore" className="sm:hidden w-full h-full object-cover rounded-lg" />
+          <img src="/bookBanner.avif" alt="NCC: Da Conducente a Imprenditore" className="hidden sm:block w-full h-full object-cover rounded-lg" />
+        </a>
 
         <div className="mb-1 sm:mb-2">
-          <p className="text-sm sm:text-base text-white">
-            <span className="sm:hidden">{t.pages.home.descriptionShort}</span>
-            <span className="hidden sm:inline">{t.pages.home.description}</span>
-          </p>
-          <div className="flex flex-wrap gap-x-2 gap-y-[9999px] mt-3 max-h-[26px] sm:max-h-[30px] overflow-hidden">
+          <div className="flex flex-wrap gap-x-2 gap-y-[9999px] max-h-[26px] sm:max-h-[30px] overflow-hidden">
             {t.pages.home.sections.map((section: { heading: string }, index: number) => (
               <a
                 key={index}
