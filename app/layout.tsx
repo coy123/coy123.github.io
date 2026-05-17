@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
+import SideAdBanner from '@/components/SideAdBanner'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -55,9 +56,19 @@ export default function RootLayout({children}: {
         <div className="min-h-screen bg-gray-800 flex flex-col">
             <Navigation/>
             <div className="flex-1 flex justify-center">
+                <aside className="hidden xl:flex flex-1 justify-center items-start">
+                    <div className="sticky top-[calc(50vh-300px)]">
+                        <SideAdBanner/>
+                    </div>
+                </aside>
                 <div className="max-w-5xl lg:w-4/5 xl:w-4/5 flex-grow min-w-0 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
                     {children}
                 </div>
+                <aside className="hidden xl:flex flex-1 justify-center items-start">
+                    <div className="sticky top-[calc(50vh-300px)]">
+                        <SideAdBanner/>
+                    </div>
+                </aside>
             </div>
             <Footer/>
             <CookieBanner/>

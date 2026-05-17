@@ -76,6 +76,11 @@ export default function HowToBecomeDriverPage() {
         </ReactMarkdown>
       </div>
 
+      {/* Banner Ad after point 1 */}
+      <div className="mb-6 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
+        <p className="text-3xl font-bold text-gray-300">EGAF</p>
+      </div>
+
       {markdownPart2 && (
         <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>

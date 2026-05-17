@@ -110,6 +110,11 @@ export default async function BidDetailPage({ params }: { params: Promise<{ slug
         </h2>
       </div>
 
+      {/* Top Banner Ad */}
+      <div className="mb-3 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
+        <p className="text-3xl font-bold text-gray-300">EGAF</p>
+      </div>
+
       {/* Bid Details Card */}
       <div className="bg-gray-700 rounded-lg p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
