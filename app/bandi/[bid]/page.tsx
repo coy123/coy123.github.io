@@ -20,12 +20,12 @@ function findLaw(location: string) {
 
 export async function generateStaticParams() {
   return data.map((item) => ({
-    slug: toSlug(item.location),
+    bid: toSlug(item.location),
   }))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
+export async function generateMetadata({ params }: { params: Promise<{ bid: string }> }): Promise<Metadata> {
+  const { bid: slug } = await params
   const bid = findBid(slug)
   if (!bid) return { title: 'Bando non trovato' }
 
@@ -39,8 +39,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
-export default async function BidDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+export default async function BidDetailPage({ params }: { params: Promise<{ bid: string }> }) {
+  const { bid: slug } = await params
   const bid = findBid(slug)
   if (!bid) notFound()
 
