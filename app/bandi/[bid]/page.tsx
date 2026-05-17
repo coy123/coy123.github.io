@@ -124,7 +124,7 @@ export default async function BidDetailPage({ params }: { params: Promise<{ bid:
             <h3 className="text-xl font-semibold text-white text-center sm:text-left">
               {bid.location}
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <span className="text-sm text-white">{t.pages.bidDetail.labels.licensesAvailable}</span>
                 <p className="text-lg font-semibold text-green-400">
