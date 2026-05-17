@@ -70,8 +70,8 @@ export default async function HomePage() {
 
         {/* Banner Ad */}
         <a href="https://www.amazon.it/dp/B0GZBHCG5P?crid=3MKXJETSG2ODT&dib=eyJ2IjoiMSJ9.lCgzAblVwfMrdsdr61C0Qg.I8dkvYsEYc_sm7XVDqZQYw3nABhmbt25CxiwguT00r4&dib_tag=se&keywords=NCC%3A+DA+CONDUCENTE+A+IMPRENDITORE%2C&qid=1777721531&sprefix=ncc+da+conducente+a+imprenditore%2C%2Caps%2C555&sr=8-1" target="_blank" rel="noopener noreferrer" className="block mb-3 w-full sm:w-4/5 sm:mx-auto h-[170px] sm:h-[240px] rounded-lg overflow-hidden">
-          <img src="/bookBannerSmall.avif" alt="NCC: Da Conducente a Imprenditore" className="sm:hidden w-full h-full object-cover rounded-lg" />
-          <img src="/bookBanner.avif" alt="NCC: Da Conducente a Imprenditore" className="hidden sm:block w-full h-full object-cover rounded-lg" />
+          <img src="/images/bookBannerSmall.avif" alt="NCC: Da Conducente a Imprenditore" className="sm:hidden w-full h-full object-cover rounded-lg" />
+          <img src="/images/bookBanner.avif" alt="NCC: Da Conducente a Imprenditore" className="hidden sm:block w-full h-full object-cover rounded-lg" />
         </a>
 
         <div className="mb-1 sm:mb-2">
