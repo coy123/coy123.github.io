@@ -517,7 +517,7 @@
         "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
         "latitude": "43.537088",
         "longitude": "10.954536"
     },
@@ -565,5 +565,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Spoleto-Stemma_2.svg/250px-Spoleto-Stemma_2.svg.png",
         "latitude": "42.757989",
         "longitude": "12.723579"
+    },
+    {
+        "location": "Comune di San Ferdinando (RC)",
+        "deadline": "2026-06-25",
+        "url": "https://www.comune.sanferdinando.rc.it/it/news/bando-di-concorso-per-rilascio-nr-5-licenze-ncc",
+        "amount": 5,
+        "image": "https://upload.wikimedia.org/wikipedia/it/4/4e/San_Ferdinando_%28Italia%29-Stemma.png",
+        "latitude": "38.483293",
+        "longitude": "15.913047"
     }
 ]
