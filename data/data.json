@@ -583,5 +583,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/5/55/Ponte_Buggianese-Stemma.png",
         "latitude": "43.842135",
         "longitude": "10.742882"
+    },
+    {
+        "location": "Comune di Prossedi (LT)",
+        "deadline": "2026-07-03",
+        "url": "https://comune.prossedi.lt.it/novita/avviso-pubblico-relativo-al-rilascio-di-n-2-autorizzazioni-comunali-per-il-servizio-di-noleggio-di-autovetture-con-conducente/",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/thumb/3/32/Prossedi-Stemma.png/960px-Prossedi-Stemma.png",
+        "latitude": "41.516509",
+        "longitude": "13.260222"
     }
 ]
