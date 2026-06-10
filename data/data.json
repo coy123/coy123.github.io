@@ -592,5 +592,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/thumb/3/32/Prossedi-Stemma.png/960px-Prossedi-Stemma.png",
         "latitude": "41.516509",
         "longitude": "13.260222"
+    },
+    {
+        "location": "Città di Bagheria (PA)",
+        "deadline": "2026-06.-29",
+        "url": "https://www.comune.bagheria.pa.it/it/news/riaperti-i-termini-per-il-bando-ncc-disponibili-10-autorizzazioni",
+        "amount": 10,
+        "image": "https://upload.wikimedia.org/wikipedia/it/f/f5/Bagheria-Stemma.png",
+        "latitude": "38.075026",
+        "longitude": "13.509943"
     }
 ]
