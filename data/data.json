@@ -517,7 +517,7 @@
         "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
         "latitude": "43.537088",
         "longitude": "10.954536"
     },
@@ -576,15 +576,6 @@
         "longitude": "15.913047"
     },
     {
-        "location": "Comune di Ponte Buggianese (PT)",
-        "deadline": "2026-06-18",
-        "url": "https://comune.ponte-buggianese.pt.it/novita/avviso-di-pubblicazione-del-bando-di-pubblico-concorso-per-lassegnazione-di-n-6-autorizzazioni-per-lesercizio-del-servizio-di-noleggio-con-conducente-ncc-tramite-autovettura-e-della-rela/",
-        "amount": 6,
-        "image": "https://upload.wikimedia.org/wikipedia/it/5/55/Ponte_Buggianese-Stemma.png",
-        "latitude": "43.842135",
-        "longitude": "10.742882"
-    },
-    {
         "location": "Comune di Prossedi (LT)",
         "deadline": "2026-07-03",
         "url": "https://comune.prossedi.lt.it/novita/avviso-pubblico-relativo-al-rilascio-di-n-2-autorizzazioni-comunali-per-il-servizio-di-noleggio-di-autovetture-con-conducente/",
@@ -595,7 +586,7 @@
     },
     {
         "location": "Città di Bagheria (PA)",
-        "deadline": "2026-06.-29",
+        "deadline": "2026-06-29",
         "url": "https://www.comune.bagheria.pa.it/it/news/riaperti-i-termini-per-il-bando-ncc-disponibili-10-autorizzazioni",
         "amount": 10,
         "image": "https://upload.wikimedia.org/wikipedia/it/f/f5/Bagheria-Stemma.png",
