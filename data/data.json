@@ -592,5 +592,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/f/f5/Bagheria-Stemma.png",
         "latitude": "38.075026",
         "longitude": "13.509943"
+    },
+    {
+        "location": "Comune di Pomigliano d'Arco (NA)",
+        "deadline": "2026-06-20",
+        "url": "https:
+        "amount": 5,
+        "image": "https://upload.wikimedia.org/wikipedia/it/f/ff/Pomigliano_d%27Arco-Stemma.png",
+        "latitude": "14.393911",
+        "longitude": "14.393911"
+    },
+    {
+        "location": "Comune di Nova Ponente (BZ)",
+        "deadline": "2026-06-19",
+        "url": "http://albopretorio.gvcc.net/gem2go/amtstafel/document/21059/81599ab6-f5bb-41c9-bf69-b51fe015f674",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/99/Nova_Ponente-Stemma.png",
+        "latitude": "46.412964",
+        "longitude": "11.425718"
     }
 ]
