@@ -5,10 +5,9 @@ import data from '@/data/data.json'
 import laws from '@/data/laws.json'
 import { getTranslations } from '@/lib/translations'
 import AuthorBox from '@/components/AuthorBox'
+import { toSlug } from '@/lib/slug'
 import BidStatus from './BidStatus'
 import BidDetailMapWrapper from './BidDetailMapWrapper'
-
-const toSlug = (location: string) => location.replace(/\s+/g, '-')
 
 function findBid(slug: string) {
   return data.find((item) => toSlug(item.location) === slug)
