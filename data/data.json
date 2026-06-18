@@ -517,7 +517,7 @@
         "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
         "latitude": "43.537088",
         "longitude": "10.954536"
     },
@@ -610,5 +610,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/9/99/Nova_Ponente-Stemma.png",
         "latitude": "46.412964",
         "longitude": "11.425718"
+    },
+    {
+        "location": "Comune di Granozzo Con Monticello (NO)",
+        "deadline": "2026-07-04",
+        "url": "https://www.comune.granozzoconmonticello.no.it/it-it/novita/avvisi/2026/bando-pubblico-per-l-assegnazione-di-n-1-autorizzazione-per-l-autoservizio-di-noleggio-con-conducente-392234-1-21331825e1c58e31829a1d66b3625dea",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/0/0e/Granozzo_con_Monticello-Stemma.png",
+        "latitude": "45.359250",
+        "longitude": "8.573591"
     }
 ]
