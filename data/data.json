@@ -619,5 +619,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/0/0e/Granozzo_con_Monticello-Stemma.png",
         "latitude": "45.359250",
         "longitude": "8.573591"
+    },
+    {
+        "location": "Comune di Gioiosa Marea (ME)",
+        "deadline": "2026-07-10",
+        "url": "https://www.comune.gioiosamarea.me.it/novita/avvisi/novita_665.html",
+        "amount": 12,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Gioiosa_Marea-Stemma.svg/960px-Gioiosa_Marea-Stemma.svg.png",
+        "latitude": "38.176560",
+        "longitude": "14.897858"
     }
 ]
