@@ -628,5 +628,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Gioiosa_Marea-Stemma.svg/960px-Gioiosa_Marea-Stemma.svg.png",
         "latitude": "38.176560",
         "longitude": "14.897858"
+    },
+    {
+        "location": "Comune di Pescopennataro (IS)",
+        "deadline": "2026-07-18",
+        "url": "https://comune.pescopennataro.is.it/wp-content/uploads/2026/06/5d005f86-e2e0-4b3c-836f-668877ff52f7.pdf",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Pescopennataro-Stemma.svg/960px-Pescopennataro-Stemma.svg.png",
+        "latitude": "41.878042",
+        "longitude": "14.293415"
     }
 ]
