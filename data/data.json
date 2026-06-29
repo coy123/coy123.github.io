@@ -637,5 +637,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Pescopennataro-Stemma.svg/960px-Pescopennataro-Stemma.svg.png",
         "latitude": "41.878042",
         "longitude": "14.293415"
+    },
+    {
+        "location": "Comune di Cesa (CE)",
+        "deadline": "2026-07-24",
+        "url": "https://www.comune.cesa.ce.it/novita/avvisi/novita_1117.html",
+        "amount": 24,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Cesa-Stemma.png",
+        "latitude": "40.965384",
+        "longitude": "14.228846"
+    },
+    {
+        "location": "Comune di Matelica (MC)",
+        "deadline": "2026-07-11",
+        "url": "https://halleyweb.com/c043024/zf/index.php/atti-amministrativi/delibere/dettaglio/atto/G1npneUTqZz0-A",
+        "amount": 10,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matelica-Stemma.svg/960px-Matelica-Stemma.svg.png",
+        "latitude": "43.247901",
+        "longitude": "13.006326"
     }
 ]
