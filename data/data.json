@@ -686,7 +686,7 @@
     {
         "location": "Comune di Rivello (PZ)",
         "deadline": "2026-07-31",
-        "url": "https://servizionline.hspromilaprod.hypersicapp.net/cmsrivello/portale/albopretorio/albopretorioconsultazione.aspx?P=6500",
+        "url": "https://www.comune.rivello.pz.it/it/news/118728/bando-pubblico-per-lassegnazione-di-n-2-autorizzazioni-per-il-servizio-di-noleggio-da-rimessa-con-conducente-n-c-c",
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/b/b6/Rivello-Stemma.png",
         "latitude": "40.07",
@@ -700,5 +700,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/2/20/Cardeto-Stemma.png",
         "latitude": "38.083",
         "longitude": "15.76"
+    },
+    {
+        "location": "Comune di Pavone Canavese (TO)",
+        "deadline": "2026-07-31",
+        "url": "https://www.comune.pavone.to.it/it-it/amministrazione/bandi-di-gara/2026/bando-pubblico-per-l-assegnazione-di-n-1-una-autorizzazione-per-l-esercizio-del-servizio-di-56035-1-b1f2e814dd196f10b49255e0830861bb",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Pavone_Canavese-Stemma.svg/960px-Pavone_Canavese-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "45.437559",
+        "longitude": "7.851715"
     }
 ]
