@@ -709,5 +709,41 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Pavone_Canavese-Stemma.svg/960px-Pavone_Canavese-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "latitude": "45.437559",
         "longitude": "7.851715"
+    },
+    {
+        "location": "Comune di Villachiara (BS) ",
+        "deadline": "2026-08-16",
+        "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=69cafe27d18843ca9decac012e869463",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/a/a1/Villachiara-Stemma.png",
+        "latitude": "45.35",
+        "longitude": "9.9333"
+    },
+    {
+        "location": "Comune di San Marcello Piteglio (PT)",
+        "deadline": "2026-08-16",
+        "url": "https://www.comune.sanmarcellopiteglio.pt.it/it-it/novita/avvisi/2026/avvisi-bandi-manifestazioni-di-interesse/bando-di-concorso-pubblico-per-l-assegnazione-di-n-3-autorizzazioni-per-l-esercizio-del-servizio-di-noleggio-con-conducente-n-c-c-fino-a-9-posti-396130-1-0099268c7c21c9b9d9b008364ec120e8",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/c/c0/San_Marcello_Piteglio-Stemma.png",
+        "latitude": "44.055",
+        "longitude": "10.790833"
+    },
+    {
+        "location": "Comune di Siderno (RC)",
+        "deadline": "2026-08-05",
+        "url": "https://www.comune.siderno.rc.it/it/news/noleggio-con-conducente-pubblicato-il-bando-per-l-assegnazione-di-dieci-autorizzazioni",
+        "amount": 10,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Siderno-Stemma.svg/960px-Siderno-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "38.2666",
+        "longitude": "16.3"
+    },
+    {
+        "location": "Città di Vittoria (RG)",
+        "deadline": "2026-08-16",
+        "url": "https://www.comune.vittoria.rg.it/Novita/Avvisi/Avviso-Bando-di-concorso-pubblico-per-il-rilascio-n.8-autorizzazioni-per-il-servizio-di-noleggio-con-conducente-con-autovettura-n.-1-licenza-per-lo-svolgimento-dell-attivita-di-taxi-con-autovettura",
+        "amount": 8,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Vittoria-Stemma.svg/960px-Vittoria-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "36.95",
+        "longitude": "14.533"
     }
 ]
