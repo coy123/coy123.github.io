@@ -745,5 +745,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Vittoria-Stemma.svg/960px-Vittoria-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "latitude": "36.95",
         "longitude": "14.533"
+    },
+    {
+        "location": "Comune di Casciana Terme Lari (PI)",
+        "deadline": "2026-08-17",
+        "url": "https://www.comune.cascianatermelari.pi.it/it/news/bando-di-concorso-per-titoli-per-l-assegnazione-di-3-autorizzazioni-per-il-servizio-di-noleggio-autovettura-con-conducente-per-i-comuni-di-calcinaia-casciana-terme-lari-e-palaia",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/2/2a/Casciana_Terme_Lari-Stemma.png",
+        "latitude": "43.569568",
+        "longitude": "10.587256"
     }
 ]
