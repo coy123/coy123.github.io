@@ -754,5 +754,41 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/2/2a/Casciana_Terme_Lari-Stemma.png",
         "latitude": "43.569568",
         "longitude": "10.587256"
+    },
+    {
+        "location": "Comune di Ciconio (TO)",
+        "deadline": "2026-08-04",
+        "url": "https://www.comune.ciconio.to.it/it-it/novita/avvisi/2026/bando-di-selezione-pubblica-n-1-autorizzazione-per-l-esercizio-del-servizio-noleggio-con-conducente-con-autovettura-396604-1-484daca7969b861f8757f2c6b27346e0",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/b/b2/Ciconio-Stemma.png",
+        "latitude": "45.329915",
+        "longitude": "7.759493"
+    },
+    {
+        "location": "Comune di Castelforte (LT)",
+        "deadline": "2026-08-20",
+        "url": "https://www.comune.castelforte.lt.it/novita/bando-pubblico-per-autorizzazioni-ncc/",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Castelforte-Stemma.svg/960px-Castelforte-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "41.3",
+        "longitude": "13.8333"
+    },
+    {
+        "location": "Comune di Sacco (SA)",
+        "deadline": "2026-07-28",
+        "url": "https://www.comune.sacco.sa.it/Novita/Avvisi/Avviso-pubblico-Bando-per-il-rilascio-di-n.-1-autorizzazione-NCC",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/7/76/Sacco-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
+        "latitude": "40.3788",
+        "longitude": "15.37833"
+    },
+    {
+        "location": "Comune di Palazzo San Gervasio (PZ)",
+        "deadline": "2026-08-19",
+        "url": "https://www.comune.palazzo.pz.it/page/bando-di-concorso-pubblico-per-titoli-per-l-assegn",
+        "amount": 6,
+        "image": "https://upload.wikimedia.org/wikipedia/it/c/c1/Palazzo_San_Gervasio-Stemma.png",
+        "latitude": "40.932",
+        "longitude": "15.98138"
     }
 ]
