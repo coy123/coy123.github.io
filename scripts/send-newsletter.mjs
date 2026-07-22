@@ -54,7 +54,13 @@ if (!fresh.length) {
   process.exit(0)
 }
 
-const slug = (location) => location.replace(/\s+/g, '-')
+// Must stay identical to lib/slug.ts — the static export writes ASCII paths, so
+// "Comune di Forlì (FC)" is served at /bandi/Comune-di-Forli-(FC)/.
+const slug = (location) =>
+  location
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, '-')
 const itDate = (d) =>
   new Date(d).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })
 
@@ -65,22 +71,22 @@ const rows = fresh
     const url = `https://www.bandincc.it/bandi/${slug(b.location)}/`
     return `<tr style="background:${background};border-bottom:1px solid #4B5563;">
 <td style="padding:10px 12px;text-align:center;"><img src="${b.image}" width="28" height="28" style="border-radius:50%;" alt=""></td>
-<td style="padding:10px 12px;font:400 14px Arial,Helvetica,sans-serif;"><a href="${url}" style="color:#60A5FA;text-decoration:none;">${b.location}</a></td>
+<td style="padding:10px 12px;font:400 14px Arial,Helvetica,sans-serif;color:#E5E7EB;">${b.location}</td>
 <td style="padding:10px 12px;text-align:right;font:600 14px Arial,Helvetica,sans-serif;color:#4ADE80;">${b.amount}</td>
 <td style="padding:10px 12px;text-align:center;font:400 12px Arial,Helvetica,sans-serif;color:#D1D5DB;">${itDate(b.deadline)}</td>
-<td style="padding:10px 12px;text-align:center;"><a href="${url}" style="background:#2563EB;color:#FFFFFF;padding:6px 12px;border-radius:4px;font:600 12px Arial,Helvetica,sans-serif;text-decoration:none;">Apri</a></td>
+<td style="padding:10px 12px;text-align:center;"><a href="${url}" style="display:inline-block;background:#2563EB;color:#FFFFFF;padding:6px 12px;border-radius:4px;font:500 14px Arial,Helvetica,sans-serif;text-decoration:none;"><span class="emo" style="display:none;">🔍</span><span class="lbl">Visualizza</span></a></td>
 </tr>`
   })
   .join('\n')
 
 const summary = fresh.length === 1 ? '1 nuovo bando NCC' : `${fresh.length} nuovi bandi NCC`
 
-// {{DEVINFO}} is the crawler's dev-only run panel — always empty in the newsletter.
+// replaceAll, not replace: a placeholder must never be filled at only its first
+// occurrence.
 const html = readFileSync('newsletter/email_template.html', 'utf8')
-  .replace('{{ROWS}}', rows)
-  .replace('{{SUMMARY}}', summary)
-  .replace('{{DATE}}', itDate(new Date()))
-  .replace('{{DEVINFO}}', '')
+  .replaceAll('{{ROWS}}', rows)
+  .replaceAll('{{SUMMARY}}', summary)
+  .replaceAll('{{DATE}}', itDate(new Date()))
 
 if (DRY) {
   console.log(`[dry run] ${summary}:`)

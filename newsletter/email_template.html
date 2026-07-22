@@ -4,11 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-/* Column headers mirror the site table (components/Table.tsx): desktop shows the
-   text label only (.lbl), phones show the emoji only (.emo). The emoji is hidden
-   inline by default so a client that strips <style> still falls back to the
-   readable text-only desktop look. Outlook desktop ignores @media, so it also
-   keeps the desktop layout. */
 @media only screen and (max-width:600px) {
   .lbl { display:none !important; }
   .emo { display:inline !important; }
@@ -21,26 +16,11 @@
 <tr><td align="center">
 <table role="presentation" cellpadding="0" cellspacing="0" width="780" style="max-width:780px;width:100%;background:#1F2937;border:1px solid #374151;border-radius:10px;overflow:hidden;">
 
-<!-- Header banner -->
 <tr><td style="padding:22px 24px;background:#111827;border-bottom:2px solid #16a34a;">
 <div style="font:700 22px Arial,Helvetica,sans-serif;color:#e5e7eb;"><span style="color:#4ade80;">Bandi</span>NCC</div>
 <div style="font:400 14px Arial,Helvetica,sans-serif;color:#9ca3af;padding-top:4px;">{{SUMMARY}} — {{DATE}}</div>
 </td></tr>
 
-<!-- Run-info panel: mailer.py fills {{DEVINFO}} for the dev copy only (log file,
-     counts, attachments). It renders as an empty string in the normal digest. -->
-{{DEVINFO}}
-
-<!-- Results table. mailer.py injects the <tr> rows at {{ROWS}}: five <td> in the
-     same order as the headers below, matching components/Table.tsx.
-       1 Comune      center, 28x28 crest <img> (border-radius:50%)
-       2 Località    left,   <a> #60A5FA -> https://www.bandincc.it/bandi/{slug}/
-       3 N. Licenze  right,  #4ADE80
-       4 Scadenza    center, 12px #D1D5DB, formato "5 mar 2026"
-       5 Visualizza  center, <a> bg #2563EB, #FFFFFF, padding 6px 12px, radius 4px
-     Row background is the site's deadline colour flattened to opaque hex (email
-     clients are unreliable with rgba): upcoming #294843, expired #2F3949.
-     Separator between rows: border-bottom:1px solid #4B5563. -->
 <tr><td style="padding:8px 12px 14px 12px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#374151;border-radius:8px;overflow:hidden;">
 <thead><tr style="background:#4B5563;">
@@ -54,7 +34,6 @@
 </table>
 </td></tr>
 
-<!-- Footer -->
 <tr><td style="padding:16px 24px;border-top:1px solid #374151;font:400 12px Arial,Helvetica,sans-serif;color:#6b7280;">
 Rilevamento automatico — verifica umana richiesta prima di ogni azione.
 <div style="padding-top:10px;font:400 10px Arial,Helvetica,sans-serif;color:#4b5563;">
