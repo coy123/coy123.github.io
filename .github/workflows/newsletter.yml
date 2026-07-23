@@ -10,7 +10,7 @@ name: Send newsletter
 # twice off the same commits and send the campaign to the list twice.
 on:
   push:
-    branches: [ master ]
+    branches: [ master, staging ]
     paths: [ 'data/data.json' ]
   workflow_dispatch:
     inputs:
@@ -29,7 +29,7 @@ jobs:
   send:
     runs-on: ubuntu-latest
     # Belt and braces: a manual run from any other branch must not send.
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/staging'
     concurrency:
       group: newsletter
       cancel-in-progress: false
