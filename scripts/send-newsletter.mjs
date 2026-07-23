@@ -64,7 +64,10 @@ const slug = (location) =>
 const itDate = (d) =>
   new Date(d).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })
 
-const rows = fresh
+// Same order as the home page table (components/Table.tsx): deadline descending,
+// latest scadenza first.
+const rows = [...fresh]
+  .sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime())
   .map((b) => {
     // Site row colours flattened to opaque hex — email clients are unreliable with rgba.
     const background = new Date(b.deadline) >= new Date() ? '#294843' : '#2F3949'
