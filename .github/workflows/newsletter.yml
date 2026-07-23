@@ -1,0 +1,50 @@
+name: Send newsletter
+
+# Subscriber newsletter, sent only when master gains new rows in data/data.json.
+# Kept separate from deploy.yml so a send failure never blocks the site deploy.
+#
+# The push trigger covers BOTH ways master changes: a direct push, and a pull
+# request merged into master (a merge — commit, squash or rebase — is itself a
+# push to the base branch, and the paths filter sees the whole merged diff).
+# Do NOT add `pull_request: types: [closed]` on top: a merge would then fire
+# twice off the same commits and send the campaign to the list twice.
+on:
+  push:
+    branches: [ master ]
+    paths: [ 'data/data.json' ]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Render the campaign to the log without sending'
+        type: boolean
+        default: true
+      base_sha:
+        description: 'Commit to diff data.json against (replays a failed send)'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    # Belt and braces: a manual run from any other branch must not send.
+    if: github.ref == 'refs/heads/master'
+    concurrency:
+      group: newsletter
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # the script reads data.json at the previous commit
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: node scripts/send-newsletter.mjs
+        env:
+          MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
+          MAILERLITE_GROUP_ID: ${{ secrets.MAILERLITE_GROUP_ID }}
+          BEFORE_SHA: ${{ inputs.base_sha || github.event.before }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}

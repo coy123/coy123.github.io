@@ -517,7 +517,7 @@
         "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
         "latitude": "43.537088",
         "longitude": "10.954536"
     },
@@ -556,5 +556,239 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Gambasca-Stemma.svg/960px-Gambasca-Stemma.svg.png",
         "latitude": "44.625125",
         "longitude": "7.341359"
+    },
+    {
+        "location": "Comune di Spolet (PG)",
+        "deadline": "2026-05-31",
+        "url": "https://www.comune.spoleto.pg.it/it/news/bando-di-concorso-per-l-assegnazione-di-due-autorizzazioni-per-servizio-noleggio-con-conducente",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Spoleto-Stemma_2.svg/250px-Spoleto-Stemma_2.svg.png",
+        "latitude": "42.757989",
+        "longitude": "12.723579"
+    },
+    {
+        "location": "Comune di San Ferdinando (RC)",
+        "deadline": "2026-06-25",
+        "url": "https://www.comune.sanferdinando.rc.it/it/news/bando-di-concorso-per-rilascio-nr-5-licenze-ncc",
+        "amount": 5,
+        "image": "https://upload.wikimedia.org/wikipedia/it/4/4e/San_Ferdinando_%28Italia%29-Stemma.png",
+        "latitude": "38.483293",
+        "longitude": "15.913047"
+    },
+    {
+        "location": "Comune di Prossedi (LT)",
+        "deadline": "2026-07-03",
+        "url": "https://comune.prossedi.lt.it/novita/avviso-pubblico-relativo-al-rilascio-di-n-2-autorizzazioni-comunali-per-il-servizio-di-noleggio-di-autovetture-con-conducente/",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/thumb/3/32/Prossedi-Stemma.png/960px-Prossedi-Stemma.png",
+        "latitude": "41.516509",
+        "longitude": "13.260222"
+    },
+    {
+        "location": "Città di Bagheria (PA)",
+        "deadline": "2026-06-29",
+        "url": "https://www.comune.bagheria.pa.it/it/news/riaperti-i-termini-per-il-bando-ncc-disponibili-10-autorizzazioni",
+        "amount": 10,
+        "image": "https://upload.wikimedia.org/wikipedia/it/f/f5/Bagheria-Stemma.png",
+        "latitude": "38.075026",
+        "longitude": "13.509943"
+    },
+    {
+        "location": "Comune di Pomigliano Arco (NA)",
+        "deadline": "2026-06-20",
+        "url": "https://www.comune.pomiglianodarco.na.it/area_letturaNotizia/635151/pagsistema.html",
+        "amount": 5,
+        "image": "https://upload.wikimedia.org/wikipedia/it/f/ff/Pomigliano_d%27Arco-Stemma.png",
+        "latitude": "40.904526",
+        "longitude": "14.393911"
+    },
+    {
+        "location": "Comune di Nova Ponente (BZ)",
+        "deadline": "2026-06-19",
+        "url": "http://albopretorio.gvcc.net/gem2go/amtstafel/document/21059/81599ab6-f5bb-41c9-bf69-b51fe015f674",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/99/Nova_Ponente-Stemma.png",
+        "latitude": "46.412964",
+        "longitude": "11.425718"
+    },
+    {
+        "location": "Comune di Granozzo Con Monticello (NO)",
+        "deadline": "2026-07-04",
+        "url": "https://www.comune.granozzoconmonticello.no.it/it-it/novita/avvisi/2026/bando-pubblico-per-l-assegnazione-di-n-1-autorizzazione-per-l-autoservizio-di-noleggio-con-conducente-392234-1-21331825e1c58e31829a1d66b3625dea",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/0/0e/Granozzo_con_Monticello-Stemma.png",
+        "latitude": "45.359250",
+        "longitude": "8.573591"
+    },
+    {
+        "location": "Comune di Gioiosa Marea (ME)",
+        "deadline": "2026-07-10",
+        "url": "https://www.comune.gioiosamarea.me.it/novita/avvisi/novita_665.html",
+        "amount": 12,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Gioiosa_Marea-Stemma.svg/960px-Gioiosa_Marea-Stemma.svg.png",
+        "latitude": "38.176560",
+        "longitude": "14.897858"
+    },
+    {
+        "location": "Comune di Pescopennataro (IS)",
+        "deadline": "2026-07-18",
+        "url": "https://comune.pescopennataro.is.it/wp-content/uploads/2026/06/5d005f86-e2e0-4b3c-836f-668877ff52f7.pdf",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Pescopennataro-Stemma.svg/960px-Pescopennataro-Stemma.svg.png",
+        "latitude": "41.878042",
+        "longitude": "14.293415"
+    },
+    {
+        "location": "Comune di Cesa (CE)",
+        "deadline": "2026-07-24",
+        "url": "https://www.comune.cesa.ce.it/novita/avvisi/novita_1117.html",
+        "amount": 24,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Cesa-Stemma.png",
+        "latitude": "40.965384",
+        "longitude": "14.228846"
+    },
+    {
+        "location": "Comune di Matelica (MC)",
+        "deadline": "2026-07-11",
+        "url": "https://halleyweb.com/c043024/zf/index.php/atti-amministrativi/delibere/dettaglio/atto/G1npneUTqZz0-A",
+        "amount": 10,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matelica-Stemma.svg/960px-Matelica-Stemma.svg.png",
+        "latitude": "43.247901",
+        "longitude": "13.006326"
+    },
+    {
+        "location": "Comune di Edolo (BS)",
+        "deadline": "2026-07-21",
+        "url": "https://www.comune.edolo.bs.it/avviso/avviso-bando-di-concorso-pubblico-per-l-assegnazione-di-n-3-autorizzazioni-per-l-esercizio-del-servizio-di-noleggio-con-conducente-ncc-mediante-autovettura",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Edolo-Stemma.svg/250px-Edolo-Stemma.svg.png",
+        "latitude": "46.1788",
+        "longitude": "10.33"
+    },
+    {
+        "location": "Comune di Fiesco (CR)",
+        "deadline": "2026-07-21",
+        "url": "https://www.comune.fiesco.cr.it/it-it/novita/avvisi/2026/bando-di-pubblico-concorso-per-l-assegnazione-gratuita-di-n-1-autorizzazione-per-l-esercizio-del-servizio-di-noleggio-con-conducente-ncc-394819-1-83caaf70a4bd9f97ad1d1b7ddec9124f",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/2/23/Fiesco-Stemma.png",
+        "latitude": "45.333",
+        "longitude": "9.783"
+    },
+    {
+        "location": "Comune di Asola (MN)",
+        "deadline": "2026-07-17",
+        "url": "https://www.comune.asola.mn.it/novita/bando-di-selezione-pubblica-per-lesercizio-di-noleggio-conducente/",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Asola-Stemma.svg/960px-Asola-Stemma.svg.png",
+        "latitude": "45.216",
+        "longitude": "10.4166"
+    },
+    {
+        "location": "Comune di Rivello (PZ)",
+        "deadline": "2026-07-31",
+        "url": "https://www.comune.rivello.pz.it/it/news/118728/bando-pubblico-per-lassegnazione-di-n-2-autorizzazioni-per-il-servizio-di-noleggio-da-rimessa-con-conducente-n-c-c",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/b/b6/Rivello-Stemma.png",
+        "latitude": "40.07",
+        "longitude": "15.7"
+    },
+    {
+        "location": "Comune di Cardeto (RC)",
+        "deadline": "2026-07-16",
+        "url": "https://www.comune.cardeto.rc.it/it/news/avviso-pubblico-per-l-assegnazione-di-n-10-autorizzazioni-ncc?type=3",
+        "amount": 10,
+        "image": "https://upload.wikimedia.org/wikipedia/it/2/20/Cardeto-Stemma.png",
+        "latitude": "38.083",
+        "longitude": "15.76"
+    },
+    {
+        "location": "Comune di Pavone Canavese (TO)",
+        "deadline": "2026-07-31",
+        "url": "https://www.comune.pavone.to.it/it-it/amministrazione/bandi-di-gara/2026/bando-pubblico-per-l-assegnazione-di-n-1-una-autorizzazione-per-l-esercizio-del-servizio-di-56035-1-b1f2e814dd196f10b49255e0830861bb",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Pavone_Canavese-Stemma.svg/960px-Pavone_Canavese-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "45.437559",
+        "longitude": "7.851715"
+    },
+    {
+        "location": "Comune di Villachiara (BS) ",
+        "deadline": "2026-08-16",
+        "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=69cafe27d18843ca9decac012e869463",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/a/a1/Villachiara-Stemma.png",
+        "latitude": "45.35",
+        "longitude": "9.9333"
+    },
+    {
+        "location": "Comune di San Marcello Piteglio (PT)",
+        "deadline": "2026-08-16",
+        "url": "https://www.comune.sanmarcellopiteglio.pt.it/it-it/novita/avvisi/2026/avvisi-bandi-manifestazioni-di-interesse/bando-di-concorso-pubblico-per-l-assegnazione-di-n-3-autorizzazioni-per-l-esercizio-del-servizio-di-noleggio-con-conducente-n-c-c-fino-a-9-posti-396130-1-0099268c7c21c9b9d9b008364ec120e8",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/c/c0/San_Marcello_Piteglio-Stemma.png",
+        "latitude": "44.055",
+        "longitude": "10.790833"
+    },
+    {
+        "location": "Comune di Siderno (RC)",
+        "deadline": "2026-08-05",
+        "url": "https://www.comune.siderno.rc.it/it/news/noleggio-con-conducente-pubblicato-il-bando-per-l-assegnazione-di-dieci-autorizzazioni",
+        "amount": 10,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Siderno-Stemma.svg/960px-Siderno-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "38.2666",
+        "longitude": "16.3"
+    },
+    {
+        "location": "Città di Vittoria (RG)",
+        "deadline": "2026-08-16",
+        "url": "https://www.comune.vittoria.rg.it/Novita/Avvisi/Avviso-Bando-di-concorso-pubblico-per-il-rilascio-n.8-autorizzazioni-per-il-servizio-di-noleggio-con-conducente-con-autovettura-n.-1-licenza-per-lo-svolgimento-dell-attivita-di-taxi-con-autovettura",
+        "amount": 8,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Vittoria-Stemma.svg/960px-Vittoria-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "36.95",
+        "longitude": "14.533"
+    },
+    {
+        "location": "Comune di Casciana Terme Lari (PI)",
+        "deadline": "2026-08-17",
+        "url": "https://www.comune.cascianatermelari.pi.it/it/news/bando-di-concorso-per-titoli-per-l-assegnazione-di-3-autorizzazioni-per-il-servizio-di-noleggio-autovettura-con-conducente-per-i-comuni-di-calcinaia-casciana-terme-lari-e-palaia",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/2/2a/Casciana_Terme_Lari-Stemma.png",
+        "latitude": "43.569568",
+        "longitude": "10.587256"
+    },
+    {
+        "location": "Comune di Ciconio (TO)",
+        "deadline": "2026-08-04",
+        "url": "https://www.comune.ciconio.to.it/it-it/novita/avvisi/2026/bando-di-selezione-pubblica-n-1-autorizzazione-per-l-esercizio-del-servizio-noleggio-con-conducente-con-autovettura-396604-1-484daca7969b861f8757f2c6b27346e0",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/b/b2/Ciconio-Stemma.png",
+        "latitude": "45.329915",
+        "longitude": "7.759493"
+    },
+    {
+        "location": "Comune di Castelforte (LT)",
+        "deadline": "2026-08-20",
+        "url": "https://www.comune.castelforte.lt.it/novita/bando-pubblico-per-autorizzazioni-ncc/",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Castelforte-Stemma.svg/960px-Castelforte-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "latitude": "41.3",
+        "longitude": "13.8333"
+    },
+    {
+        "location": "Comune di Sacco (SA)",
+        "deadline": "2026-07-28",
+        "url": "https://www.comune.sacco.sa.it/Novita/Avvisi/Avviso-pubblico-Bando-per-il-rilascio-di-n.-1-autorizzazione-NCC",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/7/76/Sacco-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
+        "latitude": "40.3788",
+        "longitude": "15.37833"
+    },
+    {
+        "location": "Comune di Palazzo San Gervasio (PZ)",
+        "deadline": "2026-08-19",
+        "url": "https://www.comune.palazzo.pz.it/page/bando-di-concorso-pubblico-per-titoli-per-l-assegn",
+        "amount": 6,
+        "image": "https://upload.wikimedia.org/wikipedia/it/c/c1/Palazzo_San_Gervasio-Stemma.png",
+        "latitude": "40.932",
+        "longitude": "15.98138"
     }
 ]

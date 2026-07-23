@@ -1,0 +1,3 @@
+[submodule "bandincc-crawler"]
+	path = bandincc-crawler
+	url = git@github.com:coy123/bandincc-crawler.git
