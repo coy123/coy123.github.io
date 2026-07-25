@@ -790,5 +790,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/c/c1/Palazzo_San_Gervasio-Stemma.png",
         "latitude": "40.932",
         "longitude": "15.98138"
+    },
+    {
+        "location": "Comune di Veglie (LE)",
+        "deadline": "2026-09-05",
+        "url": "https://www.comune.veglie.le.it/vivere-il-comune/attivita/bacheca/item/bando-per-l-assegnazione-di-n-7-autorizzazioni-per-l-esercizio-del-servizio-di-noleggio-con-conducente-ncc-adibito-al-trasporto-di-persone-fino-a-9-posti",
+        "amount": 7,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Veglie-Stemma.svg/1920px-Veglie-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "latitude": "40.3333",
+        "longitude": "17.966"
     }
 ]
