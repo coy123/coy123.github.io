@@ -1,67 +1,67 @@
 [
-  {
-    "location": "Milano",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/CoA_Citt%C3%A0_di_Milano.svg/250px-CoA_Citt%C3%A0_di_Milano.svg.png",
-    "url": "https://www.cittametropolitana.mi.it/export/sites/default/trasporti/doc/Ruolo_conducenti/Programma_Ex_REGOLAMENTI_COMUNE_DI_MILANO_TAXI_E_NCC.pdf"
-  },
-  {
-    "location": "Roma",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Roma-Stemma-2.svg/500px-Roma-Stemma-2.svg.png",
-    "url": "https://www.comune.roma.it/web-resources/cms/documents/Deliberazione_Assemblea_Capitolina_51_2021_smi.pdf"
-  },
-  {
-    "location": "Napoli",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Napoli-Stemma.svg/960px-Napoli-Stemma.svg.png",
-    "url": "https://www.comune.napoli.it/flex/cm/pages/ServeAttachment.php/L/IT/D/D.ac1439645c9555f0b6ea/P/BLOB%3AID%3D315/E/zip?mode=download"
-  },
-  {
-    "location": "Torino",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Torino-Stemma.svg/500px-Torino-Stemma.svg.png",
-    "url": "https://www.comune.torino.it/amministrazione/documenti-dati/documenti/n-132-regolamento-per-servizio-pubblico-auto-noleggio-rimessa-conducente"
-  },
-  {
-    "location": "Genova",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Coat_of_Arms_of_Genoa-2.svg/960px-Coat_of_Arms_of_Genoa-2.svg.png",
-    "url": "https://smart.comune.genova.it/system/files/regolamenti/regolamento__servizi_autonoleggio_conducente.pdf "
-  },
-  {
-    "location": "Bologna",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bologna-Stemma.svg/500px-Bologna-Stemma.svg.png",
-    "url": "https://www.comune.bologna.it/regolamenti/regolamento-gestione-taxi-noleggio-con-conducente"
-  },
-  {
-    "location": "Firenze",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/FlorenceCoA.svg/960px-FlorenceCoA.svg.png",
-    "url": "https://amministrazionetrasparente.comune.firenze.it/system/files/2017-11/autonoleggio_conducente_0.pdf "
-  },
-  {
-    "location": "Bari",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Bari-Stemma.svg/960px-Bari-Stemma.svg.png",
-    "url": "https://www.comune.bari.it/documents/35011/42824538/Atto202200070%2Bdel%2B11-11-2022/f6e40b59-f4be-4810-a9e6-bc4bb6c1df61"
-  },
-  {
-    "location": "Verona",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Verona-Stemma.svg/500px-Verona-Stemma.svg.png",
-    "url": "https://www.comune.verona.it/Amministrazione/Documenti-e-dati/Documenti-funzionamento-interno/Regolamento-per-il-servizio-di-noleggio-con-conducente-NCC-a-mezzo-autovettura"
-  },
-  {
-    "location": "Prato",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Prato-Stemma.svg/960px-Prato-Stemma.svg.png",
-    "url": "https://www.comune.prato.it/it/amministrazione/documenti-e-dati/atti-normativi/regolamenti/noleggio-veicoli-nove-posti/archivio52_0_109.html"
-  },
-  {
-    "location": "Trento",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Coat_of_arms_of_Trento.svg/500px-Coat_of_arms_of_Trento.svg.png",
-    "url": "https://www.comune.trento.it/Amministrazione/Documenti-e-dati/Documenti-funzionamento-interno/Regolamento-per-il-servizio-di-noleggio-con-conducente-fino-a-9-posti"
-  },
-  {
-    "location": "Ragusa",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ragusa-Stemma.svg/960px-Ragusa-Stemma.svg.png",
-    "url": "https://municipium-images-production.s3-eu-west-1.amazonaws.com/s3/5639/allegati/regolamento-emendato-servizio-pubblico-non-di-linea.pdf"
-  },
-  {
-    "location": "Siena",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Stemma_di_Siena.svg/960px-Stemma_di_Siena.svg.png",
-    "url": "https://www.comune.siena.it/sites/default/files/2024-04/Regolamento%20noleggio%20con%20conducente%20di%20veicoli%20fino%20a%209%20posti%20.pdf"
-  }
+    {
+        "location": "Milano",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/CoA_Citt%C3%A0_di_Milano.svg/250px-CoA_Citt%C3%A0_di_Milano.svg.png",
+        "url": "https://www.cittametropolitana.mi.it/export/sites/default/trasporti/doc/Ruolo_conducenti/Programma_Ex_REGOLAMENTI_COMUNE_DI_MILANO_TAXI_E_NCC.pdf"
+    },
+    {
+        "location": "Roma",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Roma-Stemma-2.svg/500px-Roma-Stemma-2.svg.png",
+        "url": "https://www.comune.roma.it/web-resources/cms/documents/Deliberazione_Assemblea_Capitolina_51_2021_smi.pdf"
+    },
+    {
+        "location": "Napoli",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Napoli-Stemma.svg/960px-Napoli-Stemma.svg.png",
+        "url": "https://www.comune.napoli.it/articolo_tematico/trasporti-mobilita/taxi-e-ncc/noleggio-con-conducente/"
+    },
+    {
+        "location": "Torino",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Torino-Stemma.svg/500px-Torino-Stemma.svg.png",
+        "url": "https://www.comune.torino.it/amministrazione/documenti-dati/documenti/n-132-regolamento-per-servizio-pubblico-auto-noleggio-rimessa-conducente"
+    },
+    {
+        "location": "Genova",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Coat_of_Arms_of_Genoa-2.svg/960px-Coat_of_Arms_of_Genoa-2.svg.png",
+        "url": "https://smart.comune.genova.it/system/files/regolamenti/regolamento__servizi_autonoleggio_conducente.pdf "
+    },
+    {
+        "location": "Bologna",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bologna-Stemma.svg/500px-Bologna-Stemma.svg.png",
+        "url": "https://www.comune.bologna.it/regolamenti/regolamento-gestione-taxi-noleggio-con-conducente"
+    },
+    {
+        "location": "Firenze",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/FlorenceCoA.svg/960px-FlorenceCoA.svg.png",
+        "url": "https://amministrazionetrasparente.comune.firenze.it/system/files/2017-11/autonoleggio_conducente_0.pdf "
+    },
+    {
+        "location": "Bari",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Bari-Stemma.svg/960px-Bari-Stemma.svg.png",
+        "url": "https://www.comune.bari.it/documents/40500/851511/UI_40500_40506_DELIBERA_MUNICIPIO4_202200050_DEL_28_11_20_53115290_47603__caricare3579048120250908124450493FYGMMKZR..pdf/62964904-b77b-4ecb-4a3b-4cc01d026e56"
+    },
+    {
+        "location": "Verona",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Verona-Stemma.svg/500px-Verona-Stemma.svg.png",
+        "url": "https://www.comune.verona.it/Amministrazione/Documenti-e-dati/Documenti-funzionamento-interno/Regolamento-per-il-servizio-di-noleggio-con-conducente-NCC-a-mezzo-autovettura"
+    },
+    {
+        "location": "Prato",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Prato-Stemma.svg/960px-Prato-Stemma.svg.png",
+        "url": "https://www.comune.prato.it/it/amministrazione/documenti-e-dati/atti-normativi/regolamenti/noleggio-veicoli-nove-posti/archivio52_0_109.html"
+    },
+    {
+        "location": "Trento",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Coat_of_arms_of_Trento.svg/500px-Coat_of_arms_of_Trento.svg.png",
+        "url": "https://www.comune.trento.it/Amministrazione/Documenti-e-dati/Documenti-funzionamento-interno/Regolamento-per-il-servizio-di-noleggio-con-conducente-fino-a-9-posti"
+    },
+    {
+        "location": "Ragusa",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ragusa-Stemma.svg/960px-Ragusa-Stemma.svg.png",
+        "url": "https://municipium-images-production.s3-eu-west-1.amazonaws.com/s3/5639/allegati/regolamento-emendato-servizio-pubblico-non-di-linea.pdf"
+    },
+    {
+        "location": "Siena",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Stemma_di_Siena.svg/960px-Stemma_di_Siena.svg.png",
+        "url": "https://www.comune.siena.it/sites/default/files/2024-04/Regolamento%20noleggio%20con%20conducente%20di%20veicoli%20fino%20a%209%20posti%20.pdf"
+    }
 ]
