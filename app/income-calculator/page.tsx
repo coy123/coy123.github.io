@@ -178,46 +178,46 @@ export default function IncomeCalculatorPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <>
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
+          {/* Backdrop — nested inside the centring wrapper so that clicks
+              outside the panel actually reach it. */}
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 animate-fadeIn"
+            className="absolute inset-0 bg-black bg-opacity-50"
             onClick={closeModal}
           />
 
           {/* Modal content */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
-            <div className="relative bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-600 animate-scaleIn">
-              {/* Close button */}
-              <button
-                onClick={closeModal}
-                className="absolute top-4 right-4 text-white hover:text-white"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+          <div className="relative bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-600 animate-scaleIn">
+            {/* Close button */}
+            <button
+              onClick={closeModal}
+              aria-label="Chiudi"
+              className="absolute top-4 right-4 text-white hover:text-white"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
-              {/* Modal header */}
-              <h3 className="text-2xl font-bold text-gray-300 mb-4">Risultato</h3>
+            {/* Modal header */}
+            <h3 className="text-2xl font-bold text-gray-300 mb-4">Risultato</h3>
 
-              {/* Result */}
-              <div className="text-center py-6">
-                <p className="text-4xl font-bold text-green-400">
-                  {result?.toFixed(2)} € al mese
-                </p>
-              </div>
-
-              {/* Close button at bottom */}
-              <button
-                onClick={closeModal}
-                className="w-full mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-              >
-                Chiudi
-              </button>
+            {/* Result */}
+            <div className="text-center py-6">
+              <p className="text-4xl font-bold text-green-400">
+                {result?.toFixed(2)} € al mese
+              </p>
             </div>
+
+            {/* Close button at bottom */}
+            <button
+              onClick={closeModal}
+              className="w-full mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              Chiudi
+            </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

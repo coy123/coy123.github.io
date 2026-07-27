@@ -137,7 +137,7 @@
     "privacyPolicy": {
       "title": "Informativa sulla Privacy",
       "subtitle": "Come raccogliamo e proteggiamo i tuoi dati personali",
-      "metaTitle": "Privacy Policy - Bandi NCC Italia",
+      "metaTitle": "Privacy Policy",
       "metaDescription": "Informativa sulla privacy di bandincc.it: come raccogliamo, utilizziamo e proteggiamo i tuoi dati personali.",
       "sections": [
         {
@@ -190,7 +190,7 @@
     "cookiePolicy": {
       "title": "Cookie Policy",
       "subtitle": "Informativa sull'utilizzo dei cookie su bandincc.it",
-      "metaTitle": "Cookie Policy - Bandi NCC Italia",
+      "metaTitle": "Cookie Policy",
       "metaDescription": "Informativa completa sull'utilizzo dei cookie su bandincc.it: tipologie, finalità e gestione dei cookie.",
       "sections": [
         {

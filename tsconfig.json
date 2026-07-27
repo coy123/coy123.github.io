@@ -41,6 +41,8 @@
     "node_modules",
     "src_old",
     "dist",
-    "scripts"
+    "scripts",
+    "cypress",
+    "cypress.config.ts"
   ]
 }

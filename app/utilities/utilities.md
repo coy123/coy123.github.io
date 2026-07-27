@@ -1,12 +1,12 @@
-# **NCC Utilities – Numeri, strumenti e link utili**
+## **NCC Utilities – Numeri, strumenti e link utili**
 
 Questa pagina raccoglie **strumenti pratici, stime indicative e link utili** per chi sta valutando di entrare nel mondo **NCC**
 
 ---
 
-## **Costi tipici per avviare un’attività NCC**
+### **Costi tipici per avviare un’attività NCC**
 
-### **🔹 Costi iniziali (one-off)**
+#### **🔹 Costi iniziali (one-off)**
 
 | Voce | Costo |
 | ----- | ----- |
@@ -19,7 +19,7 @@ Questa pagina raccoglie **strumenti pratici, stime indicative e link utili** per
 
 ---
 
-### **🔹 Costi ricorrenti (mensili)**
+#### **🔹 Costi ricorrenti (mensili)**
 
 | Voce | Costo |
 | ----- | ----- |
@@ -33,7 +33,7 @@ Questa pagina raccoglie **strumenti pratici, stime indicative e link utili** per
 
 ---
 
-## **Business plan NCC – schema semplice**
+### **Business plan NCC – schema semplice**
 
 Un **business plan NCC minimo** risponde a 5 domande:
 
@@ -52,7 +52,7 @@ Per aiutarti, prova il nostro [calcolatore guadagni NCC](/income-calculator)
 
 ---
 
-## **Iscrizione alle principali piattaforme NCC**
+### **Iscrizione alle principali piattaforme NCC**
 
 Queste piattaforme possono aiutare **all’inizio** o come integrazione:
 
@@ -74,7 +74,7 @@ Sono utili per:
 
 ---
 
-## **Errori comuni da evitare**
+### **Errori comuni da evitare**
 
 ❌ Sottostimare i costi fissi  
 ❌ Comprare l’auto “troppo bella” subito  
@@ -84,7 +84,7 @@ Sono utili per:
 
 ---
 
-## **Strumenti utili di bandincc.it:**
+### **Strumenti utili di bandincc.it:**
 
 * [Calcolatore fatturato & profitti NCC](/income-calculator)
 * [Elenco bandi NCC aperti](/)

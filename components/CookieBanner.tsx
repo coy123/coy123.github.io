@@ -73,6 +73,7 @@ export default function CookieBanner() {
           <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-md w-full">
             <button
               onClick={() => setIsModalOpen(false)}
+              aria-label="Chiudi"
               className="absolute top-4 right-4 text-gray-400 hover:text-white"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

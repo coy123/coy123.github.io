@@ -1,8 +1,19 @@
 // Generates a URL-safe slug from a location name.
-// Strips diacritics (e.g. "Città" → "Citta") so static-export paths stay ASCII
-// and work correctly on GitHub Pages, then replaces whitespace with hyphens.
+//
+// Static export writes one directory per slug, so the result has to stay ASCII
+// to work reliably on GitHub Pages. Three things are normalised before the
+// whitespace is hyphenated:
+//   - diacritics          "Città"   -> "Citta"
+//   - typographic quotes  "d’Elsa"  -> "d'Elsa"
+//   - typographic dashes  "Val–Sud" -> "Val-Sud"
+// Anything still outside printable ASCII after that is dropped.
 export const toSlug = (location: string) =>
   location
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+    .replace(/[‘’‚‛′]/g, "'")
+    .replace(/[“”„‟″]/g, '"')
+    .replace(/[‐-―−]/g, '-')
+    .replace(/[^\x20-\x7e]/g, '')
+    .trim()
     .replace(/\s+/g, '-')

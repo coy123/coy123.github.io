@@ -36,6 +36,24 @@ There are two branches: staging and master. Development is done on staging. Stag
 - `npm run dev`: build and run the project locally (uses Turbopack)
 - `npm run build`: production build via Next.js
 - `npm run lint`: run Next.js linter
+- `npm run test:e2e`: run the Cypress suite against `next dev`
+- `npm run test:e2e:static`: run it against the built `out/` export (run `npm run build` first)
+- `npm run test:e2e:open`: same as `test:e2e`, with the Cypress UI
+
+# Testing
+End-to-end tests live in `cypress/` (TypeScript, Cypress 15) and are documented
+in `cypress/README.md`. They are intended to gate deploys — the CI wiring is not
+in place yet.
+
+Key conventions:
+- The app carries **no `data-testid` attributes**. Selectors live in
+  `cypress/support/selectors.ts`, anchored on structural Tailwind classes.
+- `cypress/support/site.ts` imports the real `data/*.json`, `locales/it.json`,
+  `lib/slug.ts` and `lib/calculator.ts`, so adding a bid, law, FAQ or glossary
+  term never requires editing a spec.
+- Third-party assets (Wikimedia crests, OSM tiles, Umami) are stubbed by
+  default; `CYPRESS_checkExternalLinks=true` opts into real network checks.
+- `cy.visitPage()` pre-dismisses the cookie banner; `cy.visitRaw()` does not.
 
 # Code Style
 - Use ES modules (import/export) syntax, not CommonJS (require)
@@ -51,7 +69,7 @@ There are two branches: staging and master. Development is done on staging. Stag
 │   ├── page.tsx                # Home page (bid table + map)
 │   ├── globals.css             # Tailwind imports + custom animations (fadeIn, scaleIn)
 │   ├── not-found.tsx           # Custom 404 page
-│   ├── bandi/[slug]/           # Dynamic bid detail pages
+│   ├── bandi/[bid]/            # Dynamic bid detail pages
 │   │   ├── page.tsx            # Bid detail (SSG with generateStaticParams)
 │   │   ├── BidDetailMap.tsx    # Single-marker Leaflet map for a bid
 │   │   ├── BidDetailMapWrapper.tsx # Dynamic import wrapper (SSR disabled)
@@ -148,7 +166,7 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - SEO content sections rendered from `t.pages.home.sections` with internal links to related pages
 - JSON-LD Dataset schema
 
-## Bid Detail Page (`app/bandi/[slug]/page.tsx`)
+## Bid Detail Page (`app/bandi/[bid]/page.tsx`)
 - **Statically generated** via `generateStaticParams()` — one page per bid entry
 - Slug derived from location: spaces replaced with hyphens
 - Hero section + bid details card showing: crest image, location name, license count, deadline date, active/expired status (`BidStatus` client component), link to official source
@@ -316,7 +334,7 @@ Add an entry to `data/data.json`. Required fields:
   "longitude": "12.5678"
 }
 ```
-- `location`: Municipality name with province code in parentheses. This is used to generate the slug for `/bandi/[slug]` (spaces → hyphens).
+- `location`: Municipality name with province code in parentheses. This is used to generate the slug for `/bandi/[bid]` via `toSlug()` in `lib/slug.ts`. Keep it trimmed — a trailing space would leak into the URL.
 - `latitude`/`longitude`: Stored as **strings** in JSON, converted to numbers by `lib/data.ts`. Optional but needed for map display.
 - `image`: URL to the municipality's coat of arms (usually from Wikimedia).
 - A new bid detail page at `/bandi/{slug}` is automatically generated at build time via `generateStaticParams()`.
@@ -367,7 +385,13 @@ const MapView = dynamic(() => import('./MapView'), { ssr: false, loading: () => 
 Every page uses the same hero section structure: background image (`/images/driver.png`), h1 title and h2 subtitle with semi-transparent black background overlays. Text content comes from translations.
 
 ## Slug Generation
-Bid detail page slugs are generated from `location.replace(/\s+/g, '-')`. Example: `"Comune di Milano (MI)"` → `"Comune-di-Milano-(MI)"`. Same logic is used in Table/MapView links and in `generateStaticParams()`.
+Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `MapView`, `generateStaticParams()` and `findBid()` alike. It strips diacritics, folds typographic quotes and dashes to their ASCII equivalents, drops anything still outside printable ASCII, then hyphenates whitespace:
+
+- `"Comune di Milano (MI)"` → `"Comune-di-Milano-(MI)"`
+- `"Comune di Forlì (FC)"` → `"Comune-di-Forli-(FC)"`
+- `"Comune di Colle di Val d’Elsa (Toscana)"` → `"Comune-di-Colle-di-Val-d'Elsa-(Toscana)"`
+
+Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `cypress/e2e/data-integrity.cy.ts` enforces this.
 
 ## Law ↔ Bid Matching
 On bid detail pages, `findLaw()` matches a bid's location against law entries using `location.toLowerCase().includes(law.location.toLowerCase())`. So a law with `location: "Milano"` matches a bid with `location: "Comune di Milano (MI)"`.
@@ -389,6 +413,6 @@ The home page section about participating in bids contains a Keliweb affiliate l
 Both `postcss.config.mjs` (ESM) and `postcss.config.cjs` (CommonJS) exist. The `.mjs` uses `tailwindcss` plugin, the `.cjs` uses `@tailwindcss/postcss`. This can cause confusion — Next.js picks one based on its module resolution.
 
 # Current Data Stats (as of last update)
-- 54 NCC bid entries in `data/data.json`
+- 89 NCC bid entries in `data/data.json`
 - 13 regional law entries in `data/laws.json`
 - 17 FAQ entries in `data/faq.json`

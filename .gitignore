@@ -13,3 +13,9 @@ yarn-error.log*
 
 dist
 .next
+out
+
+# Cypress artifacts
+cypress/screenshots
+cypress/videos
+cypress/downloads

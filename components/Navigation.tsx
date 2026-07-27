@@ -94,9 +94,11 @@ export default function Navigation() {
               </svg>
             )}
           </button>
-          <h1 className="flex-1 text-center text-lg font-semibold text-white">
+          {/* Not an <h1>: every page already has one, and a second heading
+              would compete with it for the document outline. */}
+          <p className="flex-1 text-center text-lg font-semibold text-white">
             {t.nav.title}
-          </h1>
+          </p>
           <Link
             href="/income-calculator"
             className="absolute right-4 p-2 text-xl"
