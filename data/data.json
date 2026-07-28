@@ -799,5 +799,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Veglie-Stemma.svg/1920px-Veglie-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "latitude": "40.3333",
         "longitude": "17.966"
+    },
+    {
+        "location": "Comune di Castropignano (CB)",
+        "deadline": "2026-08-07",
+        "url": "https://comune.castropignano.cb.it/novita/pubblicazione-del-bando-di-concorso-pubblico-per-titoli-per-lassegnazione-di-n-1-autorizzazione-per-lesercizio-del-servizio-di-noleggio-con-conducente-n-c-c-mediante-autovettura/",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/6/63/Castropignano-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "41.61",
+        "longitude": "14.56"
+    },
+    {
+        "location": "Comune di Anfo (BS)",
+        "deadline": "2026-09-10",
+        "url": "https://www.comune.anfo.bs.it/area_letturaNotizia/45492/pagsistema.html",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/2/2b/Anfo-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "45.7666",
+        "longitude": "10.5"
     }
 ]
