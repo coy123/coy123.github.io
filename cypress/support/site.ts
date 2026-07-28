@@ -77,6 +77,23 @@ export const plainText = (markdown: string) =>
     .replace(/\s+/g, ' ')
     .trim()
 
+/* ------------------------------------------------------------------ */
+/* Href helpers                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * `trailingSlash: true` makes `next/link` emit the canonical `/faq/` form,
+ * while the raw `<a>` tags in `Table.tsx` and the Leaflet popups in
+ * `MapView.tsx` keep the `/faq` form they were authored with. Both resolve to
+ * the same page, so href assertions accept either.
+ */
+export const hrefSelector = (path: string) =>
+  path === '/' ? 'a[href="/"]' : `a[href="${path}"], a[href="${path}/"]`
+
+/** Compares two paths ignoring a trailing slash. */
+export const samePath = (actual: string, expected: string) =>
+  actual.replace(/\/+$/, '') === expected.replace(/\/+$/, '')
+
 /** Collapses every run of whitespace (incl. &nbsp;) so text can be compared. */
 export const normalize = (value: string) =>
   value.replace(/ /g, ' ').replace(/\s+/g, ' ').trim()

@@ -1,5 +1,5 @@
 import { sel } from '../support/selectors'
-import { t } from '../support/site'
+import { hrefSelector, samePath, t } from '../support/site'
 
 /**
  * The two long-form pages read a .md file at build time and render it with
@@ -108,7 +108,9 @@ describe('Markdown article pages', () => {
 
       it('renders the author box', () => {
         cy.contains('Scritto da').should('be.visible')
-        cy.contains('a', 'Scopri di più').should('have.attr', 'href', '/about-us')
+        cy.contains('a', 'Scopri di più').should(($link) => {
+          expect(samePath($link.attr('href') ?? '', '/about-us')).to.be.true
+        })
       })
 
       it(`publishes an ${article.schema} schema`, () => {
@@ -123,7 +125,7 @@ describe('Markdown article pages', () => {
 
       article.internalLinks.forEach((href) => {
         it(`links to ${href} from the resources box`, () => {
-          cy.contains('h3', 'Risorse utili').parent().find(`a[href="${href}"]`).should('be.visible')
+          cy.contains('h3', 'Risorse utili').parent().find(hrefSelector(href)).should('be.visible')
         })
       })
     })
@@ -131,7 +133,7 @@ describe('Markdown article pages', () => {
 
   it('reaches the regional laws page from the driver guide', () => {
     cy.visitPage('/how-to-become-driver')
-    cy.contains('h3', 'Risorse utili').parent().find('a[href="/regional-laws"]').click()
+    cy.contains('h3', 'Risorse utili').parent().find(hrefSelector('/regional-laws')).click()
     cy.assertPath('/regional-laws')
   })
 })

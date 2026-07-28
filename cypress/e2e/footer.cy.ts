@@ -1,6 +1,6 @@
 import { FOOTER_LINKS, ROUTES } from '../support/routes'
 import { sel } from '../support/selectors'
-import { t } from '../support/site'
+import { samePath, t } from '../support/site'
 
 describe('Footer', () => {
   beforeEach(() => {
@@ -13,7 +13,10 @@ describe('Footer', () => {
       .find('a')
       .should('have.length', FOOTER_LINKS.length)
       .each(($link, index) => {
-        expect($link.attr('href')).to.eq(FOOTER_LINKS[index].path)
+        expect(
+          samePath($link.attr('href') ?? '', FOOTER_LINKS[index].path),
+          `href of ${FOOTER_LINKS[index].label}`
+        ).to.be.true
         expect($link.text().trim()).to.eq(FOOTER_LINKS[index].label)
       })
   })

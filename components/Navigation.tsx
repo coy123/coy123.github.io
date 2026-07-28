@@ -21,7 +21,11 @@ export default function Navigation() {
     { path: '/contact', key: 'contact' },
   ]
 
-  const isActive = (path: string) => pathname === path
+  // `trailingSlash: true` makes usePathname() return "/faq/", while navItems
+  // hold "/faq". Comparing them raw left every page except the home page
+  // without an active-link highlight.
+  const normalizePath = (path: string) => path.replace(/\/+$/, '') || '/'
+  const isActive = (path: string) => normalizePath(pathname ?? '/') === normalizePath(path)
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -54,7 +58,9 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <div className="md:hidden bg-gray-900 border-b border-gray-700 sticky top-0 z-40">
+      {/* Above the drawer (z-50) so the toggle stays clickable while the menu
+          is open — otherwise the drawer covers it and its X state is dead. */}
+      <div className="md:hidden bg-gray-900 border-b border-gray-700 sticky top-0 z-[60]">
         <div className="px-4 py-3 flex items-center relative">
           <button
             onClick={toggleMobileMenu}
@@ -119,7 +125,8 @@ export default function Navigation() {
           />
           {/* Menu */}
           <div className="md:hidden fixed top-0 left-0 w-64 h-full bg-gray-900 shadow-lg z-50 overflow-y-auto">
-            <div className="px-4 pt-4 pb-4 space-y-1">
+            {/* pt-20 clears the sticky header that now sits above this panel. */}
+            <div className="px-4 pt-20 pb-4 space-y-1">
               {navItems.map((item) => (
                 <Link
                   key={item.path}

@@ -28,12 +28,16 @@ describe('FAQ and glossary page', () => {
     glossaryAccordion().children('div').should('have.length', glossaryTerms.length)
   })
 
+  // The gap between the number and the label is a CSS margin (`mr-3`), so the
+  // text content runs them together: "1.Quanto capitale...".
+  const labelled = (index: number, label: string) => `${index + 1}.${label}`
+
   it('renders every FAQ question, numbered in order', () => {
     faqAccordion()
       .find('button')
       .should('have.length', faqs.length)
       .each(($button, index) => {
-        expect(normalize($button.text())).to.eq(`${index + 1}. ${faqs[index].question}`)
+        expect(normalize($button.text())).to.eq(labelled(index, faqs[index].question))
       })
   })
 
@@ -42,7 +46,7 @@ describe('FAQ and glossary page', () => {
       .find('button')
       .should('have.length', glossaryTerms.length)
       .each(($button, index) => {
-        expect(normalize($button.text())).to.eq(`${index + 1}. ${glossaryTerms[index].term}`)
+        expect(normalize($button.text())).to.eq(labelled(index, glossaryTerms[index].term))
       })
   })
 

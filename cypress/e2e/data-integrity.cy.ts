@@ -97,6 +97,8 @@ describe('data/data.json', () => {
       const slug = toSlug(bid.location)
       expect(slug, `slug for "${bid.location}"`).to.match(/^[\x20-\x7e]+$/)
       expect(slug, `slug for "${bid.location}" has no dangling hyphen`).to.not.match(/^-|-$/)
+      // Next's router will not match a dynamic segment containing a comma.
+      expect(slug, `slug for "${bid.location}" has no comma`).to.not.contain(',')
     })
   })
 

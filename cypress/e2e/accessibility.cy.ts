@@ -79,10 +79,18 @@ describe('Accessibility basics', () => {
     })
   })
 
-  it('toggles a FAQ answer with the keyboard', () => {
+  it('exposes the FAQ toggles as keyboard-operable buttons', () => {
+    // Enter/Space activation on a native <button> is a browser default action,
+    // which Cypress's synthetic key events do not reproduce. So assert the
+    // properties that make it keyboard-operable — real <button>, in the tab
+    // order, focusable — and that activating it toggles the panel.
     cy.visitPage('/faq')
-    cy.get(sel.accordion).first().find('button').first().focus().should('have.focus')
-    cy.focused().type('{enter}')
+    cy.get(sel.accordion).first().find('button').first().as('toggle')
+    cy.get('@toggle').should('have.prop', 'tagName', 'BUTTON')
+    cy.get('@toggle').should('not.have.attr', 'tabindex')
+    cy.get('@toggle').should('not.be.disabled')
+    cy.get('@toggle').focus().should('have.focus')
+    cy.get('@toggle').click()
     cy.get(sel.accordion)
       .first()
       .find(sel.accordionPanel)

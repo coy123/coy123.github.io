@@ -11,6 +11,8 @@ import {
   findLaw,
   formatAmount,
   formatLongDate,
+  hrefSelector,
+  samePath,
   t,
   toSlug,
 } from '../support/site'
@@ -32,7 +34,9 @@ describe('Bid detail pages', () => {
       })
     })
 
-    it('returns the 404 page for an unknown slug', () => {
+    it('returns the 404 page for an unknown slug', function () {
+      // Export-only: see the note in not-found.cy.ts.
+      if (!Cypress.env('staticExport')) this.skip()
       cy.visitPage('/bandi/questo-bando-non-esiste', { failOnStatusCode: false })
       cy.contains('404').should('be.visible')
       cy.contains('Pagina non trovata').should('be.visible')
@@ -58,7 +62,7 @@ describe('Bid detail pages', () => {
 
     it('sets the page title and description from the bid', () => {
       cy.title().should('eq', `Bando NCC ${bid.location} | Bandi NCC Italia`)
-      cy.get('head meta[name="description"]')
+      cy.get('meta[name="description"]')
         .should('have.attr', 'content')
         .and('include', bid.location)
         .and('include', String(bid.amount))
@@ -98,12 +102,14 @@ describe('Bid detail pages', () => {
 
     it('renders the author box', () => {
       cy.contains('Scritto da').should('be.visible')
-      cy.contains('a', 'Scopri di più').should('have.attr', 'href', '/about-us')
+      cy.contains('a', 'Scopri di più').should(($link) => {
+        expect(samePath($link.attr('href') ?? '', '/about-us')).to.be.true
+      })
     })
 
     INTERNAL_LINKS.forEach((href) => {
       it(`links back to ${href}`, () => {
-        cy.get(`a[href="${href}"]`).should('exist')
+        cy.get(hrefSelector(href)).should('exist')
       })
     })
 

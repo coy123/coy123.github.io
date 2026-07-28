@@ -50,6 +50,12 @@ dies during binary verification with `Invalid regular expression flags`. On
 Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
+A clean run against `next dev` is 516 passing / 19 pending / 0 failing. The
+pending ones are deliberate opt-ins (external link checks) or export-only
+assertions; `cypress/README.md` → "Known gaps and caveats" explains each, plus
+the two behaviours that differ between `next dev` and the built export and the
+data inconsistencies in `data.json` that were deliberately left alone.
+
 Key conventions:
 - The app carries **no `data-testid` attributes**. Selectors live in
   `cypress/support/selectors.ts`, anchored on structural Tailwind classes.

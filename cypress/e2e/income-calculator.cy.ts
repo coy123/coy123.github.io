@@ -1,5 +1,5 @@
 import { sel } from '../support/selectors'
-import { normalize, t } from '../support/site'
+import { hrefSelector, normalize, t } from '../support/site'
 import {
   CalculatorInputs,
   CityType,
@@ -141,7 +141,17 @@ describe('Income calculator', () => {
     it('closes when the backdrop is clicked', () => {
       cy.contains('button', 'Calcola Guadagno').click()
       cy.get(sel.calculatorModal).should('be.visible')
-      cy.get(sel.calculatorBackdrop).click('topLeft')
+
+      // The backdrop covers the viewport, so its centre point sits behind the
+      // dialog and Cypress's visibility heuristic rejects it. Prove the
+      // backdrop is topmost near the corner, then click there.
+      const x = 20
+      const y = 20
+      cy.document().then((doc) => {
+        const topmost = doc.elementFromPoint(x, y)
+        expect(topmost?.className, `element at (${x}, ${y})`).to.contain('bg-black')
+      })
+      cy.get(sel.calculatorBackdrop).click(x, y, { force: true })
       cy.get(sel.calculatorModal).should('not.exist')
     })
 
@@ -213,12 +223,12 @@ describe('Income calculator', () => {
 
     links.forEach((href) => {
       it(`links to ${href}`, () => {
-        cy.contains('h3', 'Risorse utili').parent().find(`a[href="${href}"]`).should('be.visible')
+        cy.contains('h3', 'Risorse utili').parent().find(hrefSelector(href)).should('be.visible')
       })
     })
 
     it('follows the FAQ link', () => {
-      cy.contains('h3', 'Risorse utili').parent().find('a[href="/faq"]').click()
+      cy.contains('h3', 'Risorse utili').parent().find(hrefSelector('/faq')).click()
       cy.assertPath('/faq')
     })
   })

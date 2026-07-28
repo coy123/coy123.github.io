@@ -1,5 +1,5 @@
 import { sel } from '../support/selectors'
-import { t, normalize } from '../support/site'
+import { hrefSelector, t, normalize } from '../support/site'
 
 const sections = t.pages.home.sections as { heading: string; content: string }[]
 
@@ -84,12 +84,12 @@ describe('Home page', () => {
 
     it('renders the internal links attached to specific sections', () => {
       Object.entries(SECTION_LINKS).forEach(([index, href]) => {
-        cy.get(`#section-${index}`).find(`a[href="${href}"]`).should('be.visible')
+        cy.get(`#section-${index}`).find(hrefSelector(href)).should('be.visible')
       })
     })
 
     it('follows the how-to-become-driver link from the first section', () => {
-      cy.get('#section-0').find('a[href="/how-to-become-driver"]').click()
+      cy.get('#section-0').find(hrefSelector('/how-to-become-driver')).click()
       cy.assertPath('/how-to-become-driver')
     })
 

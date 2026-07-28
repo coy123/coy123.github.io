@@ -76,7 +76,16 @@ describe('Cookie banner', () => {
     })
 
     it('closes when the backdrop is clicked', () => {
-      cy.get(sel.cookieModal).find('div.absolute.inset-0').click('topLeft')
+      // Same as the other overlays: the backdrop fills the viewport, so its
+      // centre point is behind the dialog and Cypress's visibility heuristic
+      // rejects it. Prove it is topmost near the corner, then click there.
+      const x = 20
+      const y = 20
+      cy.document().then((doc) => {
+        const topmost = doc.elementFromPoint(x, y)
+        expect(topmost?.className, `element at (${x}, ${y})`).to.contain('bg-black')
+      })
+      cy.get(sel.cookieModal).find('div.absolute.inset-0').click(x, y, { force: true })
       cy.get(sel.cookieModal).should('not.exist')
       cy.get(sel.cookieBanner).should('be.visible')
     })

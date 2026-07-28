@@ -29,7 +29,9 @@ describe('Bids map', () => {
     const expectedGreen = bidsWithCoordinates.filter((bid) => isActive(bid)).length
     const expectedRed = bidsWithCoordinates.length - expectedGreen
 
-    cy.get(sel.mapMarker).then(($markers) => {
+    // Marker colour depends on MapView's `now` state, which is only set after
+    // hydration — retry until the layer has been repainted.
+    cy.get(sel.mapMarker).should(($markers) => {
       const strokes = $markers.toArray().map((marker) => marker.getAttribute('stroke'))
       expect(strokes.filter((stroke) => stroke === '#22c55e')).to.have.length(expectedGreen)
       expect(strokes.filter((stroke) => stroke === '#f87171')).to.have.length(expectedRed)
@@ -72,26 +74,32 @@ describe('Bids map', () => {
     cy.get(sel.mapZoomIn).should('be.visible')
     cy.get(sel.mapZoomOut).should('be.visible')
 
-    // The zoom level is not reflected in the DOM, but it is the first path
-    // segment of every tile URL: .../tile.openstreetmap.org/{z}/{x}/{y}.png
-    const zoomLevels = () =>
-      cy.get('.leaflet-tile-pane img').then(($tiles) =>
-        new Set(
-          $tiles
-            .toArray()
-            .map((tile) => Number(tile.getAttribute('src')!.split('/').slice(-3)[0]))
-        )
-      )
+    // The zoom level is not reflected in the DOM, but it is the first of the
+    // last three path segments of every tile URL:
+    // .../tile.openstreetmap.org/{z}/{x}/{y}.png
+    const zoomsOf = ($tiles: JQuery<HTMLElement>) =>
+      $tiles
+        .toArray()
+        .map((tile) => Number(tile.getAttribute('src')!.split('/').slice(-3)[0]))
 
-    zoomLevels().then((before) => {
-      const initial = Math.max(...before)
+    // Leaflet keeps the previous level's tiles around during the animation, so
+    // assert on membership rather than min/max. Each `cy.get(...).should(...)`
+    // re-queries the DOM on retry.
+    cy.get('.leaflet-tile-pane img').then(($tiles) => {
+      const initial = Math.max(...zoomsOf($tiles))
+
       cy.get(sel.mapZoomIn).click()
-      zoomLevels().should((after) => {
-        expect(Math.max(...after), 'zoom level increased').to.be.greaterThan(initial)
+      cy.get('.leaflet-tile-pane img').should(($after) => {
+        const zooms = zoomsOf($after)
+        expect(zooms, `tiles above zoom ${initial}, got ${zooms.join()}`).to.satisfy(
+          (levels: number[]) => levels.some((level) => level > initial)
+        )
       })
+
       cy.get(sel.mapZoomOut).click()
-      zoomLevels().should((after) => {
-        expect(Math.min(...after), 'zoom level decreased').to.be.at.most(initial)
+      cy.get('.leaflet-tile-pane img').should(($after) => {
+        const zooms = zoomsOf($after)
+        expect(zooms, `tiles back at zoom ${initial}, got ${zooms.join()}`).to.include(initial)
       })
     })
   })

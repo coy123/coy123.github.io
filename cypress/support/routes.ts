@@ -22,7 +22,9 @@ export interface RouteSpec {
 export const ROUTES: RouteSpec[] = [
   {
     path: '/',
-    title: `Home | ${TITLE_SUFFIX}`,
+    // The home page is the root segment's own page, so `title.template` does
+    // not apply to it; it falls through to the layout's `title.default`.
+    title: `${TITLE_SUFFIX} | Licenze Noleggio Con Conducente`,
     description:
       'Consulta tutti i bandi NCC attivi in Italia: licenze disponibili, scadenze e link ufficiali aggiornati ogni giorno, comune per comune.',
     h1: t.pages.home.title,

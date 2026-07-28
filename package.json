@@ -12,8 +12,9 @@
     "serve:static": "serve out --listen 3000 --no-port-switching",
     "cy:open": "cypress open --e2e --browser electron",
     "cy:run": "cypress run --e2e",
+    "cy:run:static": "cypress run --e2e --env staticExport=true",
     "test:e2e": "start-server-and-test dev http://localhost:3000 cy:run",
-    "test:e2e:static": "start-server-and-test serve:static http://localhost:3000 cy:run",
+    "test:e2e:static": "start-server-and-test serve:static http://localhost:3000 cy:run:static",
     "test:e2e:open": "start-server-and-test dev http://localhost:3000 cy:open"
   },
   "type": "module",

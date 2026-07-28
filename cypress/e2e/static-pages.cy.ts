@@ -1,5 +1,5 @@
 import { sel } from '../support/selectors'
-import { normalize, t } from '../support/site'
+import { hrefSelector, normalize, t } from '../support/site'
 
 type Section = { heading: string; content: string }
 
@@ -39,12 +39,12 @@ describe('Chi Siamo', () => {
 
   it('links onwards to the main sections of the site', () => {
     ;['/', '/utilities', '/income-calculator'].forEach((href) => {
-      cy.contains('h3', 'Esplora il sito').parent().find(`a[href="${href}"]`).should('be.visible')
+      cy.contains('h3', 'Esplora il sito').parent().find(hrefSelector(href)).should('be.visible')
     })
   })
 
   it('follows the utilities link', () => {
-    cy.contains('h3', 'Esplora il sito').parent().find('a[href="/utilities"]').click()
+    cy.contains('h3', 'Esplora il sito').parent().find(hrefSelector('/utilities')).click()
     cy.assertPath('/utilities')
   })
 

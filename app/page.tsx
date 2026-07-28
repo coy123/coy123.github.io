@@ -8,8 +8,11 @@ import ReactMarkdown from 'react-markdown'
 
 export const revalidate = 3600 // ISR: rivalidazione ogni ora
 
+// No `title` here on purpose. The root layout's `title.template` does not apply
+// to the segment that declares it, so setting `title: 'Home'` produced the
+// literal tab label "Home". Omitting it falls through to `title.default`:
+// "Bandi NCC Italia | Licenze Noleggio Con Conducente".
 export const metadata: Metadata = {
-  title: 'Home',
   description: 'Consulta tutti i bandi NCC attivi in Italia: licenze disponibili, scadenze e link ufficiali aggiornati ogni giorno, comune per comune.',
 }
 

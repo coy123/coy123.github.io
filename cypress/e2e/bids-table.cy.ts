@@ -80,7 +80,10 @@ describe('Bids table', () => {
   })
 
   it('paints rows with a future deadline green and expired ones grey', () => {
-    cy.get(sel.tableRow).then(($rows) => {
+    // Table.tsx keeps `now` null until its useEffect runs, so every row starts
+    // grey. `should` retries the whole callback until hydration has happened;
+    // `then` would sample the pre-hydration DOM once and flake.
+    cy.get(sel.tableRow).should(($rows) => {
       $rows.toArray().forEach((row) => {
         const location = normalize(row.children[1].textContent ?? '')
         const bid = bids.find((candidate) => candidate.location === location)!

@@ -49,7 +49,7 @@ describe('Static routes', () => {
       })
 
       it('sets the meta description', () => {
-        cy.get('head meta[name="description"]')
+        cy.get('meta[name="description"]')
           .should('have.length', 1)
           .and('have.attr', 'content', route.description)
       })
@@ -59,16 +59,16 @@ describe('Static routes', () => {
       })
 
       it('allows indexing', () => {
-        cy.get('head meta[name="robots"]')
+        cy.get('meta[name="robots"]')
           .should('have.attr', 'content')
           .and('match', /index/)
           .and('not.match', /noindex/)
       })
 
       it('inherits the Open Graph defaults from the root layout', () => {
-        cy.get('head meta[property="og:type"]').should('have.attr', 'content', 'website')
-        cy.get('head meta[property="og:locale"]').should('have.attr', 'content', 'it_IT')
-        cy.get('head meta[property="og:site_name"]').should(
+        cy.get('meta[property="og:type"]').should('have.attr', 'content', 'website')
+        cy.get('meta[property="og:locale"]').should('have.attr', 'content', 'it_IT')
+        cy.get('meta[property="og:site_name"]').should(
           'have.attr',
           'content',
           'Bandi NCC Italia'

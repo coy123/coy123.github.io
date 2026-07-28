@@ -1,14 +1,29 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
 import { calculateIncome, CalculatorInputs, TimeOfDay, CityType, Fuel } from '@/lib/calculator'
 
+/**
+ * The two numeric fields are held as strings so the box can actually be
+ * emptied. Coercing with Number() on every keystroke turned an empty field
+ * into 0, which then sat in front of whatever the user typed next ("80"
+ * instead of "8") and failed the min/max validation.
+ */
+interface FormState {
+  hoursPerDay: string
+  daysPerMonth: string
+  timeOfDay: TimeOfDay
+  cityType: CityType
+  fuel: Fuel
+}
+
 export default function IncomeCalculatorPage() {
   const t = getTranslations()
-  const [inputs, setInputs] = useState<CalculatorInputs>({
-    hoursPerDay: 8,
-    daysPerMonth: 20,
+  const [inputs, setInputs] = useState<FormState>({
+    hoursPerDay: '8',
+    daysPerMonth: '20',
     timeOfDay: TimeOfDay.DAY,
     cityType: CityType.BUSINESS,
     fuel: Fuel.PETROL,
@@ -18,12 +33,21 @@ export default function IncomeCalculatorPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const income = calculateIncome(inputs)
-    setResult(income)
+    const parsed: CalculatorInputs = {
+      hoursPerDay: Number(inputs.hoursPerDay),
+      daysPerMonth: Number(inputs.daysPerMonth),
+      timeOfDay: inputs.timeOfDay,
+      cityType: inputs.cityType,
+      fuel: inputs.fuel,
+    }
+    setResult(calculateIncome(parsed))
     setIsModalOpen(true)
   }
 
-  const handleInputChange = (field: keyof CalculatorInputs, value: any) => {
+  const handleInputChange = <Field extends keyof FormState>(
+    field: Field,
+    value: FormState[Field]
+  ) => {
     setInputs(prev => ({ ...prev, [field]: value }))
   }
 
@@ -66,7 +90,7 @@ export default function IncomeCalculatorPage() {
                 min="1"
                 max="24"
                 value={inputs.hoursPerDay}
-                onChange={(e) => handleInputChange('hoursPerDay', Number(e.target.value))}
+                onChange={(e) => handleInputChange('hoursPerDay', e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -83,7 +107,7 @@ export default function IncomeCalculatorPage() {
                 min="1"
                 max="31"
                 value={inputs.daysPerMonth}
-                onChange={(e) => handleInputChange('daysPerMonth', Number(e.target.value))}
+                onChange={(e) => handleInputChange('daysPerMonth', e.target.value)}
                 className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -159,19 +183,19 @@ export default function IncomeCalculatorPage() {
         <div className="mt-6 bg-gray-700 rounded-lg p-4 sm:p-6 space-y-2">
           <h3 className="text-lg font-semibold text-white mb-3">Risorse utili</h3>
           <p className="text-sm">
-            <a href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
               Trova il tuo bando NCC →
-            </a>
+            </Link>
           </p>
           <p className="text-sm">
-            <a href="/how-to-become-driver" className="text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/how-to-become-driver" className="text-blue-400 hover:text-blue-300 transition-colors">
               Come diventare autista NCC →
-            </a>
+            </Link>
           </p>
           <p className="text-sm">
-            <a href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/faq" className="text-blue-400 hover:text-blue-300 transition-colors">
               FAQ e Glossario NCC →
-            </a>
+            </Link>
           </p>
         </div>
       </div>

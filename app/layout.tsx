@@ -1,4 +1,5 @@
 import type {Metadata} from 'next'
+import Script from 'next/script'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
@@ -28,12 +29,16 @@ export default function RootLayout({children}: {
 }) {
     return (
         <html lang="it">
-        <head>
-            <script defer src="https://cloud.umami.is/script.js"
-                    data-website-id="693859c4-b639-4fb6-b482-eaf0a08a7bbb"
-                    data-domains="bandincc.it,www.bandincc.it"></script>
-        </head>
         <body>
+        {/* Hand-rendering <head> in the App Router makes React hydrate a
+            different <head> than the server produced. next/script injects the
+            tag itself and stays out of the hydration diff. */}
+        <Script
+            src="https://cloud.umami.is/script.js"
+            strategy="afterInteractive"
+            data-website-id="693859c4-b639-4fb6-b482-eaf0a08a7bbb"
+            data-domains="bandincc.it,www.bandincc.it"
+        />
         <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{

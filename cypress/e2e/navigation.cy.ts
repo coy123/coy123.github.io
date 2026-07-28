@@ -1,6 +1,6 @@
 import { NAV_ITEMS, ROUTES, routeByPath } from '../support/routes'
 import { sel } from '../support/selectors'
-import { t } from '../support/site'
+import { samePath, hrefSelector, t } from '../support/site'
 
 describe('Navigation', () => {
   describe('desktop', () => {
@@ -20,14 +20,14 @@ describe('Navigation', () => {
         .should('have.length', NAV_ITEMS.length)
         .each(($link, index) => {
           const item = NAV_ITEMS[index]
-          expect($link.attr('href')).to.eq(item.path)
+          expect(samePath($link.attr('href') ?? '', item.path), `href of ${item.key}`).to.be.true
           expect($link.text()).to.contain(t.nav[item.key])
         })
     })
 
     it('marks the income calculator with the € badge', () => {
       cy.get(sel.desktopNav)
-        .find('a[href="/income-calculator"]')
+        .find(hrefSelector('/income-calculator'))
         .should('contain.text', '💶')
         .and('contain.text', t.nav.incomeCalculator)
     })
@@ -44,7 +44,7 @@ describe('Navigation', () => {
         // The active link is the only one painted blue.
         cy.get(sel.desktopNav).find('a.bg-blue-600').should('have.length', 1)
         cy.get(sel.desktopNav)
-          .find(`a[href="${item.path}"]`)
+          .find(hrefSelector(item.path))
           .should('have.class', 'bg-blue-600')
 
         const route = ROUTES.find((candidate) => candidate.path === item.path)
@@ -96,7 +96,18 @@ describe('Navigation', () => {
     it('closes the menu when the backdrop is clicked', () => {
       cy.get(sel.mobileMenuButton).click()
       cy.get(sel.mobileMenu).should('be.visible')
-      cy.get(sel.mobileMenuBackdrop).click('right')
+
+      // The backdrop spans the whole viewport, so its centre point sits behind
+      // the 264px drawer and Cypress's visibility heuristic rejects it even
+      // though the area to the right of the drawer is tappable. Prove the
+      // backdrop really is the topmost element there, then tap that point.
+      const x = 350
+      const y = 400
+      cy.document().then((doc) => {
+        const topmost = doc.elementFromPoint(x, y)
+        expect(topmost?.className, `element at (${x}, ${y})`).to.contain('fixed inset-0')
+      })
+      cy.get(sel.mobileMenuBackdrop).click(x, y, { force: true })
       cy.get(sel.mobileMenu).should('not.exist')
     })
 
@@ -107,7 +118,7 @@ describe('Navigation', () => {
         .should('have.length', NAV_ITEMS.length)
         .each(($link, index) => {
           const item = NAV_ITEMS[index]
-          expect($link.attr('href')).to.eq(item.path)
+          expect(samePath($link.attr('href') ?? '', item.path), `href of ${item.key}`).to.be.true
           expect($link.text().trim()).to.eq(t.nav[item.key])
         })
     })

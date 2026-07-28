@@ -13,7 +13,7 @@ export const sel = {
   mobileMenuButton: 'div.md\\:hidden.sticky button',
   mobileMenu: 'div.md\\:hidden.w-64',
   mobileMenuBackdrop: 'div.md\\:hidden.fixed.inset-0',
-  mobileCalculatorShortcut: 'div.md\\:hidden.sticky a[href="/income-calculator"]',
+  mobileCalculatorShortcut: 'div.md\\:hidden.sticky a[href^="/income-calculator"]',
 
   /* Home dashboard ----------------------------------------------------- */
   mobileTabBar: 'div.sm\\:hidden.mb-2',

@@ -1,20 +1,30 @@
 import { sel } from '../support/selectors'
 
-const UNKNOWN_PATHS = [
-  '/questa-pagina-non-esiste',
-  '/bandi/comune-inesistente',
-  '/faq/sottopagina-inesistente',
-]
+const UNKNOWN_PATHS = ['/questa-pagina-non-esiste', '/faq/sottopagina-inesistente']
+
+const expectNotFoundPage = () => {
+  cy.contains('h1', '404').should('be.visible')
+  cy.contains('h2', 'Pagina non trovata').should('be.visible')
+  cy.contains('La pagina che stai cercando non esiste.').should('be.visible')
+}
 
 describe('404 page', () => {
   UNKNOWN_PATHS.forEach((path) => {
     it(`renders the not-found page for ${path}`, () => {
       cy.useDesktop()
       cy.visitPage(path, { failOnStatusCode: false })
-      cy.contains('h1', '404').should('be.visible')
-      cy.contains('h2', 'Pagina non trovata').should('be.visible')
-      cy.contains('La pagina che stai cercando non esiste.').should('be.visible')
+      expectNotFoundPage()
     })
+  })
+
+  it('renders the not-found page for an unknown bid slug', function () {
+    // `next dev` refuses to render a /bandi/[bid] param that is absent from
+    // generateStaticParams() while `output: 'export'` is set, so this can only
+    // be exercised against the built export (`npm run test:e2e:static`).
+    if (!Cypress.env('staticExport')) this.skip()
+    cy.useDesktop()
+    cy.visitPage('/bandi/comune-inesistente', { failOnStatusCode: false })
+    expectNotFoundPage()
   })
 
   it('offers a way back to the home page', () => {

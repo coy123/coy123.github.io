@@ -36,6 +36,12 @@ export default defineConfig({
       // Fire real HTTP requests at every external link found in the DOM.
       // Off by default: third-party sites rate-limit and would make CI flaky.
       checkExternalLinks: false,
+      // True when running against the built `out/` export rather than
+      // `next dev`. A handful of behaviours only exist in the real artifact —
+      // notably, an unknown /bandi/<slug> is a plain 404 in the export, while
+      // `next dev` throws "missing param in generateStaticParams()" because
+      // `output: 'export'` is set. Set by the `cy:run:static` script.
+      staticExport: false,
     },
   },
 })
