@@ -11,7 +11,7 @@ Domain: www.bandincc.it
 - **Markdown**: react-markdown + remark-gfm for rendering .md content pages
 - **Analytics**: Umami (self-hosted cloud, script loaded in layout head)
 - **Package manager**: npm
-- **Node version**: 18 (used in CI)
+- **Node version**: 22 (pinned in `.nvmrc`, used in CI, minimum enforced by `engines` in package.json). Cypress 15 requires Node >= 20.1.
 
 # Build & Output Mode
 - `next.config.mjs` sets `output: 'export'` — the site is **fully static** (no Node.js server at runtime)
@@ -44,6 +44,11 @@ There are two branches: staging and master. Development is done on staging. Stag
 End-to-end tests live in `cypress/` (TypeScript, Cypress 15) and are documented
 in `cypress/README.md`. They are intended to gate deploys — the CI wiring is not
 in place yet.
+
+Cypress 15 needs **Node >= 20.1** (the repo pins 22 via `.nvmrc`); on Node 18 it
+dies during binary verification with `Invalid regular expression flags`. On
+Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
+libraries — the exact command is in `cypress/README.md`.
 
 Key conventions:
 - The app carries **no `data-testid` attributes**. Selectors live in

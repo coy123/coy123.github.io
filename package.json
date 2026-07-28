@@ -17,6 +17,9 @@
     "test:e2e:open": "start-server-and-test dev http://localhost:3000 cy:open"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20.1.0"
+  },
   "dependencies": {
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",

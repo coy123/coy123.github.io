@@ -3,6 +3,29 @@
 Full-site coverage for bandincc.it: every route, every table, every button,
 every link.
 
+## Prerequisites
+
+**Node 22** (see `.nvmrc`). Cypress 15 refuses to start on Node 18 — it fails
+during binary verification with `SyntaxError: Invalid regular expression flags`.
+
+```bash
+nvm use                # picks up .nvmrc
+```
+
+On a bare Ubuntu/Debian (including WSL) the bundled Electron also needs a few
+system libraries, once:
+
+```bash
+sudo apt-get update && sudo apt-get install -y \
+  libgtk2.0-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 xvfb
+```
+
+Without them Cypress fails with `error while loading shared libraries:
+libnspr4.so`. Package names carry the `t64` suffix on Ubuntu 24.04; on older
+releases drop it (`libgtk2.0-0`, `libasound2`).
+
+Verify the setup with `npx cypress verify`.
+
 ## Running it
 
 The suite needs the site served on `http://localhost:3000`.
