@@ -16,37 +16,44 @@ permissions:
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+#
+# PR test runs are kept out of the "pages" lane entirely: sharing it would let a
+# newly queued PR run evict a queued merge deploy. Superseded PR runs are worth
+# cancelling, production deploys are not.
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: pages-${{ github.event_name == 'pull_request' && github.head_ref || 'production' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build:
+  # Builds the export and runs the Cypress suite against it. Every job below
+  # needs this one, so a failing test stops the deploy.
+  test:
+    name: Build and test
+    uses: ./.github/workflows/e2e.yml
+    with:
+      artifact-name: static-export-pages
+
+  # Pull requests stop after `test`. Only a push to master (or a manual
+  # dispatch) is allowed to publish.
+  package:
+    name: Package for Pages
+    needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    # No rebuild: this is the exact `out/` the tests just ran against.
+    - name: Download tested static export
+      uses: actions/download-artifact@v4
       with:
-        node-version: '22'
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Build
-      run: npm run build
-      env:
-        NODE_ENV: production
+        name: static-export-pages
+        path: out
 
     - name: Add .nojekyll file
       run: touch out/.nojekyll
 
     - name: Setup Pages
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v5
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
@@ -54,7 +61,8 @@ jobs:
         path: ./out
 
   deploy:
-    needs: build
+    needs: package
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       pages: write
