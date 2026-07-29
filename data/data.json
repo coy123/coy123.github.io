@@ -40,7 +40,7 @@
         "deadline": "2025-10-03",
         "url": "https://www.comune.ortasangiulio.no.it/portals/2101/Skins/skinXhtml/Images/stemma.webp",
         "amount": 2,
-        "image": "https://www.comune.ortasangiulio.no.it/portals/2101/Skins/skinXhtml/Images/stemma.webp",
+        "image": "https://upload.wikimedia.org/wikipedia/en/b/bb/Orta_San_Giulio-Stemma.png",
         "latitude": "45.801",
         "longitude": "8.401"
     },
@@ -58,7 +58,7 @@
         "deadline": "2025-07-09",
         "url": "https://www.comune.impruneta.fi.it/it/news/pubblicato-il-bando-per-tre-nuove-autorizzazioni-ncc",
         "amount": 3,
-        "image": "https://impruneta-api.municipiumapp.it/s3/150x150/s3/20008/sito/stemma.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/en/3/39/Impruneta-Stemma.gif",
         "latitude": "43.684",
         "longitude": "11.251"
     },
@@ -67,7 +67,7 @@
         "deadline": "2025-03-20",
         "url": "https://www.comune.lecco.it/Novita/Comunicati/Noleggio-con-conducente-online-il-bando?utm_source=chatgpt.com",
         "amount": 2,
-        "image": "https://flyimg.opencityitalia.it/upload/rf_1,o_auto,w_2500,h_2500/https%3A%2F%2Fs3-eu-west-1.amazonaws.com%2Fstatic.opencity.opencontent.it%2Fvar%2Flecco%2Fstorage%2Fimages%2F3780-84-ita-IT%2FHomepage_header_logo.png",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Lecco-Stemma.svg/60px-Lecco-Stemma.svg.png",
         "latitude": "45.856",
         "longitude": "9.397"
     },

@@ -1,4 +1,5 @@
 import { bids, faqs, glossaryTerms, laws, toSlug } from '../support/site'
+import { CREST_SIZE_DETAIL, CREST_SIZE_TABLE, CREST_WIDTHS, crestUrl } from '../../lib/crest'
 
 /**
  * The bid list is hand-curated (and fed by the crawler), so a typo in
@@ -166,5 +167,50 @@ describe('locales/it.json glossary', () => {
   it('has no duplicate terms', () => {
     const terms = glossaryTerms.map((term) => term.term)
     expect(new Set(terms).size, 'unique glossary terms').to.eq(terms.length)
+  })
+})
+
+describe('crest thumbnails (lib/crest.ts)', () => {
+  const allCrests = [...bids.map((bid) => bid.image), ...laws.map((law) => law.image)]
+
+  it('only ever asks Wikimedia for a width it will serve', () => {
+    // Wikimedia refuses to render arbitrary thumbnail widths on demand and
+    // answers 400 for anything outside its bucket list, so a stray size here
+    // means broken crests on every page. 64px and 160px both fail — the
+    // constants in lib/crest.ts look odd for a 32px/80px box on purpose.
+    ;[CREST_SIZE_TABLE, CREST_SIZE_DETAIL].forEach((width) => {
+      expect(CREST_WIDTHS as readonly number[], `${width}px is a supported bucket`).to.include(
+        width
+      )
+    })
+  })
+
+  it('rewrites every Wikimedia crest to a thumbnail of the requested width', () => {
+    allCrests.forEach((image) => {
+      const rendered = crestUrl(image, CREST_SIZE_TABLE)
+      if (!image.includes('upload.wikimedia.org')) {
+        expect(rendered, `${image} is left alone`).to.eq(image)
+        return
+      }
+
+      expect(rendered, `${image} becomes a thumbnail`).to.include('/thumb/')
+      expect(rendered, `${image} carries the requested width`).to.match(
+        new RegExp(`/${CREST_SIZE_TABLE}px-[^/]+$`)
+      )
+    })
+  })
+
+  it('keeps percent-encoding intact while rewriting', () => {
+    const encoded = allCrests.filter((image) => /%[0-9A-F]{2}/i.test(image))
+    expect(encoded.length, 'some crest names are percent-encoded').to.be.greaterThan(0)
+
+    encoded.forEach((image) => {
+      const rendered = crestUrl(image, CREST_SIZE_TABLE)
+      // A double-encoded %2527 or a decoded literal apostrophe would 404.
+      expect(rendered, `${image} is not double-encoded`).to.not.match(/%25[0-9A-F]{2}/i)
+      expect(decodeURIComponent(new URL(rendered).pathname), `${image} still decodes`).to.be.a(
+        'string'
+      )
+    })
   })
 })

@@ -66,9 +66,12 @@ CYPRESS_BASE_URL=https://staging--bandincc.netlify.app npm run cy:run
 
 ### Expected result
 
-A clean run against `next dev` is **516 passing, 19 pending, 0 failing**, in
+A clean run against `next dev` is **519 passing, 19 pending, 0 failing**, in
 roughly 5–6 minutes. Pending is not a failure — see Known gaps for what those
 19 are and why they are skipped.
+
+(516 before the three `crest thumbnails` checks in `data-integrity.cy.ts`; that
+count has not been re-measured against a full local run.)
 
 ## What is covered
 

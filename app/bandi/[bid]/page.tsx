@@ -6,6 +6,7 @@ import laws from '@/data/laws.json'
 import { getTranslations } from '@/lib/translations'
 import AuthorBox from '@/components/AuthorBox'
 import { toSlug } from '@/lib/slug'
+import { CREST_SIZE_DETAIL, CREST_SIZE_TABLE, crestUrl } from '@/lib/crest'
 import BidStatus from './BidStatus'
 import BidDetailMapWrapper from './BidDetailMapWrapper'
 
@@ -119,9 +120,12 @@ export default async function BidDetailPage({ params }: { params: Promise<{ bid:
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
           <div className="flex-shrink-0 flex justify-center sm:justify-start">
             <img
-              src={bid.image}
+              src={crestUrl(bid.image, CREST_SIZE_DETAIL)}
               alt={`Stemma ${bid.location}`}
               className="w-20 h-20 rounded-full object-cover"
+              width={80}
+              height={80}
+              decoding="async"
             />
           </div>
           <div className="flex-1 space-y-3">
@@ -180,9 +184,13 @@ export default async function BidDetailPage({ params }: { params: Promise<{ bid:
           </h3>
           <div className="flex items-center gap-3">
             <img
-              src={law.image}
+              src={crestUrl(law.image, CREST_SIZE_TABLE)}
               alt={`Stemma ${law.location}`}
               className="w-8 h-8 rounded-full object-cover"
+              width={32}
+              height={32}
+              loading="lazy"
+              decoding="async"
             />
             <a
               href={law.url}

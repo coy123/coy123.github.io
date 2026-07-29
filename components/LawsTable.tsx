@@ -3,22 +3,28 @@
 import React from 'react'
 import { LawData } from '@/types'
 import { getTranslations } from '@/lib/translations'
+import { CREST_EAGER_ROWS, CREST_SIZE_TABLE, crestUrl } from '@/lib/crest'
 
 interface LawsTableRowProps {
   data: LawData
+  /** Position in the sorted list, used to decide crest loading priority. */
+  index: number
 }
 
-const LawsTableRow: React.FC<LawsTableRowProps> = ({ data }) => {
+const LawsTableRow: React.FC<LawsTableRowProps> = ({ data, index }) => {
   const t = getTranslations()
+  const isAboveTheFold = index < CREST_EAGER_ROWS
 
   return (
     <div className="flex items-center border-b border-gray-600 hover:bg-gray-600 transition-colors min-h-[4.5rem] bg-gray-900/20">
       <div className="p-2 w-16 sm:w-24 flex items-center justify-center">
         <img
-          src={data.image}
+          src={crestUrl(data.image, CREST_SIZE_TABLE)}
           alt={`${t.table.headers.crest} ${data.location}`}
           className="w-8 h-8 rounded-full object-cover"
-          loading="lazy"
+          width={32}
+          height={32}
+          loading={isAboveTheFold ? 'eager' : 'lazy'}
           decoding="async"
         />
       </div>
@@ -79,7 +85,7 @@ const LawsTable: React.FC<LawsTableProps> = ({ data }) => {
 
       <div className="divide-y divide-gray-600">
         {sortedData.map((row, index) => (
-          <LawsTableRow key={index} data={row} />
+          <LawsTableRow key={index} data={row} index={index} />
         ))}
       </div>
     </div>

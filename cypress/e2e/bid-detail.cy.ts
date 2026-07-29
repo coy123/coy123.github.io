@@ -9,11 +9,13 @@ import {
   bidPath,
   bids,
   findLaw,
+  detailCrest,
   formatAmount,
   formatLongDate,
   hrefSelector,
   samePath,
   t,
+  tableCrest,
   toSlug,
 } from '../support/site'
 
@@ -72,7 +74,7 @@ describe('Bid detail pages', () => {
     it('renders the coat of arms', () => {
       cy.get(`img[alt="Stemma ${bid.location}"]`)
         .should('be.visible')
-        .and('have.attr', 'src', bid.image)
+        .and('have.attr', 'src', detailCrest(bid.image))
     })
 
     it('renders the licence count and deadline', () => {
@@ -190,7 +192,7 @@ describe('Bid detail pages', () => {
       cy.contains('a', `Regolamento NCC – ${law.location}`)
         .should('have.attr', 'href', law.url)
         .and('have.attr', 'target', '_blank')
-      cy.get(`img[alt="Stemma ${law.location}"]`).should('have.attr', 'src', law.image)
+      cy.get(`img[alt="Stemma ${law.location}"]`).should('have.attr', 'src', tableCrest(law.image))
     })
 
     it('omits the block when no regulation matches', function () {
