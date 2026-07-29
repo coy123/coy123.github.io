@@ -10,6 +10,11 @@ describe('Bids map', () => {
     cy.visitPage('/')
     openMapTab()
     cy.get(sel.map).should('be.visible')
+    // The container is visible before Leaflet has drawn the marker layer.
+    // Waiting for the full set means a test never grabs a marker mid-paint —
+    // a click on a node the next commit is about to detach never reaches
+    // Leaflet, and the popup silently never opens.
+    cy.get(sel.mapMarker).should('have.length', bidsWithCoordinates.length)
   })
 
   it('mounts a Leaflet map with OpenStreetMap tiles', () => {
@@ -30,7 +35,7 @@ describe('Bids map', () => {
     const expectedRed = bidsWithCoordinates.length - expectedGreen
 
     // Marker colour depends on MapView's `now` state, which is only set after
-    // hydration — retry until the layer has been repainted.
+    // hydration; the layer is not drawn at all until then.
     cy.get(sel.mapMarker).should(($markers) => {
       const strokes = $markers.toArray().map((marker) => marker.getAttribute('stroke'))
       expect(strokes.filter((stroke) => stroke === '#22c55e')).to.have.length(expectedGreen)
