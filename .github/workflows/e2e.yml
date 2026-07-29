@@ -1,0 +1,88 @@
+name: Build and E2E tests
+
+# Reusable deploy gate. Builds the static export, runs the Cypress suite
+# against the real `out/` artifact, then publishes that exact artifact for the
+# calling workflow to deploy — so what ships is what was tested.
+#
+# Self-contained by design: the opt-in specs that hit the real internet
+# (`external-resources.cy.ts` and the "reaches every external target" tests in
+# `links.cy.ts`) stay off, because `checkExternalLinks` defaults to false in
+# `cypress.config.ts` and nothing here sets `CYPRESS_checkExternalLinks`.
+# Wikimedia crests, OSM tiles and Umami are stubbed by `stubExternalAssets`.
+# A municipal site going down can therefore never block a deploy.
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: Name of the uploaded static export, consumed by the caller.
+        type: string
+        default: static-export
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Electron's runtime libraries. Documented in cypress/README.md — the
+      # `t64` suffixes are correct for the Ubuntu 24.04 runner image.
+      - name: Install Cypress system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgtk2.0-0t64 libgbm1 libnotify4 libnss3 libxss1 libasound2t64 xvfb
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: cypress-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
+
+      # No-op when the cache above hit; downloads the binary when it did not.
+      - name: Install Cypress binary
+        run: npx cypress install
+
+      - name: Verify Cypress
+        run: npx cypress verify
+
+      - name: Build static export
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      # Serves `out/` on :3000 and runs the suite in static-export mode.
+      # A failure here fails the job, and every deploy job needs this one.
+      - name: Run E2E tests against the static export
+        run: npm run test:e2e:static
+
+      - name: Upload Cypress screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-${{ github.run_id }}-${{ github.run_attempt }}
+          path: cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload static export
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: out
+          include-hidden-files: true
+          retention-days: 1

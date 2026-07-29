@@ -21,15 +21,23 @@ Domain: www.bandincc.it
 - `images.domains`: `['upload.wikimedia.org']` — for coat of arms images
 - Note: `revalidate = 3600` on the home page has no effect in export mode; the page is only updated on rebuild
 
+# Autonomy
+Edit files and run commands (`curl`, `grep`, `node`, `python3`, file reads, etc.) directly — do not stop to propose them and wait for approval. Just do the work and report what you found or changed.
+The exceptions below still hold: no git writes, no deploys, no running or building the app.
+
 # Git and Deployment
-Do not ever use git commands! Don't commit or push or anything!
+Read-only git commands are fine (`git status`, `git log`, `git diff`, `git show`, `git branch`, `git blame`) — use them freely.
+Never run a git command that writes: no `commit`, `push`, `add`, `checkout`/`switch`, `merge`, `rebase`, `reset`, `stash`, `tag`, `cherry-pick`, `restore`, `rm`, or `config`. The user handles all of that.
 Do not ever try to deploy. You can only run on dev mode locally.
 Do not ever run or build the application (no `npm run dev`, `npm run build`, `next build`, etc.). The user runs it themselves and reports back.
 There are two branches: staging and master. Development is done on staging. Staging is connected to Netlify for deployment and master is connected to GitHub Pages for deployment. The domain is www.bandincc.it
 
 ## CI/CD Pipelines (`.github/workflows/`)
-- **`deploy.yml`**: Triggers on push/PR to `master`. Builds with `npm ci && npm run build`, deploys `out/` to GitHub Pages (with `.nojekyll` file).
-- **`netlify-deploy.yml`**: Triggers on push/PR to `staging`. Builds and deploys `out/` to Netlify via `netlify deploy --dir=out --prod`. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets.
+- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
+- **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
+- **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `netlify deploy --dir=out --prod`. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets.
+- **Deploy gating**: every deploy job carries `if: github.event_name != 'pull_request'`, so a PR runs the suite only. Merging produces a `push`, which runs the suite again and then deploys. A failing suite fails `test`, and the dependent jobs never run.
+- **Concurrency**: both workflows key their group on the event (`pages-…` / `netlify-staging-…`), so PR test runs get a lane per branch and can never cancel or evict a production deploy.
 - **`netlify.toml`**: Also present for Netlify build config (command: `npm run build`, publish: `.next`, uses `@netlify/plugin-nextjs`). Note: the GitHub Action workflow overrides this by deploying `out/` directly.
 
 # Bash Commands

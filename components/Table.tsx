@@ -4,10 +4,13 @@ import React, { useState, useEffect } from 'react'
 import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
 import { toSlug } from '@/lib/slug'
+import { CREST_EAGER_ROWS, CREST_SIZE_TABLE, crestUrl } from '@/lib/crest'
 
 interface TableRowProps {
   data: TableData
   now: number | null
+  /** Position in the sorted list, used to decide crest loading priority. */
+  index: number
 }
 
 const formatDate = (dateString: string, locale: string = 'it-IT') => {
@@ -23,9 +26,10 @@ const formatAmount = (amount: number) => {
   return new Intl.NumberFormat('de-DE').format(amount)
 }
 
-const TableRow: React.FC<TableRowProps> = ({ data, now }) => {
+const TableRow: React.FC<TableRowProps> = ({ data, now, index }) => {
   const t = getTranslations()
   const locale = 'it-IT'
+  const isAboveTheFold = index < CREST_EAGER_ROWS
   const isDeadlineUpcoming = now !== null ? new Date(data.deadline).getTime() >= now : null
   const backgroundClass = isDeadlineUpcoming === null ? 'bg-gray-900/20' : isDeadlineUpcoming ? 'bg-green-900/40' : 'bg-gray-900/20'
   const hoverBackgroundClass = isDeadlineUpcoming ? 'hover:bg-green-800' : 'hover:bg-gray-600'
@@ -34,10 +38,12 @@ const TableRow: React.FC<TableRowProps> = ({ data, now }) => {
     <div className={`flex items-center border-b border-gray-600 ${hoverBackgroundClass} transition-colors min-h-[4.5rem] ${backgroundClass}`}>
       <div className="p-2 w-16 sm:w-24 flex items-center justify-center">
         <img
-          src={data.image}
+          src={crestUrl(data.image, CREST_SIZE_TABLE)}
           alt={`${t.table.headers.crest} ${data.location}`}
           className="w-8 h-8 rounded-full object-cover"
-          loading="lazy"
+          width={32}
+          height={32}
+          loading={isAboveTheFold ? 'eager' : 'lazy'}
           decoding="async"
         />
       </div>
@@ -128,7 +134,7 @@ const Table: React.FC<TableProps> = ({ data }) => {
 
       <div className="divide-y divide-gray-600">
         {sortedData.map((row, index) => (
-          <TableRow key={index} data={row} now={now} />
+          <TableRow key={index} data={row} now={now} index={index} />
         ))}
       </div>
     </div>

@@ -8,6 +8,13 @@ import lawsJson from '../../data/laws.json'
 import faqJson from '../../data/faq.json'
 import translations from '../../locales/it.json'
 import { toSlug } from '../../lib/slug'
+import {
+  CREST_EAGER_ROWS,
+  CREST_SIZE_DETAIL,
+  CREST_SIZE_TABLE,
+  CREST_WIDTHS,
+  crestUrl,
+} from '../../lib/crest'
 
 export interface RawBid {
   location: string
@@ -34,7 +41,12 @@ export const bids: RawBid[] = bidsJson as RawBid[]
 export const laws: RawLaw[] = lawsJson as RawLaw[]
 export const faqs: FaqEntry[] = faqJson as FaqEntry[]
 export const t = translations
-export { toSlug }
+export { toSlug, crestUrl, CREST_WIDTHS, CREST_EAGER_ROWS }
+
+/** The crest `src` a table row is expected to render, at the size it uses. */
+export const tableCrest = (image: string) => crestUrl(image, CREST_SIZE_TABLE)
+/** The crest `src` a bid detail hero is expected to render. */
+export const detailCrest = (image: string) => crestUrl(image, CREST_SIZE_DETAIL)
 
 export const glossaryTerms = t.pages.glossario.terms as {
   term: string

@@ -7,27 +7,36 @@ on:
     branches: [ staging ]
   workflow_dispatch:
 
+# PR test runs get a lane per pull request; pushes to staging share the
+# "production" lane. Without the split, a PR run could cancel an in-flight
+# deploy, leaving the site un-updated with no visible error.
+concurrency:
+  group: netlify-staging-${{ github.event_name == 'pull_request' && github.head_ref || 'production' }}
+  cancel-in-progress: true
+
 jobs:
+  # Builds the export and runs the Cypress suite against it. The deploy job
+  # needs this one, so a failing test stops the deploy.
+  test:
+    name: Build and test
+    uses: ./.github/workflows/e2e.yml
+    with:
+      artifact-name: static-export-netlify
+
+  # Pull requests stop after `test`. Only a push to staging (or a manual
+  # dispatch) is allowed to publish.
   deploy:
+    needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    # No rebuild: this is the exact `out/` the tests just ran against.
+    - name: Download tested static export
+      uses: actions/download-artifact@v4
       with:
-        node-version: '22'
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Build
-      run: npm run build
-      env:
-        NODE_ENV: production
+        name: static-export-netlify
+        path: out
 
     - name: Deploy to Netlify
       uses: netlify/actions/cli@master

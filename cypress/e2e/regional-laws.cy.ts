@@ -1,5 +1,5 @@
 import { sel } from '../support/selectors'
-import { laws, lawsSortedByLocation, normalize, t } from '../support/site'
+import { laws, lawsSortedByLocation, normalize, t, tableCrest } from '../support/site'
 
 const matching = (query: string) =>
   laws.filter((law) => law.location.toLowerCase().includes(query.trim().toLowerCase()))
@@ -36,7 +36,7 @@ describe('Regional laws page', () => {
         expect(law, `law for "${location}"`).to.exist
 
         const crest = row.children[0].querySelector('img') as HTMLImageElement
-        expect(crest.getAttribute('src'), `${location} crest`).to.eq(law!.image)
+        expect(crest.getAttribute('src'), `${location} crest`).to.eq(tableCrest(law!.image))
         expect(crest.getAttribute('alt')).to.eq(`${t.table.headers.crest} ${location}`)
 
         const link = row.children[2].querySelector('a') as HTMLAnchorElement

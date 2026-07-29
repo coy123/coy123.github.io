@@ -19,3 +19,6 @@ out
 cypress/screenshots
 cypress/videos
 cypress/downloads
+
+# Claude Code personal settings (CLAUDE.md itself stays tracked)
+.claude/settings.local.json

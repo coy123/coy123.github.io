@@ -64,8 +64,29 @@ export default function MapView({ data }: MapViewProps) {
     markersLayerRef.current = markerLayer
   }, [center])
 
+  // Framing depends only on the data, so it runs once, before the markers
+  // exist. Doing it inside the marker effect meant re-fitting on every repaint,
+  // which restarted Leaflet's zoom animation and moved the markers under the
+  // cursor mid-click.
   useEffect(() => {
-    if (!mapInstanceRef.current || !markersLayerRef.current) {
+    if (!mapInstanceRef.current) {
+      return
+    }
+
+    if (positions.length) {
+      mapInstanceRef.current.fitBounds(L.latLngBounds(positions), { padding: [24, 24], maxZoom: 8 })
+    } else {
+      mapInstanceRef.current.setView(center, 6)
+    }
+  }, [positions, center])
+
+  useEffect(() => {
+    // `now` is null until the mount effect above sets it. Painting during that
+    // first pass would draw every marker as expired and then throw all of them
+    // away on the next commit — a visible flash of red, and a window where a
+    // click lands on a node that is about to be detached, so Leaflet never
+    // opens its popup. Wait for the real timestamp and paint once.
+    if (!mapInstanceRef.current || !markersLayerRef.current || now === null) {
       return
     }
 
@@ -73,7 +94,7 @@ export default function MapView({ data }: MapViewProps) {
     layer.clearLayers()
 
     markers.forEach((item) => {
-      const isFutureDeadline = now !== null ? item.deadlineTime >= now : false
+      const isFutureDeadline = item.deadlineTime >= now
       const marker = L.circleMarker([item.latitude, item.longitude], {
         radius: 8,
         color: isFutureDeadline ? '#22c55e' : '#f87171',
@@ -97,14 +118,7 @@ export default function MapView({ data }: MapViewProps) {
       marker.bindPopup(popupContent, { minWidth: 220 })
       marker.addTo(layer)
     })
-
-    if (positions.length) {
-      const bounds = L.latLngBounds(positions)
-      mapInstanceRef.current.fitBounds(bounds, { padding: [24, 24], maxZoom: 8 })
-    } else {
-      mapInstanceRef.current.setView(center, 6)
-    }
-  }, [markers, numberFormatter, locale, positions, t, center, now])
+  }, [markers, numberFormatter, locale, t, now])
 
   return (
     <div className="w-full rounded-lg overflow-hidden border border-gray-600">

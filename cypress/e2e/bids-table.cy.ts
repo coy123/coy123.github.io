@@ -1,5 +1,6 @@
 import { sel } from '../support/selectors'
 import {
+  CREST_EAGER_ROWS,
   bids,
   bidPath,
   bidsSortedByDeadlineDesc,
@@ -8,6 +9,7 @@ import {
   isActive,
   normalize,
   t,
+  tableCrest,
   toSlug,
 } from '../support/site'
 
@@ -58,9 +60,16 @@ describe('Bids table', () => {
         expect(bid, `bid for "${location}"`).to.exist
 
         const crest = cells[0].querySelector('img') as HTMLImageElement
-        expect(crest.getAttribute('src'), `${location} crest src`).to.eq(bid!.image)
+        // The rendered src is a Wikimedia thumbnail derived from the data URL,
+        // not the raw value — see lib/crest.ts.
+        expect(crest.getAttribute('src'), `${location} crest src`).to.eq(tableCrest(bid!.image))
         expect(crest.getAttribute('alt')).to.eq(`${t.table.headers.crest} ${location}`)
-        expect(crest.getAttribute('loading')).to.eq('lazy')
+        // Only the rows below the fold are deferred; the first screenful is
+        // fetched eagerly so the visible table paints without waiting.
+        const index = Array.prototype.indexOf.call(row.parentElement!.children, row)
+        expect(crest.getAttribute('loading'), `${location} crest loading`).to.eq(
+          index < CREST_EAGER_ROWS ? 'eager' : 'lazy'
+        )
 
         const link = cells[1].querySelector('a') as HTMLAnchorElement
         expect(link.getAttribute('href'), `${location} detail link`).to.eq(bidPath(bid!))
