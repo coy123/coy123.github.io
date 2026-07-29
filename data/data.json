@@ -330,7 +330,7 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Moretta_%28Italia%29-Stemma.svg/960px-Moretta_%28Italia%29-Stemma.svg.png",
         "latitude": "44.760622",
-        "longitude": " 7.521695"
+        "longitude": "7.521695"
     },
     {
         "location": "Comune di Sannazzaro de Burgondi (PV)",
@@ -339,7 +339,7 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Sannazzaro_de%27_Burgondi-Stemma.svg/960px-Sannazzaro_de%27_Burgondi-Stemma.svg.png",
         "latitude": "45.109657",
-        "longitude": " 8.912213"
+        "longitude": "8.912213"
     },
     {
         "location": "Comune di Marannello (MO)",
@@ -517,7 +517,7 @@
         "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
         "latitude": "43.537088",
         "longitude": "10.954536"
     },
@@ -544,7 +544,7 @@
         "deadline": "2026-05-27",
         "url": "https://www.comune.capoterra.ca.it/it/documenti/documento/Autorizzazioni-per-il-servizio-di-noleggio-con-conducente-NCC/",
         "amount": 2,
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Capoterra-Stemma.svg/960px-Capoterra-Stemma.svg.png",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Capoterra-Stemma_%282026-%29.svg/960px-Capoterra-Stemma_%282026-%29.svg.png",
         "latitude": "39.173348",
         "longitude": "8.974207"
     },
