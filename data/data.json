@@ -40,7 +40,7 @@
         "deadline": "2025-10-03",
         "url": "https://www.comune.ortasangiulio.no.it/portals/2101/Skins/skinXhtml/Images/stemma.webp",
         "amount": 2,
-        "image": "https://upload.wikimedia.org/wikipedia/en/b/bb/Orta_San_Giulio-Stemma.png",
+        "image": "https://www.comune.ortasangiulio.no.it/portals/2101/Skins/skinXhtml/Images/stemma.webp",
         "latitude": "45.801",
         "longitude": "8.401"
     },
@@ -58,7 +58,7 @@
         "deadline": "2025-07-09",
         "url": "https://www.comune.impruneta.fi.it/it/news/pubblicato-il-bando-per-tre-nuove-autorizzazioni-ncc",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/en/3/39/Impruneta-Stemma.gif",
+        "image": "https://impruneta-api.municipiumapp.it/s3/150x150/s3/20008/sito/stemma.jpg",
         "latitude": "43.684",
         "longitude": "11.251"
     },
@@ -67,7 +67,7 @@
         "deadline": "2025-03-20",
         "url": "https://www.comune.lecco.it/Novita/Comunicati/Noleggio-con-conducente-online-il-bando?utm_source=chatgpt.com",
         "amount": 2,
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Lecco-Stemma.svg/60px-Lecco-Stemma.svg.png",
+        "image": "https://flyimg.opencityitalia.it/upload/rf_1,o_auto,w_2500,h_2500/https%3A%2F%2Fs3-eu-west-1.amazonaws.com%2Fstatic.opencity.opencontent.it%2Fvar%2Flecco%2Fstorage%2Fimages%2F3780-84-ita-IT%2FHomepage_header_logo.png",
         "latitude": "45.856",
         "longitude": "9.397"
     },
@@ -330,7 +330,7 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Moretta_%28Italia%29-Stemma.svg/960px-Moretta_%28Italia%29-Stemma.svg.png",
         "latitude": "44.760622",
-        "longitude": "7.521695"
+        "longitude": " 7.521695"
     },
     {
         "location": "Comune di Sannazzaro de Burgondi (PV)",
@@ -339,7 +339,7 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Sannazzaro_de%27_Burgondi-Stemma.svg/960px-Sannazzaro_de%27_Burgondi-Stemma.svg.png",
         "latitude": "45.109657",
-        "longitude": "8.912213"
+        "longitude": " 8.912213"
     },
     {
         "location": "Comune di Marannello (MO)",
@@ -517,7 +517,7 @@
         "deadline": "2026-05-02",
         "url": "https://www.comune.gambassi-terme.fi.it/amministrazione/trasparenza/bandi_di_concorso/scheda_bando_di_concorso_87.html#allegati",
         "amount": 3,
-        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png7",
         "latitude": "43.537088",
         "longitude": "10.954536"
     },
@@ -544,7 +544,7 @@
         "deadline": "2026-05-27",
         "url": "https://www.comune.capoterra.ca.it/it/documenti/documento/Autorizzazioni-per-il-servizio-di-noleggio-con-conducente-NCC/",
         "amount": 2,
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Capoterra-Stemma_%282026-%29.svg/960px-Capoterra-Stemma_%282026-%29.svg.png",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Capoterra-Stemma.svg/960px-Capoterra-Stemma.svg.png",
         "latitude": "39.173348",
         "longitude": "8.974207"
     },
@@ -711,7 +711,7 @@
         "longitude": "7.851715"
     },
     {
-        "location": "Comune di Villachiara (BS)",
+        "location": "Comune di Villachiara (BS) ",
         "deadline": "2026-08-16",
         "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=69cafe27d18843ca9decac012e869463",
         "amount": 2,
@@ -736,15 +736,6 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Siderno-Stemma.svg/960px-Siderno-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "latitude": "38.2666",
         "longitude": "16.3"
-    },
-    {
-        "location": "Città di Vittoria (RG)",
-        "deadline": "2026-08-16",
-        "url": "https://www.comune.vittoria.rg.it/Novita/Avvisi/Avviso-Bando-di-concorso-pubblico-per-il-rilascio-n.8-autorizzazioni-per-il-servizio-di-noleggio-con-conducente-con-autovettura-n.-1-licenza-per-lo-svolgimento-dell-attivita-di-taxi-con-autovettura",
-        "amount": 8,
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Vittoria-Stemma.svg/960px-Vittoria-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
-        "latitude": "36.95",
-        "longitude": "14.533"
     },
     {
         "location": "Comune di Casciana Terme Lari (PI)",
