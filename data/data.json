@@ -94,7 +94,7 @@
         "deadline": "2025-11-04",
         "url": "https://www.comune.francavillafontana.br.it/Novita/Avvisi/Bando-di-pubblico-concorso-per-soli-titoli-per-l-assegnazione-n.-9-autorizzazioni-NCC",
         "amount": 9,
-        "image": "https://static.comune.francavillafontana.br.it/upload/rf_1,o_auto,w_2500,h_2500/http%3A%2F%2Fminio%3A9000%2Fopencity-bucket%2Fvar%2Fopencity%2Fstorage%2Fimages%2F4348-17-ita-IT%2FHomepage_header_logo.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/a/ab/Francavilla_Fontana-Stemma.png",
         "latitude": "40.531",
         "longitude": "17.585"
     },
@@ -454,7 +454,7 @@
         "deadline": "2026-05-01",
         "url": "https://unionecomunivaltenesi.it/documenti/3559444/bando-ncc-comune-manerba-dg",
         "amount": 1,
-        "image": "https://upload.wikimedia.org/wikipedia/it/thumb/5/55/Moniga_del_Garda-Stemma.png/250px-Moniga_del_Garda-Stemma.png",
+        "image": "https://upload.wikimedia.org/wikipedia/it/6/68/Manerba_del_Garda-Stemma.png",
         "latitude": "45.555583",
         "longitude": "10.557130"
     },

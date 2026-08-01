@@ -33,6 +33,33 @@ const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|svg|webp|avif)$/i
  */
 const crestPath = (image: string) => new URL(image).pathname
 
+/**
+ * Groups entries by the crest they will actually request, and returns only the
+ * groups with more than one owner.
+ *
+ * Keyed on `crestUrl()` output rather than the raw string on purpose: a paste
+ * that grabbed a neighbouring comune's crest often arrives at a different width
+ * than the row it was copied from, so ".../250px-Moniga_del_Garda-Stemma.png"
+ * and ".../Moniga_del_Garda-Stemma.png" look like two distinct values while
+ * resolving to one file. Normalising first is what makes the check bite.
+ *
+ * Deliberately per-file: a bid and a law for the same city legitimately share a
+ * crest (Milano and Bologna both do), so the two datasets are never compared
+ * against each other.
+ */
+const sharedCrests = (rows: { location: string; image: string }[]) => {
+  const owners = new Map<string, string[]>()
+  rows.forEach((row) => {
+    const key = crestUrl(row.image, CREST_SIZE_TABLE)
+    owners.set(key, [...(owners.get(key) ?? []), row.location])
+  })
+  return [...owners.entries()].filter(([, locations]) => locations.length > 1)
+}
+
+/** Renders `sharedCrests` output into a failure message that names the culprits. */
+const describeShared = (shared: [string, string[]][]) =>
+  shared.map(([image, locations]) => `${locations.join(' + ')} all use ${image}`).join('; ')
+
 describe('data/data.json', () => {
   it('is not empty', () => {
     expect(bids).to.have.length.greaterThan(0)
@@ -93,6 +120,14 @@ describe('data/data.json', () => {
       const path = crestPath(bid.image)
       expect(path, `${bid.location} crest filename "${path}"`).to.match(IMAGE_EXTENSIONS)
     })
+  })
+
+  it('gives every comune its own crest', () => {
+    // Two comuni sharing a coat of arms means one of them was pasted from the
+    // other's row — the image still loads, so nothing else in the suite can see
+    // it. Only the wrong town is on the page.
+    const shared = sharedCrests(bids)
+    expect(shared, `crest copied between rows: ${describeShared(shared)}`).to.be.empty
   })
 
   it('places every set of coordinates inside Italy', () => {
@@ -198,6 +233,11 @@ describe('data/laws.json', () => {
       const path = crestPath(law.image)
       expect(path, `${law.location} crest filename "${path}"`).to.match(IMAGE_EXTENSIONS)
     })
+  })
+
+  it('gives every region its own crest', () => {
+    const shared = sharedCrests(laws)
+    expect(shared, `crest copied between rows: ${describeShared(shared)}`).to.be.empty
   })
 
   it('has no duplicate locations', () => {
