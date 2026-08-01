@@ -1,4 +1,4 @@
-import { bids, faqs, glossaryTerms, laws, toSlug } from '../support/site'
+import { bids, faqs, glossaryTerms, laws, rawBids, toSlug } from '../support/site'
 import { CREST_SIZE_DETAIL, CREST_SIZE_TABLE, CREST_WIDTHS, crestUrl } from '../../lib/crest'
 
 /**
@@ -9,6 +9,29 @@ import { CREST_SIZE_DETAIL, CREST_SIZE_TABLE, CREST_WIDTHS, crestUrl } from '../
 
 // Generous bounding box around Italy, including the islands and Lampedusa.
 const ITALY_BOUNDS = { minLat: 35.0, maxLat: 47.5, minLng: 6.0, maxLng: 19.0 }
+
+/**
+ * Crest filename rules, shared by data.json and laws.json — both files are
+ * edited by hand and both render their images through the same `crestUrl()`.
+ *
+ * A recurring copy-paste slip appends a stray character to the pasted URL, and
+ * on a normal keyboard layout that character is usually a 7 sitting next to the
+ * paste key: ".../Stemma.png7". The URL still parses and still looks right at a
+ * glance, but Wikimedia answers 404 and the row renders a broken crest.
+ *
+ * The extension whitelist is deliberately generous: a comune hosting its own
+ * crest as .webp or .jpeg is legitimate, and a false failure here blocks a
+ * deploy.
+ */
+const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|svg|webp|avif)$/i
+
+/**
+ * The path alone, without the query. Seven crests carry Wikipedia's own `utm_*`
+ * parameters, so ".../Stemma.png7?utm_source=…" ends in a letter and a test
+ * against the whole URL would wave the typo through. `crestUrl()` rewrites the
+ * path and drops the query too, so this is also the part that has to be right.
+ */
+const crestPath = (image: string) => new URL(image).pathname
 
 describe('data/data.json', () => {
   it('is not empty', () => {
@@ -55,6 +78,20 @@ describe('data/data.json', () => {
     bids.forEach((bid) => {
       expect(() => new URL(bid.image), `${bid.location} image parses`).to.not.throw()
       expect(bid.image, `${bid.location} image scheme`).to.match(/^https?:\/\//)
+    })
+  })
+
+  it('never ends a crest filename in a digit', () => {
+    bids.forEach((bid) => {
+      const path = crestPath(bid.image)
+      expect(path, `${bid.location} crest filename "${path}"`).to.not.match(/\d$/)
+    })
+  })
+
+  it('ends every crest filename in a real image extension', () => {
+    bids.forEach((bid) => {
+      const path = crestPath(bid.image)
+      expect(path, `${bid.location} crest filename "${path}"`).to.match(IMAGE_EXTENSIONS)
     })
   })
 
@@ -109,9 +146,24 @@ describe('data/data.json', () => {
   })
 
   it('stores locations without stray whitespace', () => {
-    bids.forEach((bid) => {
+    // Asserted against the raw file, not `bids`: lib/trim.ts already strips a
+    // leading or trailing space on read, so the site survives one — but the
+    // source is still worth keeping clean, and an *internal* double space is
+    // something trimming cannot fix.
+    rawBids.forEach((bid) => {
       expect(bid.location, `"${bid.location}" is trimmed`).to.eq(bid.location.trim())
       expect(bid.location, `"${bid.location}" has no double spaces`).to.not.match(/\s{2,}/)
+    })
+  })
+
+  it('trims every string field before the app sees it', () => {
+    // The guard behind that tolerance: whatever data.json holds, no consumer
+    // ever receives a padded location, url, image, deadline or coordinate.
+    bids.forEach((bid, index) => {
+      Object.entries(bid).forEach(([field, value]) => {
+        if (typeof value !== 'string') return
+        expect(value, `bid #${index} ${field} is trimmed`).to.eq(value.trim())
+      })
     })
   })
 })
@@ -131,6 +183,20 @@ describe('data/laws.json', () => {
       expect(() => new URL(law.url), `${law.location} url parses`).to.not.throw()
       expect(law.url, `${law.location} url scheme`).to.match(/^https?:\/\//)
       expect(law.image, `${law.location} image scheme`).to.match(/^https?:\/\//)
+    })
+  })
+
+  it('never ends a crest filename in a digit', () => {
+    laws.forEach((law) => {
+      const path = crestPath(law.image)
+      expect(path, `${law.location} crest filename "${path}"`).to.not.match(/\d$/)
+    })
+  })
+
+  it('ends every crest filename in a real image extension', () => {
+    laws.forEach((law) => {
+      const path = crestPath(law.image)
+      expect(path, `${law.location} crest filename "${path}"`).to.match(IMAGE_EXTENSIONS)
     })
   })
 

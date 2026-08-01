@@ -8,6 +8,7 @@ import lawsJson from '../../data/laws.json'
 import faqJson from '../../data/faq.json'
 import translations from '../../locales/it.json'
 import { toSlug } from '../../lib/slug'
+import { trimStrings } from '../../lib/trim'
 import {
   CREST_EAGER_ROWS,
   CREST_SIZE_DETAIL,
@@ -37,7 +38,15 @@ export interface FaqEntry {
   answer: string
 }
 
-export const bids: RawBid[] = bidsJson as RawBid[]
+/**
+ * The rows exactly as data/data.json stores them, untrimmed. Only the source
+ * hygiene checks in data-integrity.cy.ts should use this — assert against
+ * `bids` everywhere else, since that is what the app actually renders.
+ */
+export const rawBids: RawBid[] = bidsJson as RawBid[]
+
+/** What the app renders: the same rows with their strings trimmed (lib/trim.ts). */
+export const bids: RawBid[] = rawBids.map(trimStrings)
 export const laws: RawLaw[] = lawsJson as RawLaw[]
 export const faqs: FaqEntry[] = faqJson as FaqEntry[]
 export const t = translations

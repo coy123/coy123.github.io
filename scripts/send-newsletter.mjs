@@ -20,6 +20,17 @@ const DRY = process.env.DRY_RUN === 'true'
 const FROM = 'info@bandincc.it'
 const FROM_NAME = 'BandiNCC'
 
+// Mirrors lib/trim.ts — this script is plain JS run by node, so it cannot
+// import the TS module. data.json values regularly carry a copy-pasted leading
+// or trailing space, and here that costs twice: a padded location or deadline
+// makes an already-mailed row look brand new (re-sending it to every
+// subscriber), and the space would be rendered into the email body and the
+// bando URL. Both sides of the diff are trimmed so the comparison is fair.
+const trimStrings = (entry) =>
+  Object.fromEntries(
+    Object.entries(entry).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])
+  )
+
 const key = (b) => `${b.location}|${b.deadline}`
 
 // A manual dispatch has no github.event.before. A dry run then previews the most
@@ -40,14 +51,16 @@ let previous
 try {
   previous = JSON.parse(
     execFileSync('git', ['show', `${base}:data/data.json`], { encoding: 'utf8' })
-  )
+  ).map(trimStrings)
 } catch {
   console.log(`No readable data.json at ${base} — nothing to compare, exiting.`)
   process.exit(0)
 }
 
 const seen = new Set(previous.map(key))
-const fresh = JSON.parse(readFileSync('data/data.json', 'utf8')).filter((b) => !seen.has(key(b)))
+const fresh = JSON.parse(readFileSync('data/data.json', 'utf8'))
+  .map(trimStrings)
+  .filter((b) => !seen.has(key(b)))
 
 if (!fresh.length) {
   console.log('No new bandi.')

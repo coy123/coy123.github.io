@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import data from '@/data/data.json'
 import laws from '@/data/laws.json'
+import { bids } from '@/lib/data'
 import { getTranslations } from '@/lib/translations'
 import AuthorBox from '@/components/AuthorBox'
 import { toSlug } from '@/lib/slug'
@@ -11,7 +11,7 @@ import BidStatus from './BidStatus'
 import BidDetailMapWrapper from './BidDetailMapWrapper'
 
 function findBid(slug: string) {
-  return data.find((item) => toSlug(item.location) === slug)
+  return bids.find((item) => toSlug(item.location) === slug)
 }
 
 function findLaw(location: string) {
@@ -19,7 +19,7 @@ function findLaw(location: string) {
 }
 
 export async function generateStaticParams() {
-  return data.map((item) => ({
+  return bids.map((item) => ({
     bid: toSlug(item.location),
   }))
 }
