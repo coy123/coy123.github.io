@@ -27,12 +27,12 @@ on:
         type: boolean
         default: true
       base_sha:
-        description: 'Commit to diff data.json against (replays a failed send)'
+        description: 'Commit to diff data.json against (overrides the marker)'
         type: string
 
 permissions:
-  contents: read
-  actions: read          # reading deploy.yml's run history resolves the diff base
+  contents: write        # moves the `newsletter-sent` marker after a send
+  actions: read          # deploy.yml run history is the marker's bootstrap
 
 jobs:
   send:
@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0          # the script reads data.json at the previous commit
+          fetch-depth: 0          # the script reads data.json at the marker commit
           # workflow_run checks out the default branch by default, which may have
           # moved on since the deploy. Pin to the commit that was actually built.
           ref: ${{ github.event.workflow_run.head_sha || github.ref }}
@@ -61,32 +61,63 @@ jobs:
         with:
           node-version: '20'
 
-      # The base is the last commit that actually went LIVE, not this push's
-      # parent. If a deploy fails and the fix is pushed, that push's
-      # github.event.before is the failed commit — which already carried the new
-      # rows — so diffing against it would silently swallow the batch and nobody
-      # would ever be mailed about those bandi. Diffing against the last
-      # successful deploy replays them instead.
+      # The base is the last commit we actually MAILED, tracked by the
+      # `newsletter-sent` tag, not this push's parent.
       #
-      # Runs are listed newest first; `id <` keeps us behind the triggering run
-      # even if a later deploy has already gone green (rapid pushes). No previous
-      # success (first ever run) leaves this empty, and the script then refuses to
-      # guess a base rather than risk mailing the whole backlog.
-      - name: Resolve the last successfully deployed commit
-        if: github.event_name == 'workflow_run'
+      # github.event.before is wrong here and fails silently: if a deploy breaks
+      # and the fix is pushed, that push's parent is the broken commit, which
+      # already carried the new rows — so the diff comes up empty and nobody is
+      # ever told about those bandi. Anchoring on what was mailed means a batch
+      # missed by a failed deploy OR a failed send is simply picked up by the
+      # next successful run. Nothing has to be replayed by hand.
+      #
+      # Bootstrap (no marker yet — first run, or someone deleted the tag): fall
+      # back to the last successfully deployed commit. That equals the marker
+      # whenever sends have been succeeding, so it is the right answer in the
+      # normal case and merely conservative otherwise. Runs come back newest
+      # first; `id <` keeps us behind the triggering run even if a later deploy
+      # has already gone green during a rapid push. Still nothing? Leave it empty
+      # — the script refuses to guess a base rather than mail the whole backlog.
+      - name: Resolve the diff base
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
-          last=$(gh api \
-            "repos/$GITHUB_REPOSITORY/actions/workflows/deploy.yml/runs?branch=master&status=success&per_page=30" \
-            --jq "[.workflow_runs[] | select(.id < $RUN_ID)][0].head_sha // empty")
-          echo "Diffing data.json against ${last:-<none found>}"
-          echo "LAST_DEPLOYED_SHA=$last" >> "$GITHUB_ENV"
+          git fetch --force origin \
+            'refs/tags/newsletter-sent:refs/tags/newsletter-sent' 2>/dev/null || true
+          base=$(git rev-parse -q --verify 'refs/tags/newsletter-sent^{commit}' || true)
 
-      - run: node scripts/send-newsletter.mjs
+          if [ -n "$base" ]; then
+            echo "Diffing data.json against the newsletter-sent marker: $base"
+          elif [ -n "$RUN_ID" ]; then
+            base=$(gh api \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/deploy.yml/runs?branch=master&status=success&per_page=30" \
+              --jq "[.workflow_runs[] | select(.id < $RUN_ID)][0].head_sha // empty")
+            echo "No marker yet — bootstrapping from last successful deploy: ${base:-<none found>}"
+          fi
+
+          echo "BASE_SHA=$base" >> "$GITHUB_ENV"
+
+      - id: send
+        run: node scripts/send-newsletter.mjs
         env:
           MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
           MAILERLITE_GROUP_ID: ${{ secrets.MAILERLITE_GROUP_ID }}
-          BEFORE_SHA: ${{ inputs.base_sha || env.LAST_DEPLOYED_SHA }}
+          BEFORE_SHA: ${{ inputs.base_sha || env.BASE_SHA }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
+
+      # Only when the script confirms this commit is fully accounted for: mailed
+      # just now, or correctly diffed to nothing new. It stays put on every path
+      # that sent nothing without establishing a base (unknown/unreadable base,
+      # dry run) and on an outright failure, so the batch is retried next time
+      # instead of being skipped. This is the self-healing part — moving the
+      # marker on a plain exit-0 would reintroduce the silent swallow.
+      #
+      # Lightweight tag, force-updated. A tag push does not re-trigger deploy.yml
+      # (it filters on `branches:`), and pushes made with GITHUB_TOKEN cannot
+      # trigger workflows anyway — no send loop is possible.
+      - name: Advance the newsletter-sent marker
+        if: steps.send.outputs.up_to_date == 'true'
+        run: |
+          git push --force origin HEAD:refs/tags/newsletter-sent
+          echo "Marker advanced to $(git rev-parse HEAD)"

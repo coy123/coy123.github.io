@@ -8,7 +8,7 @@
 // a new scadenza is a new bando, while a correction to url/amount/image on an
 // already-sent row is not and will not re-send.
 
-import { readFileSync } from 'node:fs'
+import { appendFileSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 
 const API = 'https://connect.mailerlite.com/api'
@@ -19,6 +19,26 @@ const DRY = process.env.DRY_RUN === 'true'
 
 const FROM = 'info@bandincc.it'
 const FROM_NAME = 'BandiNCC'
+
+// Tells the workflow that every row in this commit's data.json is accounted for
+// — either mailed just now, or already mailed earlier — so it may advance the
+// `newsletter-sent` marker to HEAD (.github/workflows/newsletter.yml).
+//
+// Exit code cannot carry this: we exit 0 on several paths that send nothing AND
+// establish nothing (unknown base, unreadable base). Advancing the marker there
+// would move it past rows nobody was ever told about, swallowing that batch
+// permanently. So the signal is opt-in, set only where the diff succeeded.
+//
+// The DRY guard lives here rather than at the call sites because the "nothing
+// new" exit happens BEFORE the dry-run check and would otherwise signal from a
+// preview. That is the worst case, not a cosmetic one: previewing a stuck batch
+// with some trial base_sha would advance the marker past the very rows being
+// investigated. A dry run must not be able to move it, whatever the call site.
+// Silently a no-op outside Actions, so local runs are unaffected either way.
+const markAccountedFor = () => {
+  if (DRY || !process.env.GITHUB_OUTPUT) return
+  appendFileSync(process.env.GITHUB_OUTPUT, 'up_to_date=true\n')
+}
 
 // Mirrors lib/trim.ts — this script is plain JS run by node, so it cannot
 // import the TS module. data.json values regularly carry a copy-pasted leading
@@ -62,8 +82,10 @@ const fresh = JSON.parse(readFileSync('data/data.json', 'utf8'))
   .map(trimStrings)
   .filter((b) => !seen.has(key(b)))
 
+// Nothing new, but the diff itself succeeded — the marker may move up to here.
 if (!fresh.length) {
   console.log('No new bandi.')
+  markAccountedFor()
   process.exit(0)
 }
 
@@ -150,3 +172,4 @@ const { data: campaign } = await call('/campaigns', {
 
 await call(`/campaigns/${campaign.id}/schedule`, { body: { delivery: 'instant' } })
 console.log(`Sent campaign ${campaign.id} — ${summary}.`)
+markAccountedFor()
