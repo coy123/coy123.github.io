@@ -38,10 +38,36 @@ jobs:
         name: static-export-netlify
         path: out
 
-    - name: Deploy to Netlify
-      uses: netlify/actions/cli@master
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    # Missing secrets used to be invisible: the old netlify/actions/cli action
+    # swallowed the CLI's exit code, so an empty token produced a green run and
+    # an un-updated site. Fail here instead, with a message that names the cause.
+    - name: Check Netlify credentials are present
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-      with:
-        args: deploy --dir=out --prod
+      run: |
+        missing=0
+        [ -n "$NETLIFY_AUTH_TOKEN" ] || { echo "::error::secrets.NETLIFY_AUTH_TOKEN is empty"; missing=1; }
+        [ -n "$NETLIFY_SITE_ID" ]    || { echo "::error::secrets.NETLIFY_SITE_ID is empty"; missing=1; }
+        [ -d out ] && [ -f out/index.html ] || { echo "::error::downloaded artifact has no out/index.html"; missing=1; }
+        exit $missing
+
+    # Run the CLI directly rather than through netlify/actions/cli@master: that
+    # action pipes `netlify` through a command substitution and then ends on an
+    # `::set-output` echo (a workflow command GitHub removed in 2023), so the
+    # step exited 0 whatever the CLI did and printed none of its output.
+    # A plain `run:` propagates the exit code and shows the deploy log.
+    - name: Deploy to Netlify
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      run: |
+        npx --yes netlify-cli@27 deploy \
+          --dir=out \
+          --prod \
+          --message "${{ github.sha }} — ${{ github.workflow }} #${{ github.run_number }}"
