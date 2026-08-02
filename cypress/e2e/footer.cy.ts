@@ -21,6 +21,16 @@ describe('Footer', () => {
       })
   })
 
+  it('shows the crest above the links', () => {
+    cy.get(sel.footer)
+      .find('img')
+      .should('have.length', 1)
+      .and('be.visible')
+      .and('have.attr', 'src', '/images/logo-crest.svg')
+      .and('have.attr', 'alt')
+      .and('not.be.empty')
+  })
+
   it('renders the copyright line for the current year', () => {
     const expected = t.footer.copyright.replace('{year}', String(new Date().getFullYear()))
     cy.get(sel.footer).should('contain.text', expected)

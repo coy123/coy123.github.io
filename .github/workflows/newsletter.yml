@@ -1,17 +1,25 @@
 name: Send newsletter
 
-# Subscriber newsletter, sent only when master gains new rows in data/data.json.
-# Kept separate from deploy.yml so a send failure never blocks the site deploy.
+# Subscriber newsletter, sent only after master has been successfully DEPLOYED
+# with new rows in data/data.json.
 #
-# The push trigger covers BOTH ways master changes: a direct push, and a pull
-# request merged into master (a merge — commit, squash or rebase — is itself a
-# push to the base branch, and the paths filter sees the whole merged diff).
-# Do NOT add `pull_request: types: [closed]` on top: a merge would then fire
-# twice off the same commits and send the campaign to the list twice.
+# Why workflow_run and not push: the newsletter links to /bandi/<slug>/ pages
+# that only exist once the export is live. On a plain push trigger this workflow
+# (checkout + one node script, seconds) beat deploy.yml (build + full Cypress
+# suite, minutes) every time, so the campaign went out pointing at pages that
+# were still 404 — and if the suite FAILED, it went out pointing at pages that
+# would never exist at all. Chaining off the deploy fixes both.
+#
+# It still never blocks the deploy: this is a separate workflow running strictly
+# downstream, so a failed send cannot turn the deploy red or hold it up.
+#
+# A merged pull request is itself a push to master, so it deploys and then lands
+# here like any other push. Do NOT also add a `push` or `pull_request` trigger:
+# the campaign would go to the whole list twice off the same commits.
 on:
-  push:
-    branches: [ master ]
-    paths: [ 'data/data.json' ]
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       dry_run:
@@ -24,12 +32,20 @@ on:
 
 permissions:
   contents: read
+  actions: read          # reading deploy.yml's run history resolves the diff base
 
 jobs:
   send:
     runs-on: ubuntu-latest
-    # Belt and braces: a manual run from any other branch must not send.
-    if: github.ref == 'refs/heads/master'
+    # Only a green deploy of master may send. A PR run of deploy.yml also lands
+    # here (it reaches `completed` after `test`), but its head_branch is the PR's
+    # source branch, so the branch check drops it — a PR must never mail the list.
+    # Belt and braces on the manual path: a dispatch from any other branch stops.
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'master')
     concurrency:
       group: newsletter
       cancel-in-progress: false
@@ -37,14 +53,40 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0          # the script reads data.json at the previous commit
+          # workflow_run checks out the default branch by default, which may have
+          # moved on since the deploy. Pin to the commit that was actually built.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # The base is the last commit that actually went LIVE, not this push's
+      # parent. If a deploy fails and the fix is pushed, that push's
+      # github.event.before is the failed commit — which already carried the new
+      # rows — so diffing against it would silently swallow the batch and nobody
+      # would ever be mailed about those bandi. Diffing against the last
+      # successful deploy replays them instead.
+      #
+      # Runs are listed newest first; `id <` keeps us behind the triggering run
+      # even if a later deploy has already gone green (rapid pushes). No previous
+      # success (first ever run) leaves this empty, and the script then refuses to
+      # guess a base rather than risk mailing the whole backlog.
+      - name: Resolve the last successfully deployed commit
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          last=$(gh api \
+            "repos/$GITHUB_REPOSITORY/actions/workflows/deploy.yml/runs?branch=master&status=success&per_page=30" \
+            --jq "[.workflow_runs[] | select(.id < $RUN_ID)][0].head_sha // empty")
+          echo "Diffing data.json against ${last:-<none found>}"
+          echo "LAST_DEPLOYED_SHA=$last" >> "$GITHUB_ENV"
+
       - run: node scripts/send-newsletter.mjs
         env:
           MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
           MAILERLITE_GROUP_ID: ${{ secrets.MAILERLITE_GROUP_ID }}
-          BEFORE_SHA: ${{ inputs.base_sha || github.event.before }}
+          BEFORE_SHA: ${{ inputs.base_sha || env.LAST_DEPLOYED_SHA }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}

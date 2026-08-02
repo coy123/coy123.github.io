@@ -19,6 +19,13 @@ export default function Footer() {
     <footer className="bg-gray-900 border-t border-gray-700 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-col items-center gap-2">
+          {/* The footer is the last thing in the column, so its height costs
+              nothing above it — the one place the crest can run at full size. */}
+          <img
+            src="/images/logo-crest.svg"
+            alt="Stemma Bandi NCC"
+            className="h-28 sm:h-36 w-auto mb-1"
+          />
           {/* Wraps because the Italian labels are long enough to overflow a
               phone on one line. */}
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">

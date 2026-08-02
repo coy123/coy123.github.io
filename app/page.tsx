@@ -55,6 +55,16 @@ export default async function HomePage() {
             backgroundPosition: 'center',
           }}
         >
+          {/* Absolutely placed, so the hero keeps exactly the height its
+              heading and subheading give it. Only from xl: there the content
+              column is pinned at its max-w-5xl width and the h1 fits on one
+              line, leaving a clear strip on the right. Below xl the h1 wraps
+              and its background block fills the row, with nowhere to sit. */}
+          <img
+            src="/images/logo-crest.svg"
+            alt="Stemma Bandi NCC"
+            className="hidden xl:block absolute right-2 top-1/2 -translate-y-1/2 h-[64%] w-auto pointer-events-none select-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]"
+          />
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
             style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
             {t.pages.home.title}
