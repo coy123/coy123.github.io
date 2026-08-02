@@ -1,0 +1,21 @@
+{
+  "name": "bandincc-stripe-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stripe -> MailerLite entitlement webhook for bandincc.it",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "stripe": "^22.4.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260801.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.118.0"
+  }
+}

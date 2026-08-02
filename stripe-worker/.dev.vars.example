@@ -1,0 +1,11 @@
+# Copy to `.dev.vars` and fill in. That file is gitignored and is read ONLY by
+# `wrangler dev` — it is never uploaded. The deployed Worker reads secrets set
+# with `wrangler secret put`, so every value here must also be pushed that way
+# before it works in production. See README.md.
+#
+# Use TEST-mode Stripe values here (sk_test_… / the whsec_… printed by
+# `stripe listen`), never live ones.
+
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+MAILERLITE_API_KEY=...

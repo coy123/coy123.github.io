@@ -1,0 +1,19 @@
+name = "bandincc-stripe"
+main = "src/index.ts"
+compatibility_date = "2026-08-02"
+
+# The Stripe SDK is a Node library. Without this it fails to bundle: it reaches
+# for node:events / node:crypto even though the fetch http client is doing the
+# actual work.
+compatibility_flags = ["nodejs_compat"]
+
+# Free, and the only way to see why a webhook 500'd after the fact. `npm run
+# tail` streams the same logs live while testing.
+[observability]
+enabled = true
+
+# NOT a secret — it identifies the list, it does not grant access to it. Secrets
+# (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, MAILERLITE_API_KEY) never appear in
+# this file; see README.md.
+[vars]
+MAILERLITE_GROUP_ID = "PUT_THE_GROUP_ID_HERE"

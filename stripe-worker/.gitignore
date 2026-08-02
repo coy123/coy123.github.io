@@ -1,0 +1,6 @@
+node_modules/
+.wrangler/
+
+# Local secrets for `wrangler dev`. Committing this leaks the Stripe secret key
+# and the MailerLite API key. Copy .dev.vars.example instead.
+.dev.vars

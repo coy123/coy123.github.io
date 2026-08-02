@@ -43,6 +43,7 @@
     "dist",
     "scripts",
     "cypress",
-    "cypress.config.ts"
+    "cypress.config.ts",
+    "stripe-worker"
   ]
 }
