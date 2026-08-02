@@ -132,7 +132,7 @@ describe('Cookie banner', () => {
     // The footer links sit above the banner in the stacking order only after
     // the banner is dismissed, so accept first and then use them.
     cy.get(sel.cookieBanner).contains('button', 'Accetta').click()
-    cy.get(sel.footer).contains('a', 'Disclaimer').click()
+    cy.get(sel.footer).contains('a', t.footer.links.disclaimer).click()
     cy.assertPath('/disclaimer')
   })
 })
