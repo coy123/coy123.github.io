@@ -1,6 +1,10 @@
+# Only used if the Netlify site is linked to this repo and builds it itself.
+# The CI deploy in .github/workflows/netlify-deploy.yml does NOT read this file
+# — it uploads the already-tested `out/` with `netlify deploy --dir=out`.
+#
+# next.config.mjs sets `output: 'export'`, so the build writes a fully static
+# `out/`. Publishing `.next` through @netlify/plugin-nextjs (as this file used
+# to) fails: the plugin expects SSR build output that an export never produces.
 [build]
   command   = "npm run build"
-  publish   = ".next"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+  publish   = "out"
