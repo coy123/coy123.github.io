@@ -9,6 +9,11 @@
 export const sel = {
   /* Navigation --------------------------------------------------------- */
   desktopNav: 'nav.hidden.md\\:block',
+  // The crest is the home link and sits outside the labelled-item group, so
+  // `desktopNavLinks` still means exactly the labelled entries.
+  desktopNavLinks: 'nav.hidden.md\\:block div.flex.space-x-1',
+  desktopNavBrand: 'nav.hidden.md\\:block div.h-16 > a[href="/"]',
+  mobileHeaderBrand: 'div.md\\:hidden.sticky a[href="/"]',
   mobileHeader: 'div.md\\:hidden.sticky',
   mobileMenuButton: 'div.md\\:hidden.sticky button',
   mobileMenu: 'div.md\\:hidden.w-64',

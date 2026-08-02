@@ -1,4 +1,4 @@
-import { NAV_ITEMS, ROUTES, routeByPath } from '../support/routes'
+import { NAV_LABELLED_ITEMS, ROUTES, routeByPath } from '../support/routes'
 import { sel } from '../support/selectors'
 import { samePath, hrefSelector, t } from '../support/site'
 
@@ -14,19 +14,33 @@ describe('Navigation', () => {
       cy.get(sel.mobileHeader).should('not.be.visible')
     })
 
+    it('shows the crest and wordmark as the home link', () => {
+      cy.get(sel.desktopNavBrand)
+        .should('be.visible')
+        .and('have.attr', 'aria-label', t.nav.home)
+        .and('contain.text', t.nav.title)
+        .find('img')
+        .should('have.attr', 'src', '/images/logo-favicon.svg')
+        .and('have.attr', 'alt', t.nav.title)
+    })
+
+    it('drops the labelled Home entry in favour of the crest', () => {
+      cy.get(sel.desktopNavLinks).contains('a', t.nav.home).should('not.exist')
+    })
+
     it('renders every nav item in order with the right label and href', () => {
-      cy.get(sel.desktopNav)
+      cy.get(sel.desktopNavLinks)
         .find('a')
-        .should('have.length', NAV_ITEMS.length)
+        .should('have.length', NAV_LABELLED_ITEMS.length)
         .each(($link, index) => {
-          const item = NAV_ITEMS[index]
+          const item = NAV_LABELLED_ITEMS[index]
           expect(samePath($link.attr('href') ?? '', item.path), `href of ${item.key}`).to.be.true
           expect($link.text()).to.contain(t.nav[item.key])
         })
     })
 
     it('marks the income calculator with the € badge', () => {
-      cy.get(sel.desktopNav)
+      cy.get(sel.desktopNavLinks)
         .find(hrefSelector('/income-calculator'))
         .should('contain.text', '💶')
         .and('contain.text', t.nav.incomeCalculator)
@@ -36,14 +50,33 @@ describe('Navigation', () => {
       cy.get(sel.desktopNav).should('have.css', 'position', 'sticky')
     })
 
-    NAV_ITEMS.forEach((item) => {
+    it('highlights the crest while the home page is open', () => {
+      cy.get(sel.desktopNavBrand).should('have.class', 'bg-blue-600')
+      // …and nothing in the item list competes with it.
+      cy.get(sel.desktopNavLinks).find('a.bg-blue-600').should('not.exist')
+    })
+
+    it('drops the crest highlight once another page is open', () => {
+      cy.get(sel.desktopNavLinks).contains('a', t.nav.faq).click()
+      cy.assertPath('/faq')
+      cy.get(sel.desktopNavBrand).should('not.have.class', 'bg-blue-600')
+    })
+
+    it('returns to the home page through the crest', () => {
+      cy.get(sel.desktopNavLinks).contains('a', t.nav.aboutUs).click()
+      cy.assertPath('/about-us')
+      cy.get(sel.desktopNavBrand).click()
+      cy.assertPath('/')
+    })
+
+    NAV_LABELLED_ITEMS.forEach((item) => {
       it(`navigates to ${item.path} and highlights it as active`, () => {
-        cy.get(sel.desktopNav).contains('a', t.nav[item.key]).click()
+        cy.get(sel.desktopNavLinks).contains('a', t.nav[item.key]).click()
         cy.assertPath(item.path)
 
         // The active link is the only one painted blue.
-        cy.get(sel.desktopNav).find('a.bg-blue-600').should('have.length', 1)
-        cy.get(sel.desktopNav)
+        cy.get(sel.desktopNavLinks).find('a.bg-blue-600').should('have.length', 1)
+        cy.get(sel.desktopNavLinks)
           .find(hrefSelector(item.path))
           .should('have.class', 'bg-blue-600')
 
@@ -58,9 +91,10 @@ describe('Navigation', () => {
       cy.visitPage('/')
       cy.get(sel.bidLink).first().click()
       cy.location('pathname').should('include', '/bandi/')
-      cy.get(sel.desktopNav).find('a').should('have.length', NAV_ITEMS.length)
-      // No nav item is active on a route outside the nav.
-      cy.get(sel.desktopNav).find('a.bg-blue-600').should('not.exist')
+      cy.get(sel.desktopNavLinks).find('a').should('have.length', NAV_LABELLED_ITEMS.length)
+      // Nothing is active on a route outside the nav — crest included.
+      cy.get(sel.desktopNavLinks).find('a.bg-blue-600').should('not.exist')
+      cy.get(sel.desktopNavBrand).should('not.have.class', 'bg-blue-600')
     })
   })
 
@@ -80,6 +114,20 @@ describe('Navigation', () => {
       cy.get(sel.mobileCalculatorShortcut)
         .should('be.visible')
         .and('have.attr', 'aria-label', t.nav.incomeCalculator)
+    })
+
+    it('reaches the home page through the header crest', () => {
+      cy.get(sel.mobileHeaderBrand)
+        .should('have.attr', 'aria-label', t.nav.home)
+        .find('img')
+        .should('have.attr', 'src', '/images/logo-favicon.svg')
+
+      cy.get(sel.mobileMenuButton).click()
+      cy.get(sel.mobileMenu).contains('a', t.nav.aboutUs).click()
+      cy.assertPath('/about-us')
+
+      cy.get(sel.mobileHeaderBrand).click()
+      cy.assertPath('/')
     })
 
     it('opens and closes the hamburger menu', () => {
@@ -111,19 +159,20 @@ describe('Navigation', () => {
       cy.get(sel.mobileMenu).should('not.exist')
     })
 
-    it('lists every nav item in the drawer', () => {
+    it('lists every nav item in the drawer, without a Home entry', () => {
       cy.get(sel.mobileMenuButton).click()
+      cy.get(sel.mobileMenu).contains('a', t.nav.home).should('not.exist')
       cy.get(sel.mobileMenu)
         .find('a')
-        .should('have.length', NAV_ITEMS.length)
+        .should('have.length', NAV_LABELLED_ITEMS.length)
         .each(($link, index) => {
-          const item = NAV_ITEMS[index]
+          const item = NAV_LABELLED_ITEMS[index]
           expect(samePath($link.attr('href') ?? '', item.path), `href of ${item.key}`).to.be.true
           expect($link.text().trim()).to.eq(t.nav[item.key])
         })
     })
 
-    NAV_ITEMS.forEach((item) => {
+    NAV_LABELLED_ITEMS.forEach((item) => {
       it(`navigates to ${item.path} from the drawer and closes it`, () => {
         cy.get(sel.mobileMenuButton).click()
         cy.get(sel.mobileMenu).contains('a', t.nav[item.key]).click()

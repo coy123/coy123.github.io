@@ -1,4 +1,6 @@
-const CACHE_NAME = 'licenzia-static-v1'
+// Bumped with the brand swap: the icon set and og-image changed under the same
+// filenames, so a v1 cache would keep serving the old taxi artwork.
+const CACHE_NAME = 'licenzia-static-v2'
 const assetPattern = /^\/assets\//
 const immutableExtensions = /\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|avif|ico)$/
 

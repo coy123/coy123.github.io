@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="41 49 118 192" role="img" aria-label="Bandi NCC">
+  <defs>
+    <linearGradient id="mField" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="mGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="0.5" stop-color="#eab308"/>
+      <stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="mGoldFlat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fcd34d"/>
+      <stop offset="1" stop-color="#d69e1c"/>
+    </linearGradient>
+    <path id="mShield" d="M44 64a12 12 0 0 1 12-12h88a12 12 0 0 1 12 12v92c0 42-26 68-56 82-30-14-56-40-56-82z"/>
+    <clipPath id="mShieldClip"><use href="#mShield"/></clipPath>
+  </defs>
+
+  <use href="#mShield" fill="url(#mField)"/>
+  <g clip-path="url(#mShieldClip)">
+    <rect x="40" y="48" width="120" height="40" fill="#0f172a"/>
+    <rect x="40" y="86" width="120" height="4" fill="url(#mGoldFlat)"/>
+    <g fill="url(#mGoldFlat)">
+      <path d="M76 58l2.7 8.2h8.6l-7 5.1 2.7 8.2-7-5.1-7 5.1 2.7-8.2-7-5.1h8.6z"/>
+      <path d="M100 58l2.7 8.2h8.6l-7 5.1 2.7 8.2-7-5.1-7 5.1 2.7-8.2-7-5.1h8.6z"/>
+      <path d="M124 58l2.7 8.2h8.6l-7 5.1 2.7 8.2-7-5.1-7 5.1 2.7-8.2-7-5.1h8.6z"/>
+    </g>
+
+    <text x="100" y="120" text-anchor="middle" textLength="96" lengthAdjust="spacingAndGlyphs"
+          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          font-size="16" font-weight="700" letter-spacing="1" fill="url(#mGoldFlat)">BANDI NCC</text>
+
+    <g transform="translate(48 138) scale(0.8)">
+      <path fill="url(#mGoldFlat)" d="M6 34v-8c0-4 3-7 8-8l20-2 14-9.5c3-2 6-2.5 10-2.5h24c5 0 9 1.5 12 4l12 9 10 2c5 1 8 4 8 8v7h-13a12.5 12.5 0 0 0-25 0H43a12.5 12.5 0 0 0-25 0z"/>
+      <path fill="#1d4ed8" d="M41 16l10.5-8H65v8zM69 8h13c3.5 0 6 1 8 3l4.5 5H69z"/>
+      <circle cx="30.5" cy="34.5" r="10.5" fill="url(#mGoldFlat)"/>
+      <circle cx="30.5" cy="34.5" r="4.2" fill="#1d4ed8"/>
+      <circle cx="98.5" cy="34.5" r="10.5" fill="url(#mGoldFlat)"/>
+      <circle cx="98.5" cy="34.5" r="4.2" fill="#1d4ed8"/>
+    </g>
+
+    <path d="M64 191q36 12 72 0" fill="none" stroke="url(#mGoldFlat)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M64 191q36 12 72 0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="7 9"/>
+  </g>
+  <use href="#mShield" fill="none" stroke="url(#mGold)" stroke-width="6"/>
+  <use href="#mShield" fill="none" stroke="#7c4a08" stroke-opacity="0.5" stroke-width="1.5"/>
+</svg>

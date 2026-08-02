@@ -8,16 +8,16 @@ describe('Footer', () => {
     cy.visitPage('/')
   })
 
-  it('renders the three legal links', () => {
+  it('renders every footer link in Italian', () => {
     cy.get(sel.footer)
       .find('a')
       .should('have.length', FOOTER_LINKS.length)
       .each(($link, index) => {
-        expect(
-          samePath($link.attr('href') ?? '', FOOTER_LINKS[index].path),
-          `href of ${FOOTER_LINKS[index].label}`
-        ).to.be.true
-        expect($link.text().trim()).to.eq(FOOTER_LINKS[index].label)
+        const link = FOOTER_LINKS[index]
+        const [path, hash] = ($link.attr('href') ?? '').split('#')
+        expect(samePath(path, link.path), `href of ${link.label}`).to.be.true
+        expect(hash ? `#${hash}` : '', `hash of ${link.label}`).to.eq(link.hash ?? '')
+        expect($link.text().trim()).to.eq(link.label)
       })
   })
 
@@ -27,9 +27,13 @@ describe('Footer', () => {
   })
 
   FOOTER_LINKS.forEach((link) => {
-    it(`navigates to ${link.path}`, () => {
+    it(`navigates to ${link.path}${link.hash ?? ''}`, () => {
       cy.get(sel.footer).contains('a', link.label).click()
       cy.assertPath(link.path)
+      if (link.hash) {
+        cy.location('hash').should('eq', link.hash)
+        cy.get(link.hash).should('exist')
+      }
     })
   })
 
@@ -41,7 +45,10 @@ describe('Footer', () => {
   })
 
   it('is pushed to the bottom on short pages', () => {
-    cy.visitPage('/contact')
+    // The 404 page is now the shortest thing on the site — /contact used to
+    // hold this role, and is a redirect stub since Contatti merged into
+    // Chi Siamo.
+    cy.visitPage('/questa-pagina-non-esiste', { failOnStatusCode: false })
     cy.get(sel.footer).then(($footer) => {
       const rect = $footer[0].getBoundingClientRect()
       expect(rect.bottom, 'footer reaches at least the viewport bottom').to.be.at.least(

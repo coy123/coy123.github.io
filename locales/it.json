@@ -76,9 +76,18 @@
       "metaDescription": "Strumenti utili, calcolatori e risorse per la richiesta di licenze NCC. Semplifica il processo con le nostre utilità."
     },
     "disclaimer": {
-      "title": "Disclaimer",
+      "title": "Note Legali",
       "subtitle": "Informazioni legali e limitazioni di responsabilità",
-      "description": ["Il sito bandincc.it non costituisce testata giornalistica e non ha carattere periodico, essendo aggiornato in base alla disponibilità dei contenuti. Non può pertanto essere considerato un prodotto editoriale ai sensi della Legge n. 62 del 07/03/2001.","Le informazioni pubblicate sono fornite con la massima attenzione possibile, tuttavia bandincc.it non garantisce l'assenza di errori, omissioni o imprecisioni e declina ogni responsabilità per l'uso che gli utenti fanno dei contenuti presenti sul sito. I contenuti possono essere modificati in qualsiasi momento senza preavviso.","bandincc.it non è responsabile di eventuali malfunzionamenti del sito, né di danni diretti o indiretti derivanti dall'accesso, dall'uso o dall'impossibilità di utilizzo del sito stesso.","Eventuali collegamenti a siti web esterni sono forniti esclusivamente a scopo informativo. bandincc.it non è responsabile dei contenuti, dei servizi o delle politiche adottate da siti di terze parti, né della loro correttezza, affidabilità o aggiornamento. La presenza di link non implica alcuna approvazione dei contenuti collegati.","Qualora il sito consenta l'invio di commenti o messaggi da parte degli utenti, gli autori dei contenuti inviati ne sono gli unici responsabili. bandincc.it si riserva il diritto di rimuovere, senza preavviso, contenuti ritenuti offensivi, illeciti, pubblicitari o non pertinenti.","Per quanto riguarda immagini, testi o altri materiali presenti sul sito, qualora fossero pubblicati contenuti che violano diritti d'autore, si invita a segnalarlo tramite i contatti del sito: bandincc.it provvederà alla rimozione nel più breve tempo possibile.","Per informazioni sull'utilizzo dei cookie e sul trattamento dei dati personali, si rimanda alle rispettive informative presenti sul sito.","Utilizzando questo sito, l'utente accetta integralmente le condizioni sopra indicate e si impegna a rispettarle."],
+      "description": [
+        "Il sito bandincc.it non costituisce testata giornalistica e non ha carattere periodico, essendo aggiornato in base alla disponibilità dei contenuti. Non può pertanto essere considerato un prodotto editoriale ai sensi della Legge n. 62 del 07/03/2001.",
+        "Le informazioni pubblicate sono fornite con la massima attenzione possibile, tuttavia bandincc.it non garantisce l'assenza di errori, omissioni o imprecisioni e declina ogni responsabilità per l'uso che gli utenti fanno dei contenuti presenti sul sito. I contenuti possono essere modificati in qualsiasi momento senza preavviso.",
+        "bandincc.it non è responsabile di eventuali malfunzionamenti del sito, né di danni diretti o indiretti derivanti dall'accesso, dall'uso o dall'impossibilità di utilizzo del sito stesso.",
+        "Eventuali collegamenti a siti web esterni sono forniti esclusivamente a scopo informativo. bandincc.it non è responsabile dei contenuti, dei servizi o delle politiche adottate da siti di terze parti, né della loro correttezza, affidabilità o aggiornamento. La presenza di link non implica alcuna approvazione dei contenuti collegati.",
+        "Qualora il sito consenta l'invio di commenti o messaggi da parte degli utenti, gli autori dei contenuti inviati ne sono gli unici responsabili. bandincc.it si riserva il diritto di rimuovere, senza preavviso, contenuti ritenuti offensivi, illeciti, pubblicitari o non pertinenti.",
+        "Per quanto riguarda immagini, testi o altri materiali presenti sul sito, qualora fossero pubblicati contenuti che violano diritti d'autore, si invita a segnalarlo tramite i contatti del sito: bandincc.it provvederà alla rimozione nel più breve tempo possibile.",
+        "Per informazioni sull'utilizzo dei cookie e sul trattamento dei dati personali, si rimanda alle rispettive informative presenti sul sito.",
+        "Utilizzando questo sito, l'utente accetta integralmente le condizioni sopra indicate e si impegna a rispettarle."
+      ],
       "metaTitle": "Disclaimer",
       "metaDescription": "Disclaimer e informazioni legali per la piattaforma bandi e licenze NCC in Italia."
     },
@@ -115,10 +124,15 @@
     "contact": {
       "title": "Contatti",
       "subtitle": "Mettiti in contatto con noi",
-      "description": ["Hai domande, suggerimenti o vuoi segnalare un bando che non abbiamo ancora pubblicato? Siamo sempre felici di ricevere feedback dalla nostra community.", "Puoi contattarci via email per qualsiasi richiesta. Cercheremo di rispondere nel più breve tempo possibile."],
+      "description": [
+        "Hai domande, suggerimenti o vuoi segnalare un bando che non abbiamo ancora pubblicato? Siamo sempre felici di ricevere feedback dalla nostra community.",
+        "Puoi contattarci via email per qualsiasi richiesta. Cercheremo di rispondere nel più breve tempo possibile."
+      ],
       "emailLabel": "Email:",
       "metaTitle": "Contatti - Bandi NCC Italia",
-      "metaDescription": "Contattaci per domande, suggerimenti o segnalazioni sui bandi NCC in Italia."
+      "metaDescription": "Contattaci per domande, suggerimenti o segnalazioni sui bandi NCC in Italia.",
+      "movedNotice": "La pagina Contatti è ora parte di Chi Siamo. Stai per essere reindirizzato.",
+      "movedLink": "Vai a Chi Siamo e Contatti →"
     },
     "faq": {
       "title": "FAQ e Glossario NCC",
@@ -188,7 +202,7 @@
       "lastUpdated": "Ultimo aggiornamento: 21 febbraio 2026"
     },
     "cookiePolicy": {
-      "title": "Cookie Policy",
+      "title": "Informativa sui Cookie",
       "subtitle": "Informativa sull'utilizzo dei cookie su bandincc.it",
       "metaTitle": "Cookie Policy",
       "metaDescription": "Informativa completa sull'utilizzo dei cookie su bandincc.it: tipologie, finalità e gestione dei cookie.",
@@ -336,6 +350,12 @@
     "switch": "Lingua"
   },
   "footer": {
-    "copyright": "© {year} BANDI NCC. Tutti i diritti riservati."
+    "copyright": "© {year} BANDI NCC. Tutti i diritti riservati.",
+    "links": {
+      "privacyPolicy": "Informativa sulla Privacy",
+      "cookiePolicy": "Informativa sui Cookie",
+      "disclaimer": "Note Legali",
+      "contact": "Contatti"
+    }
   }
 }

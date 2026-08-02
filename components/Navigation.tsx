@@ -10,15 +10,15 @@ export default function Navigation() {
   const pathname = usePathname()
   const t = getTranslations()
 
+  // No home entry: the crest carries it. On desktop it sits at the head of the
+  // bar and takes the active highlight, on mobile it is the header logo.
   const navItems = [
-    { path: '/', key: 'home' },
     { path: '/how-to-become-driver', key: 'howToBecomeDriver' },
     { path: '/regional-laws', key: 'regionalLaws' },
     { path: '/utilities', key: 'utilities' },
     { path: '/income-calculator', key: 'incomeCalculator' },
     { path: '/faq', key: 'faq' },
     { path: '/about-us', key: 'aboutUs' },
-    { path: '/contact', key: 'contact' },
   ]
 
   // `trailingSlash: true` makes usePathname() return "/faq/", while navItems
@@ -36,7 +36,31 @@ export default function Navigation() {
       {/* Desktop Navigation */}
       <nav className="hidden md:block bg-gray-900 border-b border-gray-700 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center h-16">
+          <div className="flex justify-center items-center h-16 gap-2">
+            {/* The home link. In flow rather than absolutely placed, so it can
+                never ride over the item list. Textless shield plus real text,
+                rather than logo-mark.svg: at this size the wordmark baked into
+                that file renders about three pixels tall. */}
+            <Link
+              href="/"
+              aria-label={t.nav.home}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
+                isActive('/') ? 'bg-blue-600' : 'hover:bg-gray-800'
+              }`}
+            >
+              <img
+                src="/images/logo-favicon.svg"
+                alt={t.nav.title}
+                className="h-9 w-auto"
+              />
+              {/* The bar is already full at lg — the seven labels alone run
+                  wider than the container there. Showing the wordmark only
+                  from xl keeps the crest exactly as wide as the Home link it
+                  replaces, so no width that fitted before stops fitting. */}
+              <span className="hidden xl:inline text-sm font-extrabold tracking-wider text-gray-200">
+                BANDI <span className="text-amber-300">NCC</span>
+              </span>
+            </Link>
             <div className="flex space-x-1">
               {navItems.map((item) => (
                 <Link
@@ -102,9 +126,23 @@ export default function Navigation() {
           </button>
           {/* Not an <h1>: every page already has one, and a second heading
               would compete with it for the document outline. */}
-          <p className="flex-1 text-center text-lg font-semibold text-white">
-            {t.nav.title}
-          </p>
+          {/* The wrapper keeps the centring; the link wraps only its own
+              content, so the tap target does not stretch across the row and
+              under the absolutely placed menu and calculator buttons. */}
+          <div className="flex-1 flex justify-center">
+            <Link
+              href="/"
+              aria-label={t.nav.home}
+              className="flex items-center gap-2"
+            >
+              <img
+                src="/images/logo-favicon.svg"
+                alt="Stemma Bandi NCC"
+                className="h-7 w-auto"
+              />
+              <p className="text-lg font-semibold text-white">{t.nav.title}</p>
+            </Link>
+          </div>
           <Link
             href="/income-calculator"
             className="absolute right-4 p-2 text-xl"

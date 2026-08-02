@@ -1,4 +1,5 @@
 import { sel } from '../support/selectors'
+import { t } from '../support/site'
 
 const consent = () =>
   cy.window().then((win) => win.localStorage.getItem('cookie-consent'))
@@ -40,7 +41,7 @@ describe('Cookie banner', () => {
     })
 
     it('links to the cookie policy', () => {
-      cy.get(sel.cookieBanner).contains('a', 'Cookie Policy').click()
+      cy.get(sel.cookieBanner).contains('a', t.pages.cookiePolicy.title).click()
       cy.assertPath('/cookie-policy')
     })
 

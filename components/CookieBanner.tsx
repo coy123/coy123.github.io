@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { getTranslations } from '@/lib/translations'
 
 export default function CookieBanner() {
+  const t = getTranslations()
   const [isVisible, setIsVisible] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -40,11 +42,12 @@ export default function CookieBanner() {
               Maggiori informazioni
             </button>
             {' | '}
+            {/* Mirrors the page's own heading so the two never drift apart. */}
             <a
               href="/cookie-policy"
               className="text-blue-400 hover:text-blue-300 underline"
             >
-              Cookie Policy
+              {t.pages.cookiePolicy.title}
             </a>
           </p>
           <div className="flex gap-3">

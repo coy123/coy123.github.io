@@ -58,31 +58,38 @@ describe('Chi Siamo', () => {
   })
 })
 
-describe('Contatti', () => {
+// Contatti is no longer a page of its own — it is a section of Chi Siamo.
+// The old route survives as a redirect stub, covered by contact-redirect.cy.ts.
+describe('Contatti, inside Chi Siamo', () => {
   beforeEach(() => {
     cy.useDesktop()
-    cy.visitPage('/contact')
+    cy.visitPage('/about-us')
   })
 
-  it('renders every description paragraph', () => {
+  it('renders the section under a #contatti anchor', () => {
     const description = t.pages.contact.description as string[] | string
     const paragraphs = Array.isArray(description) ? description : [description]
-    paragraphs.forEach((paragraph) => {
-      cy.contains('p', paragraph).should('be.visible')
+    cy.get('#contatti').within(() => {
+      cy.contains('h3', t.pages.contact.title).should('be.visible')
+      paragraphs.forEach((paragraph) => {
+        cy.contains('p', paragraph).should('be.visible')
+      })
     })
   })
 
   it('exposes a working mailto link', () => {
-    cy.contains(t.pages.contact.emailLabel).should('be.visible')
-    cy.get('a[href="mailto:info@bandincc.it"]')
-      .should('be.visible')
-      .and('have.text', 'info@bandincc.it')
+    cy.get('#contatti').within(() => {
+      cy.contains(t.pages.contact.emailLabel).should('be.visible')
+      cy.get('a[href="mailto:info@bandincc.it"]')
+        .should('be.visible')
+        .and('have.text', 'info@bandincc.it')
+    })
   })
 
-  it('publishes a ContactPage schema', () => {
+  it('keeps the contact point in the AboutPage schema', () => {
     cy.jsonLd().then((blocks) => {
-      const schema = blocks.find((block) => block['@type'] === 'ContactPage')
-      expect(schema, 'ContactPage schema').to.exist
+      const schema = blocks.find((block) => block['@type'] === 'AboutPage')
+      expect(schema, 'AboutPage schema').to.exist
       expect(schema!.mainEntity.contactPoint.email).to.eq('info@bandincc.it')
       expect(schema!.mainEntity.contactPoint.availableLanguage).to.eq('Italian')
     })

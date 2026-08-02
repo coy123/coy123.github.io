@@ -1,76 +1,44 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
+
+/**
+ * Retired page. Its content now lives in the "Contatti" section of Chi Siamo.
+ *
+ * The route is kept rather than deleted because /contact was in the sitemap and
+ * may be indexed or bookmarked. `output: 'export'` rules out a real 301 — there
+ * is no server, and next.config redirects do not apply to a static export — so
+ * this does the job with a zero-delay meta refresh, a canonical pointing at the
+ * merged page and noindex, plus a visible link for anyone the refresh misses.
+ */
+const TARGET = '/about-us/#contatti'
 
 export const metadata: Metadata = {
   title: 'Contatti',
-  description: 'Contatta il team di BandiNCC.it per segnalazioni, domande sui bandi NCC o collaborazioni. Rispondiamo entro 24 ore.',
+  description: 'La pagina Contatti di BandiNCC.it è stata unita a Chi Siamo.',
+  alternates: { canonical: '/about-us/' },
+  robots: { index: false, follow: true },
 }
 
 export default function ContactPage() {
   const t = getTranslations()
 
-  const contactSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'ContactPage',
-    mainEntity: {
-      '@type': 'Organization',
-      name: 'BandiNCC.it',
-      url: 'https://bandincc.it',
-      email: 'info@bandincc.it',
-      contactPoint: {
-        '@type': 'ContactPoint',
-        email: 'info@bandincc.it',
-        contactType: 'customer service',
-        availableLanguage: 'Italian',
-      },
-    },
-  }
-
   return (
-      <div className="w-full mx-auto">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactSchema) }}
-      />
-      <div
-        className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
-        style={{
-          backgroundImage: 'url(/images/driver.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
-          style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
+    <div className="w-full mx-auto">
+      <meta httpEquiv="refresh" content={`0; url=${TARGET}`} />
+      <div className="py-12 text-center space-y-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">
           {t.pages.contact.title}
         </h1>
-        <br/>
-        <h2 className="text-sm sm:text-base text-gray-300 mb-3 inline-block px-2 py-1 rounded"
-          style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
-          {t.pages.contact.subtitle}
-        </h2>
-      </div>
-      <div className="mb-6 sm:mb-8 space-y-4">
-        {Array.isArray(t.pages.contact.description) ? (
-          t.pages.contact.description.map((paragraph, index) => (
-            <p key={index} className="text-sm sm:text-base text-white">
-              {paragraph}
-            </p>
-          ))
-        ) : (
-          <p className="text-sm sm:text-base text-white">
-            {t.pages.contact.description}
-          </p>
-        )}
-        <div className="mt-6 p-4 bg-gray-900 rounded-lg border border-gray-700">
-          <p className="text-gray-300 mb-2">{t.pages.contact.emailLabel}</p>
-          <a
-            href="mailto:info@bandincc.it"
-            className="text-blue-400 hover:text-blue-300 text-lg font-medium"
-          >
-            info@bandincc.it
-          </a>
-        </div>
+        <p className="text-sm sm:text-base text-gray-300">
+          {t.pages.contact.movedNotice}
+        </p>
+        <Link
+          href={TARGET}
+          className="inline-block text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          {t.pages.contact.movedLink}
+        </Link>
       </div>
     </div>
   )

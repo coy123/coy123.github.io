@@ -86,22 +86,16 @@ export const ROUTES: RouteSpec[] = [
     path: '/about-us',
     title: `Chi Siamo | ${TITLE_SUFFIX}`,
     description:
-      'Scopri il team di BandiNCC.it: la nostra missione, come raccogliamo i dati sui bandi NCC e perché monitoriamo ogni giorno i comuni italiani.',
+      'Chi siamo, la nostra missione e come raccogliamo i dati sui bandi NCC. Contattaci a info@bandincc.it per segnalazioni, domande e collaborazioni.',
     h1: t.pages.aboutUs.title,
     h2: t.pages.aboutUs.subtitle,
     schemas: ['AboutPage'],
     navKey: 'aboutUs',
   },
-  {
-    path: '/contact',
-    title: `Contatti | ${TITLE_SUFFIX}`,
-    description:
-      'Contatta il team di BandiNCC.it per segnalazioni, domande sui bandi NCC o collaborazioni. Rispondiamo entro 24 ore.',
-    h1: t.pages.contact.title,
-    h2: t.pages.contact.subtitle,
-    schemas: ['ContactPage'],
-    navKey: 'contact',
-  },
+  // /contact is deliberately absent: it is no longer a content page but a
+  // noindex stub redirecting to /about-us/#contatti, so it fails the indexing
+  // and metadata invariants every entry here is held to. See
+  // `cypress/e2e/contact-redirect.cy.ts`.
   {
     path: '/privacy-policy',
     title: `${t.pages.privacyPolicy.metaTitle} | ${TITLE_SUFFIX}`,
@@ -129,7 +123,7 @@ export const ROUTES: RouteSpec[] = [
   },
 ]
 
-/** Order of the links in `components/Navigation.tsx`. */
+/** Every destination reachable from the main navigation, in bar order. */
 export const NAV_ITEMS: { path: string; key: keyof typeof t.nav }[] = [
   { path: '/', key: 'home' },
   { path: '/how-to-become-driver', key: 'howToBecomeDriver' },
@@ -138,14 +132,23 @@ export const NAV_ITEMS: { path: string; key: keyof typeof t.nav }[] = [
   { path: '/income-calculator', key: 'incomeCalculator' },
   { path: '/faq', key: 'faq' },
   { path: '/about-us', key: 'aboutUs' },
-  { path: '/contact', key: 'contact' },
 ]
 
+/**
+ * The labelled links in `components/Navigation.tsx`. Home is absent by design:
+ * the crest carries it — as the highlighted first item of the desktop bar, and
+ * as the logo in the mobile header — so it is no longer a labelled entry in
+ * either the bar or the drawer.
+ */
+export const NAV_LABELLED_ITEMS = NAV_ITEMS.filter((item) => item.path !== '/')
+
 /** Links rendered by `components/Footer.tsx`. */
-export const FOOTER_LINKS = [
-  { path: '/privacy-policy', label: 'Privacy Policy' },
-  { path: '/cookie-policy', label: 'Cookie Policy' },
-  { path: '/disclaimer', label: 'Disclaimer' },
+export const FOOTER_LINKS: { path: string; label: string; hash?: string }[] = [
+  { path: '/privacy-policy', label: t.footer.links.privacyPolicy },
+  { path: '/cookie-policy', label: t.footer.links.cookiePolicy },
+  { path: '/disclaimer', label: t.footer.links.disclaimer },
+  // Contatti is a section of Chi Siamo rather than a page of its own.
+  { path: '/about-us', label: t.footer.links.contact, hash: '#contatti' },
 ]
 
 export const routeByPath = (path: string): RouteSpec => {

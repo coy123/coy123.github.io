@@ -4,7 +4,7 @@ import { getTranslations } from '@/lib/translations'
 
 export const metadata: Metadata = {
   title: 'Chi Siamo',
-  description: 'Scopri il team di BandiNCC.it: la nostra missione, come raccogliamo i dati sui bandi NCC e perché monitoriamo ogni giorno i comuni italiani.',
+  description: 'Chi siamo, la nostra missione e come raccogliamo i dati sui bandi NCC. Contattaci a info@bandincc.it per segnalazioni, domande e collaborazioni.',
 }
 
 export default function AboutUsPage() {
@@ -19,6 +19,14 @@ export default function AboutUsPage() {
       url: 'https://bandincc.it',
       description: 'Piattaforma italiana che raccoglie e monitora tutti i bandi NCC pubblicati dai comuni italiani.',
       email: 'info@bandincc.it',
+      // Carried over from the retired /contact page, whose ContactPage schema
+      // disappeared with it. The organisation is still contactable.
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'info@bandincc.it',
+        contactType: 'customer service',
+        availableLanguage: 'Italian',
+      },
       areaServed: {
         '@type': 'Country',
         name: 'Italia',
@@ -64,6 +72,32 @@ export default function AboutUsPage() {
             </p>
           </div>
         ))}
+        {/* Merged in from the retired /contact page, which held two paragraphs
+            and an email address — content a "Chi Siamo" page is the natural
+            home for. `scroll-mt` clears the sticky nav on the #contatti jump. */}
+        <section id="contatti" className="scroll-mt-20 space-y-2">
+          <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
+            {t.pages.contact.title}
+          </h3>
+          {(Array.isArray(t.pages.contact.description)
+            ? t.pages.contact.description
+            : [t.pages.contact.description]
+          ).map((paragraph: string, index: number) => (
+            <p key={index} className="text-sm sm:text-base text-white">
+              {paragraph}
+            </p>
+          ))}
+          <div className="mt-4 p-4 bg-gray-900 rounded-lg border border-gray-700">
+            <p className="text-gray-300 mb-2">{t.pages.contact.emailLabel}</p>
+            <a
+              href="mailto:info@bandincc.it"
+              className="text-blue-400 hover:text-blue-300 text-lg font-medium"
+            >
+              info@bandincc.it
+            </a>
+          </div>
+        </section>
+
         <p className="text-xs text-gray-500 mt-4">
           {t.pages.aboutUs.legal}
         </p>

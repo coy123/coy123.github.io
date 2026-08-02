@@ -1,16 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 262" role="img" aria-label="Bandi NCC">
   <defs>
-    <linearGradient id="ogBg" x1="0" y1="0" x2="0.6" y2="1">
-      <stop offset="0" stop-color="#1f2937"/>
-      <stop offset="1" stop-color="#0d1420"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="630" fill="url(#ogBg)"/>
-  <rect width="1200" height="6" fill="#fcd34d"/>
-  <rect y="624" width="1200" height="6" fill="#2563eb"/>
-
-  <g transform="translate(96 92) scale(1.66)">
-<defs>
     <linearGradient id="aField" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3b82f6"/>
       <stop offset="1" stop-color="#1d4ed8"/>
@@ -105,14 +94,4 @@
   </g>
   <use href="#aShield" fill="none" stroke="url(#aGold)" stroke-width="6"/>
   <use href="#aShield" fill="none" stroke="#7c4a08" stroke-opacity="0.5" stroke-width="1.5"/>
-  </g>
-
-  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-    <text x="470" y="248" font-size="86" font-weight="700" letter-spacing="2" fill="#f3f4f6">BANDI<tspan dx="26" fill="#fcd34d">NCC</tspan></text>
-    <rect x="472" y="284" width="86" height="6" fill="#fcd34d"/>
-    <text x="470" y="342" font-size="26" font-weight="600" letter-spacing="3" fill="#9ca3af">LICENZE NOLEGGIO CON CONDUCENTE</text>
-    <text x="470" y="416" font-size="33" fill="#d1d5db">Tutti i bandi NCC in Italia, comune per comune —</text>
-    <text x="470" y="460" font-size="33" fill="#d1d5db">scadenze, licenze e link al bando ufficiale.</text>
-    <text x="470" y="546" font-size="31" font-weight="700" letter-spacing="1.5" fill="#60a5fa">bandincc.it</text>
-  </g>
 </svg>
