@@ -104,12 +104,20 @@ const handle = async (event: Stripe.Event, stripe: Stripe, env: Env): Promise<vo
     // lookup is needed on the hot path.
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
-      if (session.mode !== 'subscription') return
+
+      // A one-off payment is not an entitlement. Logged rather than dropped in
+      // silence: a Payment Link built off a non-recurring price lands here, and
+      // the symptom is a green 200 with nothing happening in MailerLite.
+      if (session.mode !== 'subscription') {
+        console.log(`Ignoring checkout ${session.id}: mode=${session.mode}, expected subscription`)
+        return
+      }
 
       const email = session.customer_details?.email ?? session.customer_email
       if (!email) throw new Error(`checkout.session.completed ${session.id} carried no email`)
 
       await grant(env, email)
+      console.log(`Granted ${email} (checkout ${session.id})`)
       return
     }
 
@@ -123,10 +131,18 @@ const handle = async (event: Stripe.Event, stripe: Stripe, env: Env): Promise<vo
     case 'customer.subscription.updated': {
       const subscription = event.data.object as Stripe.Subscription
       const email = await customerEmail(stripe, subscription.customer)
-      if (!email) return
+      if (!email) {
+        console.log(`Ignoring ${subscription.id}: customer has no email (deleted?)`)
+        return
+      }
 
-      if (ENTITLED.has(subscription.status)) await grant(env, email)
-      else await revoke(env, email)
+      if (ENTITLED.has(subscription.status)) {
+        await grant(env, email)
+        console.log(`Granted ${email} (${subscription.id} is ${subscription.status})`)
+      } else {
+        await revoke(env, email)
+        console.log(`Revoked ${email} (${subscription.id} is ${subscription.status})`)
+      }
       return
     }
 
@@ -135,11 +151,20 @@ const handle = async (event: Stripe.Event, stripe: Stripe, env: Env): Promise<vo
     case 'customer.subscription.deleted': {
       const subscription = event.data.object as Stripe.Subscription
       const email = await customerEmail(stripe, subscription.customer)
-      if (!email) return
+      if (!email) {
+        console.log(`Ignoring ${subscription.id}: customer has no email (deleted?)`)
+        return
+      }
 
       await revoke(env, email)
+      console.log(`Revoked ${email} (${subscription.id} deleted)`)
       return
     }
+
+    // Reachable only if the Stripe endpoint is subscribed to more than the three
+    // events this Worker handles.
+    default:
+      console.log(`Ignoring unhandled event type ${event.type}`)
   }
 }
 
