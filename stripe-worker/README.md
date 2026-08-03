@@ -54,7 +54,19 @@ two separate mechanisms and you need both:
 npx wrangler secret put STRIPE_SECRET_KEY
 npx wrangler secret put STRIPE_WEBHOOK_SECRET
 npx wrangler secret put MAILERLITE_API_KEY
+npx wrangler secret put MAILERLITE_WEBHOOK_SECRET   # for the /mailerlite route
 ```
+
+The MailerLite API key is ~1,000 characters and gets silently truncated by
+terminal paste into the hidden prompt. Pipe it instead:
+
+```sh
+set -a; . ./.dev.vars; set +a
+printf '%s' "$MAILERLITE_API_KEY" | npx wrangler secret put MAILERLITE_API_KEY
+```
+
+A truncated key looks identical to a good one until MailerLite answers
+`401 Unauthenticated` — `secret list` shows names, never values.
 
 Skipping the `secret put` step leaves the live Worker with `undefined` for all
 three: every request fails signature verification and no one is ever added to
@@ -108,15 +120,42 @@ copy across. You will do this twice.
 
 ## Behaviour
 
+Two routes, opposite directions:
+
+### `POST /` — Stripe → MailerLite (entitlement)
+
 | Stripe event | Action |
 |---|---|
-| `checkout.session.completed` (mode `subscription`) | add to group, `status: 'active'` |
+| `checkout.session.completed` (mode `subscription`) | add to group, `status: 'active'`, set `preferred_locales: ['it']` |
 | `customer.subscription.updated` → `active`/`trialing` | add to group |
 | `customer.subscription.updated` → anything else | remove from group |
 | `customer.subscription.deleted` | remove from group |
 
 Responses: `400` on a bad or missing signature, `500` when MailerLite fails (so
 Stripe retries), `200` otherwise — including for event types it ignores.
+
+### `POST /mailerlite` — MailerLite → Stripe (unsubscribe)
+
+On `subscriber.unsubscribed`, finds every Stripe customer with that email and
+**cancels their subscriptions immediately**.
+
+Immediate is deliberate. Cancelling at period end leaves the subscription
+`active` and fires `customer.subscription.updated`, which the entitlement route
+treats as entitled — so it would try to re-add the person who just
+unsubscribed, MailerLite would refuse, and `grant`'s verification would throw. A
+retry storm caused by our own cancellation. Immediate cancellation fires
+`customer.subscription.deleted`, which routes to `revoke` and is already correct.
+
+Verification: HMAC-SHA256 of the raw body. Both the `Signature` (current API,
+hex) and `X-MailerLite-Signature` (classic API, base64) headers are accepted,
+because MailerLite's docs describe both and getting it wrong means rejecting
+every real call. Every variant still requires the secret.
+
+**Failure strategy here is the opposite of the Stripe route.** MailerLite marks
+a webhook inactive after 3 days of non-2xx replies, so an unrecognised payload
+or an unsubscriber who never paid returns `200` (with a log line) rather than an
+error. Only a missing secret, bad signature, malformed JSON, or a genuine Stripe
+failure returns non-2xx.
 
 ### Things that look like bugs but are not
 
@@ -127,15 +166,38 @@ Stripe retries), `200` otherwise — including for event types it ignores.
 - **Redelivery is unguarded.** MailerLite's subscriber POST is an upsert and the
   group DELETE tolerates a 404, so Stripe's at-least-once delivery needs no
   idempotency key.
+- **`grant` verifies the echoed subscriber rather than trusting the 200.**
+  MailerLite refuses to reactivate unsubscribed/bounced/junk contacts (abuse
+  prevention) but reports that refusal as a success carrying the *old* status.
+  A non-`active` result therefore throws, on purpose, even though retrying
+  cannot fix it — a loudly failing webhook is the only alarm available, and it
+  beats a paying customer silently receiving nothing. The remedy is manual:
+  reactivate in the MailerLite app, or have them re-subscribe through a
+  MailerLite form or landing page.
 - **`past_due` revokes right away**, per §8i, rather than waiting out Smart
   Retries. A recovery re-adds them; the upsert makes that free.
 - **`trialing` is entitled** even though §8i configures no free trial. It is
   listed so enabling one later does not silently lock out every trialist.
 
-## Not done yet
+## Registering the MailerLite webhook
 
-The MailerLite `subscriber.unsubscribed` → cancel-the-Stripe-subscription flow
-(§8i, step 20). Today, clicking `{$unsubscribe}` stops the email but **not** the
-charge, which is how you get an angry customer and then a chargeback. It belongs
-on this same Worker, and its inbound call needs authenticating too — otherwise
-anyone can cancel arbitrary subscriptions.
+In MailerLite → Integrations → Webhooks, create one for **`subscriber.unsubscribed`**
+pointing at `https://bandincc-stripe.<subdomain>.workers.dev/mailerlite`.
+
+MailerLite generates a **secret** for that webhook — that is
+`MAILERLITE_WEBHOOK_SECRET`, and it is unrelated to the API key.
+
+Until the secret is set the route answers `500` and refuses to process
+anything, while the Stripe route keeps working: `MAILERLITE_WEBHOOK_SECRET` is
+deliberately excluded from the startup binding check so a deploy that predates it
+cannot take the entitlement path down.
+
+## Known limitation
+
+**A previously-unsubscribed address cannot be re-granted by API.** MailerLite
+refuses to reactivate unsubscribed/bounced/junk contacts (abuse prevention) and
+reports the refusal as a success carrying the old status — so `grant` verifies
+the echoed subscriber and throws rather than logging a false `Granted`. The
+remedy is manual (reactivate in the MailerLite app) or a MailerLite form/landing
+page, which is an approved reactivation route. Accepted as a known limitation
+while the subscriber base is zero; see `STATUS.md`.
