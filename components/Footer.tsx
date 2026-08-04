@@ -9,6 +9,10 @@ export default function Footer() {
   // Contatti is not a page: /contact was merged into Chi Siamo and its content
   // now sits under the #contatti anchor there.
   const links = [
+    // First, and not in the main nav: the desktop bar is already wider than its
+    // container at lg with the seven labels it has, so an eighth would overflow
+    // it. Discoverability comes from the home-page CTA instead.
+    { href: '/abbonamento', label: t.footer.links.abbonamento },
     { href: '/privacy-policy', label: t.footer.links.privacyPolicy },
     { href: '/cookie-policy', label: t.footer.links.cookiePolicy },
     { href: '/disclaimer', label: t.footer.links.disclaimer },

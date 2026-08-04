@@ -4,6 +4,8 @@ import { getTableData } from '@/lib/data'
 import { getTranslations } from '@/lib/translations'
 import HomeContent from '@/components/HomeContent'
 import CurrentDate from '@/components/CurrentDate'
+import NewsletterAd from '@/components/NewsletterAd'
+import HeroCrest from '@/components/HeroCrest'
 import ReactMarkdown from 'react-markdown'
 
 export const revalidate = 3600 // ISR: rivalidazione ogni ora
@@ -55,16 +57,7 @@ export default async function HomePage() {
             backgroundPosition: 'center',
           }}
         >
-          {/* Absolutely placed, so the hero keeps exactly the height its
-              heading and subheading give it. Only from xl: there the content
-              column is pinned at its max-w-5xl width and the h1 fits on one
-              line, leaving a clear strip on the right. Below xl the h1 wraps
-              and its background block fills the row, with nowhere to sit. */}
-          <img
-            src="/images/logo-crest.svg"
-            alt="Stemma Bandi NCC"
-            className="hidden xl:block absolute right-2 top-1/2 -translate-y-1/2 h-[64%] w-auto pointer-events-none select-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]"
-          />
+          <HeroCrest />
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
             style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
             {t.pages.home.title}
@@ -81,7 +74,10 @@ export default async function HomePage() {
           <span className="hidden sm:inline">{t.pages.home.description}</span>
         </p>
 
-        {/* Banner Ad - temporarily disabled */}
+        {/* Banner ad slot. Now a house ad for the newsletter; the Amazon
+            affiliate banner that used to sit here is kept commented out below
+            because its tracking URL is not reproducible from anywhere else. */}
+        <NewsletterAd variant="banner" />
         {/* <a href="https://www.amazon.it/dp/B0GZBHCG5P?crid=3MKXJETSG2ODT&dib=eyJ2IjoiMSJ9.lCgzAblVwfMrdsdr61C0Qg.I8dkvYsEYc_sm7XVDqZQYw3nABhmbt25CxiwguT00r4&dib_tag=se&keywords=NCC%3A+DA+CONDUCENTE+A+IMPRENDITORE%2C&qid=1777721531&sprefix=ncc+da+conducente+a+imprenditore%2C%2Caps%2C555&sr=8-1" target="_blank" rel="noopener noreferrer" className="block mb-3 w-full sm:w-4/5 sm:mx-auto h-[170px] sm:h-[240px] rounded-lg overflow-hidden">
           <img src="/images/bookBannerSmall.avif" alt="NCC: Da Conducente a Imprenditore" className="sm:hidden w-full h-full object-cover rounded-lg" />
           <img src="/images/bookBanner.avif" alt="NCC: Da Conducente a Imprenditore" className="hidden sm:block w-full h-full object-cover rounded-lg" />

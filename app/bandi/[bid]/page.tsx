@@ -9,6 +9,8 @@ import { toSlug } from '@/lib/slug'
 import { CREST_SIZE_DETAIL, CREST_SIZE_TABLE, crestUrl } from '@/lib/crest'
 import BidStatus from './BidStatus'
 import BidDetailMapWrapper from './BidDetailMapWrapper'
+import HeroCrest from '@/components/HeroCrest'
+import NewsletterAd from '@/components/NewsletterAd'
 
 function findBid(slug: string) {
   return bids.find((item) => toSlug(item.location) === slug)
@@ -95,6 +97,7 @@ export default async function BidDetailPage({ params }: { params: Promise<{ bid:
           backgroundPosition: 'center',
         }}
       >
+        <HeroCrest />
         <h1
           className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
@@ -110,10 +113,11 @@ export default async function BidDetailPage({ params }: { params: Promise<{ bid:
         </h2>
       </div>
 
-      {/* Top Banner Ad */}
-      {/* <div className="mb-3 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
-        <p className="text-3xl font-bold text-gray-300">EGAF</p>
-      </div> */}
+      {/* Top banner ad slot, previously an empty "EGAF" placeholder. This is
+          the highest-intent slot on the site: the reader is looking at one
+          bando and its deadline, which is exactly the moment "get the next one
+          by email" lands. */}
+      <NewsletterAd variant="strip" />
 
       {/* Bid Details Card */}
       <div className="bg-gray-700 rounded-lg p-4 sm:p-6 mb-6">

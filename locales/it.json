@@ -12,6 +12,15 @@
     "openMenu": "Apri menu principale",
     "title": "BANDI NCC"
   },
+  "newsletterAd": {
+    "eyebrow": "Newsletter BandiNCC",
+    "heading": "I nuovi bandi, appena escono",
+    "text": "Ricevi via email ogni nuovo bando NCC pubblicato in Italia: scadenze e link ufficiali, senza dover controllare il sito.",
+    "textShort": "Ogni nuovo bando NCC via email, appena esce.",
+    "price": "da 4,92 € al mese",
+    "cta": "Scopri l'abbonamento",
+    "ariaLabel": "Abbonati alla newsletter BandiNCC"
+  },
   "dashboard": {
     "title": "Bandi NCC – Bandi di Concorso NCC Aggiornati Ogni Giorno",
     "subtitle": "Trova rapidamente gli ultimi bandi per licenze NCC, città per città",
@@ -148,6 +157,69 @@
       "metaDescription": "Calcola i tuoi potenziali guadagni mensili come autista NCC in Italia.",
       "disclaimer": "Stima basata su medie e scenari tipici. I risultati reali dipendono da tariffe, domanda locale, accordi con piattaforme e costi auto."
     },
+    "abbonamento": {
+      "title": "Abbonamento BandiNCC",
+      "subtitle": "Ricevi ogni nuovo bando NCC via email, il giorno stesso in cui lo pubblichiamo",
+      "metaTitle": "Abbonamento",
+      "metaDescription": "Abbonati a BandiNCC e ricevi via email ogni nuovo bando NCC pubblicato dai comuni italiani. 5,90 € al mese o 59 € all'anno, IVA inclusa, disdici quando vuoi.",
+      "intro": "Il sito resta gratuito e consultabile da tutti. L'abbonamento serve a una cosa sola: non doverlo più controllare. Ogni volta che pubblichiamo nuovi bandi, ricevi una email con l'elenco, le scadenze e i link ufficiali — senza aprire il sito, senza rischiare di accorgertene troppo tardi.",
+      "benefitsHeading": "Cosa include",
+      "benefits": [
+        "Una email a ogni aggiornamento, con i soli bandi nuovi.",
+        "Scadenza, numero di licenze e link al bando ufficiale per ogni comune.",
+        "Copertura di tutta Italia: comuni, province e regioni.",
+        "Nessun vincolo di durata: disdici in qualsiasi momento dal portale clienti."
+      ],
+      "plansHeading": "Scegli il piano",
+      "plans": [
+        {
+          "id": "mensile",
+          "name": "Mensile",
+          "price": "5,90 €",
+          "period": "al mese",
+          "note": "IVA inclusa. Rinnovo automatico, disdici quando vuoi.",
+          "cta": "Abbonati – 5,90 €/mese",
+          "href": "https://buy.stripe.com/TODO_PAYMENT_LINK_MENSILE?locale=it"
+        },
+        {
+          "id": "annuale",
+          "name": "Annuale",
+          "price": "59 €",
+          "period": "all'anno",
+          "badge": "Due mesi in omaggio",
+          "note": "IVA inclusa. Equivale a 4,92 € al mese: risparmi il 17% rispetto al mensile.",
+          "cta": "Abbonati – 59 €/anno",
+          "href": "https://buy.stripe.com/TODO_PAYMENT_LINK_ANNUALE?locale=it",
+          "highlight": true
+        }
+      ],
+      "paymentNote": "Il pagamento avviene su Stripe, su una pagina sicura al di fuori di questo sito. Non vediamo né conserviamo i dati della tua carta.",
+      "comingSoon": "Attivazione a breve",
+      "comingSoonNote": "Le sottoscrizioni aprono a breve. Scrivici a info@bandincc.it se vuoi essere avvisato all'apertura.",
+      "manage": {
+        "heading": "Hai già un abbonamento?",
+        "description": "Dal portale clienti Stripe puoi aggiornare il metodo di pagamento, scaricare le ricevute, passare dal mensile all'annuale e disdire. Ti basta l'indirizzo email con cui ti sei abbonato.",
+        "cta": "Gestisci abbonamento →",
+        "href": "https://billing.stripe.com/p/login/TODO_PORTAL_LINK"
+      },
+      "legal": "Servizio di informazione su bandi pubblici. BandiNCC non gestisce le domande di partecipazione e non ha alcun rapporto con i comuni che pubblicano i bandi. Trattiamo il tuo indirizzo email come descritto nell'Informativa sulla Privacy."
+    },
+    "grazie": {
+      "title": "Grazie, il tuo abbonamento è attivo",
+      "subtitle": "Da adesso ricevi ogni nuovo bando NCC direttamente via email",
+      "metaTitle": "Grazie",
+      "metaDescription": "Conferma di attivazione dell'abbonamento a BandiNCC.",
+      "stepsHeading": "Cosa succede adesso",
+      "steps": [
+        "Stripe ti invia per email la ricevuta del pagamento.",
+        "Il tuo indirizzo viene aggiunto alla lista entro pochi istanti.",
+        "Ricevi la prima email non appena pubblichiamo nuovi bandi: la frequenza segue quella dei comuni, non un calendario fisso."
+      ],
+      "spamNote": "Se entro qualche giorno non ricevi nulla, controlla la cartella spam e aggiungi il nostro mittente ai contatti.",
+      "troubleHeading": "Qualcosa non torna?",
+      "troubleNote": "Se in passato ti eri disiscritto dalla nostra newsletter, la riattivazione automatica può non andare a buon fine: scrivici a info@bandincc.it e ti riattiviamo a mano. Vale lo stesso per qualsiasi altro problema con l'abbonamento.",
+      "homeCta": "Torna ai bandi NCC →"
+    },
     "privacyPolicy": {
       "title": "Informativa sulla Privacy",
       "subtitle": "Come raccogliamo e proteggiamo i tuoi dati personali",
@@ -160,11 +232,11 @@
         },
         {
           "heading": "2. Tipologie di Dati Raccolti",
-          "content": "Durante la navigazione su bandincc.it, possono essere raccolti automaticamente alcuni dati tecnici, tra cui: indirizzo IP (in forma anonimizzata), tipo di browser e sistema operativo, pagine visitate e tempo di permanenza, pagina di provenienza (referrer). Non raccogliamo dati personali identificativi come nome, cognome, email o numero di telefono, salvo che l'utente non li fornisca volontariamente tramite il modulo di contatto."
+          "content": "Durante la navigazione su bandincc.it, possono essere raccolti automaticamente alcuni dati tecnici, tra cui: indirizzo IP (in forma anonimizzata), tipo di browser e sistema operativo, pagine visitate e tempo di permanenza, pagina di provenienza (referrer). Non raccogliamo dati personali identificativi come nome, cognome, email o numero di telefono, salvo che l'utente non li fornisca volontariamente scrivendoci via email o sottoscrivendo l'abbonamento alla newsletter. Per chi sottoscrive l'abbonamento trattiamo inoltre: l'indirizzo email, i dati necessari alla fatturazione e allo stato dell'abbonamento (paese, importo, cadenza, data di rinnovo o di cessazione). I dati della carta di pagamento sono trattati direttamente da Stripe e non transitano né vengono conservati sui nostri sistemi."
         },
         {
           "heading": "3. Finalità del Trattamento",
-          "content": "I dati raccolti sono utilizzati esclusivamente per le seguenti finalità: garantire il corretto funzionamento del sito, analizzare in forma aggregata e anonima il traffico del sito per migliorarne i contenuti, adempiere ad obblighi di legge."
+          "content": "I dati raccolti sono utilizzati esclusivamente per le seguenti finalità: garantire il corretto funzionamento del sito, analizzare in forma aggregata e anonima il traffico del sito per migliorarne i contenuti, gestire l'abbonamento a pagamento e inviare la newsletter ai soli abbonati, adempiere ad obblighi di legge, inclusi quelli fiscali e contabili."
         },
         {
           "heading": "4. Cookie Tecnici",
@@ -175,31 +247,35 @@
           "content": "Per l'analisi del traffico web utilizziamo Umami Analytics, una piattaforma di analisi rispettosa della privacy. Umami non utilizza cookie di tracciamento, non raccoglie dati personali identificativi, non traccia gli utenti tra sessioni diverse, e tutti i dati sono aggregati e anonimi. Umami è conforme al GDPR e non richiede il consenso dell'utente per il suo funzionamento, in quanto non raccoglie dati personali."
         },
         {
-          "heading": "6. Base Giuridica del Trattamento",
-          "content": "Il trattamento dei dati personali si basa su: il legittimo interesse del titolare per i cookie tecnici e il funzionamento del sito (art. 6, par. 1, lett. f del GDPR)."
+          "heading": "6. Newsletter in Abbonamento – Stripe e MailerLite",
+          "content": "L'abbonamento a pagamento si appoggia a due fornitori esterni, che trattano i dati per nostro conto in qualità di responsabili del trattamento ai sensi dell'art. 28 del GDPR. Stripe Payments Europe, Ltd. (Irlanda) gestisce il pagamento, il rinnovo e la fatturazione: riceve l'indirizzo email, i dati della carta e i dati di fatturazione, che noi non vediamo mai per esteso. MailerLite (UAB MailerLite, Lituania) gestisce la lista degli abbonati e l'invio delle email: riceve il solo indirizzo email e lo stato di iscrizione. Nessuno dei due utilizza questi dati per finalità proprie di marketing e non cediamo né vendiamo l'indirizzo email a terzi. L'appartenenza alla lista coincide con l'abbonamento attivo: alla cessazione dell'abbonamento l'indirizzo viene rimosso dalla lista, e la disiscrizione dalla newsletter comporta la disdetta immediata dell'abbonamento."
         },
         {
-          "heading": "7. Conservazione dei Dati",
-          "content": "I dati tecnici di navigazione vengono conservati per il tempo strettamente necessario alla gestione del sito e comunque non oltre 26 mesi. I dati analitici aggregati tramite Umami sono conservati in forma anonima e non sono riconducibili a singoli utenti."
+          "heading": "7. Base Giuridica del Trattamento",
+          "content": "Il trattamento dei dati personali si basa su: il legittimo interesse del titolare per i cookie tecnici e il funzionamento del sito (art. 6, par. 1, lett. f del GDPR); l'esecuzione del contratto di abbonamento per i dati dell'abbonato, incluso l'invio della newsletter che ne costituisce l'oggetto (art. 6, par. 1, lett. b); l'adempimento di obblighi legali di natura fiscale e contabile per i dati di fatturazione (art. 6, par. 1, lett. c)."
         },
         {
-          "heading": "8. Diritti dell'Utente",
-          "content": "In conformità al Regolamento UE 2016/679 (GDPR), l'utente ha il diritto di: accedere ai propri dati personali, richiedere la rettifica o la cancellazione dei propri dati, opporsi al trattamento dei propri dati, richiedere la limitazione del trattamento, richiedere la portabilità dei dati, revocare il consenso in qualsiasi momento. Per esercitare i propri diritti, è possibile contattarci all'indirizzo email: info@bandincc.it. L'utente ha inoltre il diritto di proporre reclamo all'Autorità Garante per la Protezione dei Dati Personali (www.garanteprivacy.it)."
+          "heading": "8. Conservazione dei Dati",
+          "content": "I dati tecnici di navigazione vengono conservati per il tempo strettamente necessario alla gestione del sito e comunque non oltre 26 mesi. I dati analitici aggregati tramite Umami sono conservati in forma anonima e non sono riconducibili a singoli utenti. L'indirizzo email dell'abbonato è conservato per la durata dell'abbonamento e rimosso dalla lista alla sua cessazione. I documenti fiscali e contabili relativi ai pagamenti sono conservati per il periodo imposto dalla normativa applicabile, anche in caso di richiesta di cancellazione, in quanto la conservazione risponde a un obbligo di legge."
         },
         {
-          "heading": "9. Trasferimento dei Dati",
-          "content": "I dati raccolti non vengono trasferiti al di fuori dello Spazio Economico Europeo (SEE)."
+          "heading": "9. Diritti dell'Utente",
+          "content": "In conformità al Regolamento UE 2016/679 (GDPR), l'utente ha il diritto di: accedere ai propri dati personali, richiedere la rettifica o la cancellazione dei propri dati, opporsi al trattamento dei propri dati, richiedere la limitazione del trattamento, richiedere la portabilità dei dati, revocare il consenso in qualsiasi momento. Per richiedere la cancellazione dei propri dati dalla lista abbonati e dai nostri sistemi è sufficiente scriverci a info@bandincc.it: la richiesta viene evasa entro 30 giorni e senza costi, fatti salvi i documenti che siamo tenuti per legge a conservare (sezione 8). Per esercitare i propri diritti, è possibile contattarci all'indirizzo email: info@bandincc.it. L'utente ha inoltre il diritto di proporre reclamo all'Autorità Garante per la Protezione dei Dati Personali (www.garanteprivacy.it)."
         },
         {
-          "heading": "10. Modifiche alla Privacy Policy",
+          "heading": "10. Trasferimento dei Dati",
+          "content": "I dati raccolti sono trattati all'interno dello Spazio Economico Europeo (SEE) e in Svizzera, paese per il quale la Commissione europea ha adottato una decisione di adeguatezza. Stripe e MailerLite possono trasferire dati verso paesi terzi nell'ambito dei propri gruppi societari: tali trasferimenti avvengono sulla base delle Clausole Contrattuali Standard approvate dalla Commissione europea e delle ulteriori garanzie previste dagli artt. 44 e seguenti del GDPR. Le informative dei due fornitori sono consultabili su stripe.com e mailerlite.com."
+        },
+        {
+          "heading": "11. Modifiche alla Privacy Policy",
           "content": "La presente informativa sulla privacy può essere aggiornata periodicamente per riflettere modifiche nelle pratiche di trattamento dei dati o nella normativa vigente. Eventuali modifiche saranno pubblicate su questa pagina con indicazione della data di ultimo aggiornamento."
         },
         {
-          "heading": "11. Contatti",
+          "heading": "12. Contatti",
           "content": "Per qualsiasi domanda o richiesta relativa alla presente informativa sulla privacy, è possibile contattarci all'indirizzo email: info@bandincc.it."
         }
       ],
-      "lastUpdated": "Ultimo aggiornamento: 21 febbraio 2026"
+      "lastUpdated": "Ultimo aggiornamento: 4 agosto 2026"
     },
     "cookiePolicy": {
       "title": "Informativa sui Cookie",
@@ -352,6 +428,7 @@
   "footer": {
     "copyright": "© {year} BANDI NCC. Tutti i diritti riservati.",
     "links": {
+      "abbonamento": "Abbonamento",
       "privacyPolicy": "Informativa sulla Privacy",
       "cookiePolicy": "Informativa sui Cookie",
       "disclaimer": "Note Legali",

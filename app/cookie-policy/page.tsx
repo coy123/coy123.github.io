@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { getTranslations } from '@/lib/translations'
+import HeroCrest from '@/components/HeroCrest'
 
 const t = getTranslations()
 
@@ -21,6 +22,7 @@ export default function CookiePolicyPage() {
           backgroundPosition: 'center',
         }}
       >
+        <HeroCrest />
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
           style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
           {t.pages.cookiePolicy.title}

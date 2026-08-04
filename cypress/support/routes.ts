@@ -92,6 +92,17 @@ export const ROUTES: RouteSpec[] = [
     schemas: ['AboutPage'],
     navKey: 'aboutUs',
   },
+  {
+    path: '/abbonamento',
+    title: `${t.pages.abbonamento.metaTitle} | ${TITLE_SUFFIX}`,
+    description: t.pages.abbonamento.metaDescription,
+    h1: t.pages.abbonamento.title,
+    h2: t.pages.abbonamento.subtitle,
+    schemas: ['Product'],
+  },
+  // /grazie is deliberately absent, like /contact below: it is the Stripe
+  // Payment Link redirect target, `noindex` on purpose, so it fails the
+  // indexing invariant every entry here is held to. See `subscription.cy.ts`.
   // /contact is deliberately absent: it is no longer a content page but a
   // noindex stub redirecting to /about-us/#contatti, so it fails the indexing
   // and metadata invariants every entry here is held to. See
@@ -144,6 +155,10 @@ export const NAV_LABELLED_ITEMS = NAV_ITEMS.filter((item) => item.path !== '/')
 
 /** Links rendered by `components/Footer.tsx`. */
 export const FOOTER_LINKS: { path: string; label: string; hash?: string }[] = [
+  // The subscription page is reachable from the footer and the home-page CTA
+  // only: it is not in the main nav, whose desktop bar has no room for another
+  // label. Order here must match `components/Footer.tsx`.
+  { path: '/abbonamento', label: t.footer.links.abbonamento },
   { path: '/privacy-policy', label: t.footer.links.privacyPolicy },
   { path: '/cookie-policy', label: t.footer.links.cookiePolicy },
   { path: '/disclaimer', label: t.footer.links.disclaimer },

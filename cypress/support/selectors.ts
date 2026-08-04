@@ -54,9 +54,18 @@ export const sel = {
   calculatorBackdrop: 'div.animate-fadeIn > div.absolute.inset-0',
 
   /* Shared ------------------------------------------------------------- */
-  /** The page-content column between the two (disabled) ad rails. */
+  /** The page-content column between the two ad rails. */
   contentArea: 'div.max-w-5xl',
+  /** A desktop side rail (xl and up), one either side of the content column. */
+  sideAd: 'aside.hidden.xl\\:flex',
+  /** The decorative confetti/balloon overlay on /grazie. */
+  celebration: 'div.celebration',
   hero: 'div.mb-3.relative.rounded-lg',
+  /**
+   * The crest in the right-hand strip of a page hero (xl and up). Currently
+   * never matches: `HeroCrest` is disabled, and `routes.cy.ts` asserts that.
+   */
+  heroCrest: 'div.mb-3.relative.rounded-lg img[src="/images/logo-crest.svg"]',
   authorBox: 'div.bg-gray-700.rounded-lg:contains("Scritto da")',
   footer: 'footer',
   jsonLd: 'script[type="application/ld+json"]',

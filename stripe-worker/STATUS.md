@@ -4,131 +4,166 @@ Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
 next, and what not to re-litigate". Delete it once payments are live.
 
----
-
-## ⚠️ Read first — uncommitted work
-
-At the close of the 2026-08-03 session these were **modified but not committed**:
-
-- `stripe-worker/src/index.ts` — `preferred_locales`, the `grant` verification,
-  and the whole step-20 route
-- `stripe-worker/README.md`, `stripe-worker/STATUS.md`
-- `bandincc-crawler` (a nested submodule pointer; predates this work)
-
-Commit before doing anything else. Also note `.dev.vars` is gitignored, so the
-three local test secrets exist **only on that machine** and are not recoverable
-from the repo.
-
-## ⚠️ Deployed ≠ what is in the repo
-
-The **deployed** Worker is the version with branch logging and the startup
-binding check. Three changes are written and typechecked but **NOT deployed**:
-
-1. `preferred_locales: ['it']` on the customer at checkout
-2. `grant` verifying the echoed subscriber (the reactivation fix)
-3. the entire `POST /mailerlite` route (step 20)
-
-One `npm run deploy` picks up all three. Until then the live Worker behaves as it
-did on 2026-08-03.
+**Where things stand:** the Worker is deployed and fully configured, both
+directions. The site pages exist in the repo but have not deployed yet, and
+carry placeholder Stripe URLs. What is left is the live-mode cutover and the
+OSS registration.
 
 ---
 
-## 🚨 Hard blockers — nothing goes live until these are done
+## ⚠️ Read first — the Stripe URLs on the site are placeholders
 
-1. **Non-Union OSS registration is NOT in place.** A Swiss company selling a
-   digital subscription B2C into the EU owes VAT in the *customer's* country, and
-   for a non-EU seller there is **no threshold** — VAT is due from the very first
-   EU subscriber. Register in one member state, file quarterly; needs a Swiss/EU
-   VAT accountant. **This is the long-lead item — it runs on someone else's
-   turnaround, so start it before the remaining engineering, not after.** Going
-   live without it means knowingly accruing unremitted VAT from sale one.
-2. **Step 20 is written but not activated.** See "Resume here" — it needs a
-   MailerLite webhook, a secret, and a deploy.
+`locales/it.json` → `pages.abbonamento` holds three Stripe URLs, all still
+`TODO_…`:
+
+| Key | Needs |
+|---|---|
+| `plans[0].href` | the **live** monthly Payment Link + `?locale=it` |
+| `plans[1].href` | the **live** annual Payment Link + `?locale=it` |
+| `manage.href` | the **live** customer-portal login URL |
+
+`lib/subscription.ts` → `isPlaceholderLink()` detects the `TODO_` marker, and
+`/abbonamento/` then renders the price cards with a greyed-out "Attivazione a
+breve" instead of a button, while `/grazie/` drops its portal link. So the page
+is safe to deploy as it is — it just cannot sell anything yet.
+
+This was deliberate: asserting the real shape in the test suite would have gone
+red until the URLs were pasted, and a red suite blocks *every* deploy, including
+the newsletter that chains off it. `cypress/e2e/subscription.cy.ts` asserts the
+placeholder contract now and the live contract (https, `buy.stripe.com`,
+`locale=it`, `target=_blank`) the moment the real URLs land — no test edit
+needed.
+
+---
+
+## 🚨 Hard blocker — nothing goes live until this is done
+
+**Non-Union OSS registration is NOT in place.** A Swiss company selling a
+digital subscription B2C into the EU owes VAT in the *customer's* country, and
+for a non-EU seller there is **no threshold** — VAT is due from the very first
+EU subscriber. Register in one member state, file quarterly; needs a Swiss/EU
+VAT accountant. **This is the long-lead item — it runs on someone else's
+turnaround, so it should be in flight before the remaining engineering, not
+after.**
+
+### "Can I start charging now and sort the tax out later?" (asked 2026-08-04)
+
+Mechanically yes; it is a bad trade. Two things are true at once:
+
+- OSS registration normally takes effect from **the first day of the quarter
+  after you apply**, so sales made before that are not covered by it.
+- There is a carve-out for exactly this case: if the **first** supply happens
+  before registering, the scheme can apply from the date of that first supply
+  **provided the member state of identification is notified by the 10th day of
+  the month following it**. Miss that window and the pre-registration sales fall
+  outside OSS — they then have to be declared through a direct VAT registration
+  in each member state where a customer sat, which is the entire administrative
+  cost OSS exists to avoid.
+
+So "charge now, file later" hangs on a hard deadline measured in days, set by
+the timing of a sale that could arrive at any moment, in a scheme that is not
+yet open. Confirm the details with the accountant before relying on any of it —
+this is a reading of the rules, not tax advice. The low-drama version is to keep
+the page in its current unsellable state until the registration exists.
 
 ### Accepted risk, not a blocker (decided 2026-08-03)
 
 **Returning unsubscribers cannot be reactivated by API.** Shipping without the
 `/grazie/` re-subscribe form: the subscriber base is zero, so there is nobody to
-strand, and the failure is now loud rather than silent. Revisit when someone
-actually complains — the fix is under "Deferred" below.
+strand, and the failure is loud rather than silent. `/grazie/` now tells anyone
+affected to write to info@bandincc.it, which is the whole mitigation until the
+form exists. Revisit when someone actually complains — see "Deferred" below.
 
 ---
 
 ## → Resume here
 
-Step 5 (the webhook, items 15–20) is **code-complete**. What remains is
-activation.
+**1. Verify the unsubscribe → cancel path once.** `MAILERLITE_WEBHOOK_SECRET`
+went in on 2026-08-04, *after* the 2026-08-03 test round, so `POST /mailerlite`
+has never been exercised end to end. It is the one payment-adjacent path with no
+live evidence behind it, and MailerLite **disables a webhook after 3 days of
+non-2xx**, so a wrong secret ends with the integration quietly switching itself
+off.
 
-**1. Deploy the three pending changes**
+- Click `{$unsubscribe}` in a campaign as a test subscriber
+- Expect: the Stripe subscription cancels immediately; `npm run tail` logs it;
+  MailerLite → Integrations → Webhooks shows a 2xx in the delivery history
 
-```sh
-cd stripe-worker
-npm run deploy
-```
+`wrangler secret put` republishes the Worker itself, so **no redeploy is needed**
+after setting the secret.
 
-**2. Activate step 20**
+**2. Recreate everything in live mode** — product, prices, Payment Links, portal
+config, Stripe webhook endpoint, MailerLite webhook. **None of it copies from
+test.** Swap in the live keys and the live signing secret
+(`npx wrangler secret put`, then `npm run deploy`).
 
-- MailerLite → Integrations → Webhooks → new webhook for
-  **`subscriber.unsubscribed`** → `https://bandincc-stripe.bandincc.workers.dev/mailerlite`
-- `npx wrangler secret put MAILERLITE_WEBHOOK_SECRET` — the secret **MailerLite
-  generates for that webhook**, which is *not* the API key
-- Redeploy is not needed after `secret put`; it republishes the Worker itself
+**3. Paste the three live URLs** into `locales/it.json` (see "Read first"). The
+`?locale=it` on both Payment Links is not optional — without it Stripe renders
+checkout in the *browser's* language, and a fair share of this audience runs an
+English-configured browser. The suite enforces it once the URLs are real.
 
-**3. Re-run the deployed-Worker tests** (all passed on 2026-08-03 except the new
-paths):
+**4. Then:** switch each Payment Link to **After payment → Redirect** pointing at
+`https://www.bandincc.it/grazie/` (they currently use Stripe's default hosted
+confirmation page), and run one real €5.90 charge on your own card, refunded.
 
-| Test | How | Expect |
-|---|---|---|
-| Grant | Real checkout via Payment Link, **fresh address** | `Granted …` in `npm run tail`, address in the MailerLite group |
-| `preferred_locales` *(new)* | `stripe customers retrieve cus_… \| grep preferred_locales` | `["it"]` |
-| Revoke | Stripe dashboard → cancel subscription **immediately** | `Revoked …`, address leaves the group |
-| Unsubscribe → cancel *(new)* | Click `{$unsubscribe}` in a campaign as a test subscriber | Stripe subscription cancels |
-| Signature rejection | See the curl block below | `400` both times |
-
-```sh
-URL=https://bandincc-stripe.bandincc.workers.dev
-PAYLOAD='{"id":"evt_test","object":"event","type":"checkout.session.completed","data":{"object":{}}}'
-
-echo -n "no signature      (want 400): "
-curl -s -o /dev/null -w '%{http_code}\n' -X POST "$URL" -d "$PAYLOAD"
-
-echo -n "wrong signing key (want 400): "
-T=$(date +%s)
-SIG=$(printf '%s' "$T.$PAYLOAD" | openssl dgst -sha256 -hmac "whsec_not_the_real_one" -hex | sed 's/.* //')
-curl -s -o /dev/null -w '%{http_code}\n' -X POST "$URL" \
-  -H "stripe-signature: t=$T,v1=$SIG" -d "$PAYLOAD"
-```
-
-**4. Then step 6 (site) and step 7 (live cutover)** below.
+**5. OSS registration** — the blocker above. Must exist before live payments.
 
 ---
 
 ## Done
 
 **Stripe setup (steps 1–4)** — account, one product with two recurring prices
-(€5.90/mo, €59/yr, EUR, **tax-inclusive**), tax decision, two Payment Links.
+(€5.90/mo, €59/yr, EUR, **tax-inclusive**), tax decision, two Payment Links
+(test mode).
 
 **The Worker (step 5, items 15–20)** — `bandincc-stripe.bandincc.workers.dev`,
-endpoint registered in test mode, all secrets set, grant + revoke + signature
-rejection verified end to end against the deployed Worker on 2026-08-03. Covers:
+deployed 2026-08-03, endpoint registered in test mode, all four secrets set
+(`MAILERLITE_WEBHOOK_SECRET` on 2026-08-04). Covers:
 
 - Stripe signature verification (`constructEventAsync` + SubtleCrypto — the sync
   form needs Node crypto and fails on Workers)
 - the three-event entitlement switch, `status:'active'` explicit
 - an upfront binding check naming any missing secret
 - `preferred_locales: ['it']` so the customer portal and Stripe's own emails are
-  Italian *(written, not deployed)*
+  Italian
 - `grant` verifying the echoed subscriber instead of trusting the 200
-  *(written, not deployed)*
 - `POST /mailerlite` — unsubscribe cancels the Stripe subscription immediately
-  *(written, not deployed)*
 
-**Infrastructure** — `stripe-worker` is in the root `tsconfig.json` exclude list.
-Without it `next build` pulls the Worker into the site's TS program, fails on the
-missing `stripe` module, and blocks the site deploy.
+Verified against the deployed Worker on 2026-08-03: grant, revoke, signature
+rejection, `preferred_locales`. **Not yet verified: unsubscribe → cancel** (see
+"Resume here").
 
-**Unrelated, finished and live:** the newsletter now chains off a successful
-deploy via `workflow_run` rather than the push, and diffs against the last commit
+**Step 6 — site changes (2026-08-04).** All copy in `locales/it.json`, nothing
+hardcoded in a component:
+
+- `app/abbonamento/page.tsx` — pitch, both plans (annual highlighted, "due mesi
+  in omaggio"), portal link, `Product` JSON-LD with both offers. Not in the main
+  nav: the desktop bar is already wider than its container at `lg` with the seven
+  labels it has. Reached from the home-page banner ad, the two desktop side
+  rails and a footer link — see `CLAUDE.md` → Ad Slots.
+- `app/grazie/page.tsx` — the Payment Link redirect target. `noindex` and absent
+  from `public/sitemap.xml` on purpose: it is a post-payment confirmation, not
+  content, and indexed it would compete with `/abbonamento/`. Carries no order
+  details — a static export cannot read the Stripe session, and entitlement comes
+  from the webhook, not from this page loading.
+- `lib/subscription.ts` — the placeholder guard described above.
+- `cypress/e2e/subscription.cy.ts`, plus `/abbonamento` in
+  `cypress/support/routes.ts` (`ROUTES` + `FOOTER_LINKS`).
+
+**Step 7 — privacy policy (2026-08-04).** `locales/it.json` →
+`pages.privacyPolicy` now has a section 6 naming **Stripe Payments Europe
+(Irlanda)** and **MailerLite (Lituania)** as art. 28 processors and stating what
+each receives; section 9 spells out deletion-on-request via info@bandincc.it
+within 30 days; the legal bases now include art. 6(1)(b) and (c); retention
+distinguishes the subscriber email from the fiscal records. **Section 10 was
+factually wrong** and is rewritten — it claimed no data leaves the EEA, which
+stops being true the moment Stripe and MailerLite are in the chain.
+
+**Notify (§8f item 6)** — no change needed: `mailTo` is already
+info@bandincc.it, which is the colleague's address.
+
+**Unrelated, finished and live:** the newsletter chains off a successful deploy
+via `workflow_run` rather than the push, and diffs against the last commit
 actually mailed (moving `newsletter-sent` tag), so a batch missed by a failed
 deploy *or* a failed send is retried automatically. See `CLAUDE.md` → CI/CD.
 Nothing outstanding.
@@ -137,33 +172,26 @@ Nothing outstanding.
 
 ## Remaining
 
-### Step 6 — site changes (Next.js)
+1. Verify unsubscribe → cancel (never tested — "Resume here" 1).
+2. Recreate everything in live mode ("Resume here" 2).
+3. Paste the three live Stripe URLs into `locales/it.json` ("Resume here" 3).
+4. Payment Links → **After payment → Redirect** to `/grazie/`; one real charge,
+   refunded.
+5. **OSS registration** — the blocker.
 
-1. **`/grazie/` page** — the Payment Link redirect target. Note the links
-   currently use Stripe's default hosted confirmation page; switch each to
-   **After payment → Redirect** and point at `https://www.bandincc.it/grazie/`.
-2. **Pricing/subscribe section** linking both Payment Links. **Push annual:** the
-   fixed ~€0.30/transaction is ~8% of €5.90 but only ~3.4% of €59, so the ~17%
-   discount roughly funds itself.
-   **Append `?locale=it` to both hrefs** (`&locale=it` if the URL already has
-   params). Without it Stripe renders checkout in the *browser's* language, and a
-   fair share of the audience runs an English-configured browser. Put it in the
-   `locales/it.json` href so it cannot get dropped. Stripe localises only its own
-   UI — the product name and price description render exactly as typed.
-3. **"Manage subscription" link** to the Stripe customer-portal login URL.
-4. All copy into `locales/it.json` under `pages.*`, like everything else.
+### Open, low stakes
 
-### Step 7 — before going live
-
-5. **Privacy policy** naming **Stripe and MailerLite as processors**, plus
-   deletion-on-request. Subscriber data stays out of git.
-6. **Point the crawler's `mailTo` at the colleague** — the last unticked
-   non-payment item (§8f item 6).
-7. **Recreate everything in live mode**: product, prices, Payment Links, portal
-   config, webhook endpoint, MailerLite webhook. **None of it copies from test.**
-   Swap in live keys and the live signing secret, then one real €5.90 charge on
-   your own card, refunded.
-8. **OSS registration** — blocker 1. Must exist *before* live payments.
+- **Does the portal login URL accept `?locale=it`?** Unverified, so the link
+  ships bare. `preferred_locales: ['it']` already covers everything *after* the
+  customer identifies themselves; only the login screen itself is in question.
+- **Cookie policy is untouched**, deliberately: Stripe Checkout and the portal
+  are hosted on Stripe's own domains, so they set no cookies on bandincc.it.
+- **The controller is still identified only as "bandincc.it"** in privacy policy
+  section 1. Once money changes hands, art. 13 wants the Swiss company's legal
+  name and address, and a controller outside the EU offering services to EU data
+  subjects may also need an art. 27 EU representative. Left alone because the
+  legal entity's details are not in this repo — worth one question to the
+  accountant who handles the OSS registration.
 
 ### Deferred
 
@@ -196,6 +224,9 @@ restriction. Accepted risk for now (see above).
   the entitlement route reads as entitled — it would try to re-add the person who
   just unsubscribed, MailerLite would refuse, and `grant`'s verification would
   throw. A retry storm caused by our own cancellation.
+- **`/abbonamento` stays out of the main nav.** The desktop bar's seven labels
+  already run wider than its container at `lg` — that is why the wordmark is
+  hidden below `xl`. The home-page CTA and the footer link are the entry points.
 
 ---
 
@@ -205,13 +236,16 @@ restriction. Accepted risk for now (see above).
   dashboard endpoint, the live dashboard endpoint. Mixing them up fails every
   signature check with a confusing error. A fourth, unrelated secret belongs to
   the MailerLite webhook.
-- **`wrangler secret put` is separate from `wrangler deploy`.** A deployed but
-  unconfigured Worker is a normal state to end up in.
+- **`wrangler secret put` is separate from `wrangler deploy`** — but it
+  republishes the Worker itself, so setting a secret needs no redeploy after it.
+  A deployed but unconfigured Worker is still a normal state to end up in.
 - **The MailerLite API key is ~987 chars** and gets silently truncated by
   terminal paste into the hidden prompt. Pipe it:
   `printf '%s' "$MAILERLITE_API_KEY" | npx wrangler secret put MAILERLITE_API_KEY`.
   A truncated key is indistinguishable from a good one until MailerLite answers
   `401 Unauthenticated` — `secret list` shows names, never values.
+- **`.dev.vars` is gitignored**, so the local test secrets exist only on the
+  machine that created them and are not recoverable from the repo.
 - **Stop `stripe listen` before testing the deployed Worker**, or the CLI and the
   dashboard endpoint both deliver and every event is handled twice.
 - **`npm run tail` drops its connection**, and a closed terminal takes it with it.
@@ -238,6 +272,11 @@ restriction. Accepted risk for now (see above).
   a 5xx for ~3 days, so a loud failure is a useful alarm. MailerLite **disables a
   webhook after 3 days of non-2xx**, so on `/mailerlite` "nothing to do" must
   answer 200 or the integration silently switches itself off.
+- **Deleting the `TODO_` marker is what arms the site.** The moment a real URL
+  replaces a placeholder, `/abbonamento/` starts rendering live buy buttons and
+  the suite starts enforcing the live link contract. Do not paste a *test-mode*
+  Payment Link in as a stopgap: it would ship a working checkout that charges
+  nobody and grants nothing.
 
 ---
 
@@ -248,5 +287,9 @@ restriction. Accepted risk for now (see above).
 | Decision record (§8a–8i) | `bandincc-crawler/UNIFICATION_BRAINSTORM.md` |
 | Worker setup, secrets, deploy, behaviour | `stripe-worker/README.md` |
 | Worker handler | `stripe-worker/src/index.ts` |
+| Stripe URLs + all subscription copy | `locales/it.json` → `pages.abbonamento`, `pages.grazie` |
+| Placeholder guard | `lib/subscription.ts` |
+| Subscription pages | `app/abbonamento/page.tsx`, `app/grazie/page.tsx` |
+| Subscription tests | `cypress/e2e/subscription.cy.ts` |
 | Newsletter send + deploy coupling | `CLAUDE.md` → CI/CD, `.github/workflows/newsletter.yml` |
 | Live Worker | `https://bandincc-stripe.bandincc.workers.dev` (`/` Stripe, `/mailerlite` unsubscribe) |

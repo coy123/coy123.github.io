@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
 import { calculateIncome, CalculatorInputs, TimeOfDay, CityType, Fuel } from '@/lib/calculator'
+import HeroCrest from '@/components/HeroCrest'
 
 /**
  * The two numeric fields are held as strings so the box can actually be
@@ -65,6 +66,7 @@ export default function IncomeCalculatorPage() {
           backgroundPosition: 'center',
         }}
       >
+        <HeroCrest />
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
           style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
           {t.pages.incomeCalculator.title}

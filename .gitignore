@@ -15,6 +15,11 @@ dist
 .next
 out
 
+# TypeScript's incremental build cache. Pure build output, rewritten by every
+# `tsc`/`next build`, and it was tracked by mistake — untrack it with
+# `git rm --cached tsconfig.tsbuildinfo`, or this line does nothing.
+*.tsbuildinfo
+
 # Cypress artifacts
 cypress/screenshots
 cypress/videos

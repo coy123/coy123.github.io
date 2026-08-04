@@ -3,7 +3,7 @@ import Script from 'next/script'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
-// import SideAdBanner from '@/components/SideAdBanner'
+import SideAdSlot from '@/components/SideAdSlot'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -90,19 +90,14 @@ export default function RootLayout({children}: {
         <div className="min-h-screen bg-gray-800 flex flex-col">
             <Navigation/>
             <div className="flex-1 flex justify-center">
-                {/* <aside className="hidden xl:flex flex-1 justify-center items-start px-4">
-                    <div className="sticky top-[calc(50vh-300px)] w-1/2 min-w-[160px] max-w-[280px]">
-                        <SideAdBanner/>
-                    </div>
-                </aside> */}
+                {/* The rails only appear at xl. The centre column keeps its
+                    max-w-5xl basis and shrinks to make room for them, since the
+                    rails cannot go below their min-w-[160px] + px-4. */}
+                <SideAdSlot/>
                 <div className="max-w-5xl lg:w-4/5 xl:w-4/5 flex-grow min-w-0 py-4 sm:py-8 px-4 sm:px-0">
                     {children}
                 </div>
-                {/* <aside className="hidden xl:flex flex-1 justify-center items-start px-4">
-                    <div className="sticky top-[calc(50vh-300px)] w-1/2 min-w-[160px] max-w-[280px]">
-                        <SideAdBanner/>
-                    </div>
-                </aside> */}
+                <SideAdSlot/>
             </div>
             <Footer/>
             <CookieBanner/>

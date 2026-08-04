@@ -51,16 +51,19 @@ There are two branches: staging and master. Development is done on staging. Stag
 
 # Testing
 End-to-end tests live in `cypress/` (TypeScript, Cypress 15) and are documented
-in `cypress/README.md`. They are intended to gate deploys — the CI wiring is not
-in place yet.
+in `cypress/README.md`. They gate both deploys: `e2e.yml` is a reusable
+build-and-test job that `deploy.yml` and `netlify-deploy.yml` both call before
+they publish anything (see CI/CD above).
 
 Cypress 15 needs **Node >= 20.1** (the repo pins 22 via `.nvmrc`); on Node 18 it
 dies during binary verification with `Invalid regular expression flags`. On
 Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
-A clean run against `next dev` is 516 passing / 19 pending / 0 failing. The
-pending ones are deliberate opt-ins (external link checks) or export-only
+A clean run against `next dev` was 516 passing / 19 pending / 0 failing before
+`cypress/e2e/subscription.cy.ts` was added (2026-08-04); that spec adds ~15 more
+and the count has not been re-measured since. The pending ones are deliberate
+opt-ins (external link checks) or export-only
 assertions; `cypress/README.md` → "Known gaps and caveats" explains each, plus
 the two behaviours that differ between `next dev` and the built export and the
 data inconsistencies in `data.json` that were deliberately left alone.
@@ -94,8 +97,10 @@ Key conventions:
 │   │   ├── BidDetailMap.tsx    # Single-marker Leaflet map for a bid
 │   │   ├── BidDetailMapWrapper.tsx # Dynamic import wrapper (SSR disabled)
 │   │   └── BidStatus.tsx       # Client component showing active/expired status
-│   ├── about-us/page.tsx       # About us page
-│   ├── contact/page.tsx        # Contact page (info@bandincc.it)
+│   ├── abbonamento/page.tsx    # Paid newsletter: plans + Stripe Payment Links
+│   ├── about-us/page.tsx       # About us page (incl. the #contatti section)
+│   ├── contact/page.tsx        # Retired: noindex stub redirecting to /about-us/#contatti
+│   ├── grazie/page.tsx         # Post-payment redirect target (noindex)
 │   ├── cookie-policy/page.tsx  # Cookie policy (content from translations)
 │   ├── disclaimer/page.tsx     # Legal disclaimer
 │   ├── faq/page.tsx            # FAQ + Glossary (accordion UI)
@@ -112,15 +117,20 @@ Key conventions:
 │       └── utilities.md        # Article content
 ├── components/                 # Reusable React components
 │   ├── AuthorBox.tsx           # Author attribution box
+│   ├── Celebration.tsx         # One-shot confetti + balloons overlay (used on /grazie)
 │   ├── CookieBanner.tsx        # GDPR cookie consent banner + modal
 │   ├── CurrentDate.tsx         # Client-side date display (avoids SSR mismatch)
 │   ├── FAQAccordion.tsx        # Expandable accordion for FAQ/glossary items
-│   ├── Footer.tsx              # Site footer (privacy, cookie, disclaimer links)
+│   ├── Footer.tsx              # Site footer (abbonamento, privacy, cookie, disclaimer, contatti)
+│   ├── HeroCrest.tsx           # Crest in the right-hand strip of every page hero (xl+)
 │   ├── HomeContent.tsx         # Home page client component (tabs, search, table/map)
 │   ├── LawsContent.tsx         # Regional laws client component (search + table)
 │   ├── LawsTable.tsx           # Table for regional law entries
 │   ├── MapView.tsx             # Leaflet map with circle markers for all bids
 │   ├── Navigation.tsx          # Desktop + mobile nav with hamburger menu
+│   ├── NewsletterAd.tsx        # House ad for the paid newsletter (banner + side variants)
+│   ├── SideAdBanner.tsx        # UNUSED — leftover "EGAF" placeholder from the old ad slots
+│   ├── SideAdSlot.tsx          # One desktop ad rail; client-side so it can hide itself by route
 │   └── Table.tsx               # Main bids table with deadline sorting/coloring
 ├── data/                       # Static JSON data files
 │   ├── data.json               # NCC bid entries (location, deadline, amount, url, image, lat/lng)
@@ -128,8 +138,12 @@ Key conventions:
 │   └── laws.json               # Regional law entries (location, image, url)
 ├── lib/                        # Utility modules
 │   ├── calculator.ts           # Income calculator logic (enums, cost maps, calculateIncome)
+│   ├── crest.ts                # Coat-of-arms URL builder (Wikimedia thumb sizes)
 │   ├── data.ts                 # Data loader (reads data.json, converts lat/lng to numbers)
-│   └── translations.ts         # Translation helper (reads locales/it.json)
+│   ├── slug.ts                 # toSlug(): ASCII-safe bid detail slugs
+│   ├── subscription.ts         # Stripe link guards (placeholder + locale=it)
+│   ├── translations.ts         # Translation helper (reads locales/it.json)
+│   └── trim.ts                 # trimStrings(): every reader of data.json trims through this
 ├── locales/
 │   └── it.json                 # All Italian translations/content for the site
 ├── public/
@@ -183,6 +197,7 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
   - **Search bar** — filters bids by location name (case-insensitive substring match)
   - **Table view** (`Table` component): rows sorted by deadline descending, green background for future deadlines, gray for past. Columns: crest image, location (links to `/bandi/{slug}`), license count, deadline date, view button
   - **Map view** (`MapView` component): Leaflet map centered on Italy (41.87°N, 12.57°E), circle markers (green = active, red = expired), popups with bid info and link to detail page
+- `NewsletterAd` banner between the description and the table, in the slot the disabled Amazon affiliate banner used to occupy (that banner is still there, commented out, because its tracking URL is not reproducible from anywhere else)
 - SEO content sections rendered from `t.pages.home.sections` with internal links to related pages
 - JSON-LD Dataset schema
 
@@ -246,12 +261,41 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - JSON-LD AboutPage schema
 
 ## Contact (`app/contact/page.tsx`)
-- Description paragraphs (supports array of strings in translations)
-- Email contact card: info@bandincc.it
-- JSON-LD ContactPage schema
+- **Retired.** The content was merged into the `#contatti` section of Chi Siamo;
+  the route survives as a `noindex` stub with a zero-delay meta refresh, because
+  `output: 'export'` rules out a real 301
+- Deliberately absent from `cypress/support/routes.ts` → `ROUTES` (it fails the
+  indexing and metadata invariants those entries are held to); covered instead by
+  `cypress/e2e/contact-redirect.cy.ts`
+
+## Abbonamento (`app/abbonamento/page.tsx`)
+- The paid-newsletter pitch: benefits, two plans (€5.90/month, €59/year, annual
+  highlighted), Stripe customer-portal link, `Product` JSON-LD with both offers
+- All copy — **including the Stripe URLs** — lives in `locales/it.json` under
+  `pages.abbonamento`
+- **Not in the main nav**: the desktop bar's seven labels already run wider than
+  its container at `lg`. Entry points are the CTA under the home-page table and a
+  footer link
+- See "Stripe links and the placeholder guard" below
+
+## Grazie (`app/grazie/page.tsx`)
+- The Stripe Payment Link redirect target after a successful payment
+- `robots: noindex` and deliberately absent from `public/sitemap.xml`: a
+  post-payment confirmation, not content, and indexed it would compete with
+  `/abbonamento/` for the same intent
+- Carries no order details — a static export cannot read the Stripe session, and
+  the entitlement comes from the webhook, not from this page loading. Anyone can
+  open the URL directly, so the copy is written to survive that
+- Tells anyone whose address was previously unsubscribed to email
+  info@bandincc.it: MailerLite refuses API reactivation of such addresses, and
+  this copy is the whole mitigation until the re-subscribe form exists
+- `Celebration` renders a one-shot confetti burst plus balloons up the sides
+  (`lg+`). Keyframes live in `globals.css`; everything is CSS, prerendered, and
+  dropped entirely under `prefers-reduced-motion: reduce`. The hero itself stays
+  plain — no emoji in or above the h1
 
 ## Legal Pages
-- **Privacy Policy** (`app/privacy-policy/page.tsx`): sections from `t.pages.privacyPolicy.sections`, last updated date
+- **Privacy Policy** (`app/privacy-policy/page.tsx`): sections from `t.pages.privacyPolicy.sections`, last updated date. Section 6 names Stripe and MailerLite as art. 28 processors, section 9 covers deletion-on-request, section 10 covers the transfers those two imply — **the headings are numbered in the JSON**, so inserting a section means renumbering the ones after it
 - **Cookie Policy** (`app/cookie-policy/page.tsx`): sections from `t.pages.cookiePolicy.sections`, last updated date
 - **Disclaimer** (`app/disclaimer/page.tsx`): array of paragraphs from `t.pages.disclaimer.description`
 
@@ -264,7 +308,8 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - **Client component** (uses `useState`, `usePathname`)
 - Desktop: horizontal nav bar, sticky top, centered links, active link highlighted with `bg-blue-600`
 - Mobile: hamburger menu button, slides in a 264px-wide sidebar from the left, full-height overlay with backdrop click-to-close
-- Nav items: Home, Come diventare autista?, Leggi Regionali, Strumenti Utili, Calcolatore Guadagni, FAQ e Glossario, Chi Siamo, Contatti
+- Nav items: Come diventare autista?, Leggi Regionali, Strumenti Utili, Calcolatore Guadagni, FAQ e Glossario, Chi Siamo. Home is the crest, not a label; Contatti is a section of Chi Siamo
+- **The bar is full.** Those six labels plus the crest already run wider than the container at `lg` — that is why the wordmark is hidden below `xl`. A seventh label needs a layout rethink, which is why `/abbonamento` is reached from the home-page CTA and the footer instead
 
 ## Table (`components/Table.tsx`)
 - **Client component** — uses `useEffect` + `useState` for `now` (avoids SSR date mismatch)
@@ -402,7 +447,50 @@ const MapView = dynamic(() => import('./MapView'), { ssr: false, loading: () => 
 `BidDetailMapWrapper.tsx` exists solely to wrap `BidDetailMap.tsx` with this pattern.
 
 ## Hero Section Pattern
-Every page uses the same hero section structure: background image (`/images/driver.png`), h1 title and h2 subtitle with semi-transparent black background overlays. Text content comes from translations.
+Every page uses the same hero section structure: background image
+(`/images/driver.png`), `<HeroCrest />`, h1 title and h2 subtitle with
+semi-transparent black background overlays. Text content comes from
+translations.
+
+**`HeroCrest` is currently disabled** — `ENABLED = false` in
+`components/HeroCrest.tsx` makes it render `null`. The newsletter ad carries the
+full logo on every page, so the hero crest was a second copy of the same mark
+within a screen of the first. The switch is one constant rather than a
+commented-out `<HeroCrest />` in each of the 13 heroes: one line to flip instead
+of 26, and no unused imports to trip `noUnusedLocals`. The call sites stay in
+place and render nothing. Two tests in `routes.cy.ts` assert its absence and
+carry instructions for flipping back.
+
+When enabled it is absolutely placed inside the hero, so the hero keeps exactly
+the height its headings give it, and is `hidden xl:block`: only at xl is the
+content column pinned at `max-w-5xl` with the h1 on one line, leaving a clear
+strip on the right. Below xl the h1 wraps and its background block fills the
+row. It goes immediately after the hero's opening tag, before the `<h1>`.
+
+## Ad Slots
+Three slots exist in the markup, all live, all carrying `NewsletterAd` — the
+house ad for the paid newsletter:
+
+- **Home banner** (`app/page.tsx`) — `variant="banner"`, above the table.
+- **Desktop side rails** (`app/layout.tsx`) — `<SideAdSlot/>` either side of the
+  content column, `hidden xl:flex`, sticky at `calc(50vh - 300px)` for a
+  600px-tall creative. `SideAdSlot` is a **client** component only so it can
+  read `usePathname()` and render nothing on `/abbonamento` and `/grazie` —
+  advertising the subscription next to the checkout reads as broken, and the
+  layout is a server component that cannot branch on the route.
+- **Bid detail strip** (`app/bandi/[bid]/page.tsx`) — `variant="strip"`, between
+  the hero and the bid card, in the 90px slot that used to hold an empty "EGAF"
+  placeholder. Fixed height from sm up only; at 390px the row would clip.
+
+The rails shrink the content column at xl: they cannot go below
+`min-w-[160px]` + `px-4`, so the centre column absorbs the difference (it has
+`min-w-0` and a `max-w-5xl` basis). `responsive.cy.ts` guards against that
+tipping into horizontal scroll.
+
+**`NewsletterAd`'s design is a placeholder** pending a real creative. It is
+styled as a finished block rather than a dashed outline because it ships to
+production; copy lives at the top level of `locales/it.json` under
+`newsletterAd`, next to `nav`/`footer`, since it is not tied to one page.
 
 ## Slug Generation
 Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `MapView`, `generateStaticParams()` and `findBid()` alike. It strips diacritics, folds typographic quotes and dashes to their ASCII equivalents, drops anything still outside printable ASCII, then hyphenates whitespace:
@@ -421,6 +509,29 @@ On bid detail pages, `findLaw()` matches a bid's location against law entries us
 - **Long-form articles**: `howToBecomeDriver.md` and `utilities.md` — read at build time via `fs.readFileSync`, rendered with react-markdown
 - **FAQ/Glossary**: `data/faq.json` (FAQ) + `locales/it.json` `pages.glossario.terms` (glossary)
 
+## Stripe links and the placeholder guard
+The three Stripe URLs (two Payment Links + the customer-portal login link) live
+in `locales/it.json` → `pages.abbonamento`, not in a component, so the mandatory
+`?locale=it` cannot get dropped — without it Stripe renders checkout in the
+*browser's* language.
+
+Test-mode Payment Links, portal links and signing secrets **do not copy to live
+mode**, so the JSON ships `TODO_…` placeholders until the live account exists.
+`lib/subscription.ts` → `isPlaceholderLink()` is what `/abbonamento/` and
+`/grazie/` branch on: with a placeholder in place the page renders a greyed-out
+"Attivazione a breve" instead of a button, and `/grazie/` drops its portal link.
+A live page whose "Abbonati" button 404s is worse than one that says
+subscriptions are not open yet.
+
+`cypress/e2e/subscription.cy.ts` reads the same helper and asserts whichever
+contract applies — the placeholder state now, the live contract (https,
+`buy.stripe.com`, `locale=it`, `target=_blank`) the moment a real URL lands. It
+is written that way on purpose: a test that went red until someone pasted the
+URLs would block every unrelated deploy, and with it the newsletter that chains
+off `deploy.yml`.
+
+Full state of the payments work: `stripe-worker/STATUS.md`.
+
 ## Affiliate Link
 The home page section about participating in bids contains a Keliweb affiliate link for PEC (certified email): `https://www.keliweb.it/billing/aff.php?aff=6108`. This is in `locales/it.json` within the `pages.home.sections[3].content` markdown string.
 
@@ -433,6 +544,6 @@ The home page section about participating in bids contains a Keliweb affiliate l
 Both `postcss.config.mjs` (ESM) and `postcss.config.cjs` (CommonJS) exist. The `.mjs` uses `tailwindcss` plugin, the `.cjs` uses `@tailwindcss/postcss`. This can cause confusion — Next.js picks one based on its module resolution.
 
 # Current Data Stats (as of last update)
-- 89 NCC bid entries in `data/data.json`
+- 90 NCC bid entries in `data/data.json`
 - 13 regional law entries in `data/laws.json`
 - 17 FAQ entries in `data/faq.json`

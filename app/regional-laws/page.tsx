@@ -3,6 +3,7 @@ import { getTranslations } from '@/lib/translations'
 import LawsContent from '@/components/LawsContent'
 import lawsData from '@/data/laws.json'
 import { LawData } from '@/types'
+import HeroCrest from '@/components/HeroCrest'
 
 export const metadata: Metadata = {
   title: 'Normative Regionali',
@@ -42,6 +43,7 @@ export default function RegionalLawsPage() {
           backgroundPosition: 'center',
         }}
       >
+        <HeroCrest />
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 inline-block px-2 py-1 rounded"
           style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
           {t.pages.regionalLaws.title}

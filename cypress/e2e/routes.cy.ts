@@ -88,6 +88,14 @@ describe('Static routes', () => {
         })
       })
 
+      it('keeps the hero free of the crest', () => {
+        // `HeroCrest` is disabled (`ENABLED = false`): the newsletter ad already
+        // carries the full logo on every page. Flip this to
+        // `.should('have.length', 1).and('be.visible')` when the crest comes
+        // back — it renders from xl only, which is the desktop width here.
+        cy.get(sel.heroCrest).should('not.exist')
+      })
+
       it('renders the navigation and the footer', () => {
         cy.get(sel.desktopNav).should('be.visible')
         cy.get(sel.footer).should('exist')
@@ -98,6 +106,17 @@ describe('Static routes', () => {
           expect(normalize(text).length).to.be.greaterThan(200)
         })
       })
+    })
+  })
+
+  it('keeps the hero free of the crest below xl too', () => {
+    // Paired with the per-route assertion above: while `HeroCrest` is disabled
+    // the crest is absent at every width. When it comes back this becomes
+    // `.should('not.be.visible')` — present in the DOM, hidden below xl.
+    cy.useTablet()
+    ROUTES.forEach((route) => {
+      cy.visitPage(route.path)
+      cy.get(sel.heroCrest).should('not.exist')
     })
   })
 

@@ -29,3 +29,61 @@
 .animate-scaleIn {
   animation: scaleIn 0.3s ease-out;
 }
+
+/* ------------------------------------------------------------------ */
+/* Celebration (components/Celebration.tsx, used on /grazie)           */
+/* ------------------------------------------------------------------ */
+
+/* Every piece runs exactly once and ends invisible: a confirmation page is
+   read for a while, and a looping animation in the corner of the eye stops
+   being celebratory within about ten seconds. --drift/--spin/--sway are set
+   per piece inline. */
+
+@keyframes confettiFall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0px), 104vh, 0) rotate(var(--spin, 720deg));
+    opacity: 0;
+  }
+}
+
+@keyframes balloonRise {
+  0% {
+    transform: translate3d(0, 25vh, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--sway, 0px), -125vh, 0);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  animation: confettiFall var(--duration) cubic-bezier(0.25, 0.55, 0.45, 1)
+    var(--delay) 1 both;
+}
+
+.balloon {
+  animation: balloonRise var(--duration) ease-in-out var(--delay) 1 both;
+}
+
+/* Motion is the whole point of the decoration, so there is nothing to
+   degrade to — it is dropped entirely, and the page reads exactly the same
+   without it. */
+@media (prefers-reduced-motion: reduce) {
+  .celebration {
+    display: none;
+  }
+}
