@@ -92,19 +92,26 @@ off.
 `wrangler secret put` republishes the Worker itself, so **no redeploy is needed**
 after setting the secret.
 
-**2. Recreate everything in live mode** — product, prices, Payment Links, portal
-config, Stripe webhook endpoint, MailerLite webhook. **None of it copies from
-test.** Swap in the live keys and the live signing secret
-(`npx wrangler secret put`, then `npm run deploy`).
+**2. Finish live mode** — product, prices, Payment Links, portal config, Stripe
+webhook endpoint, MailerLite webhook. **None of it copies from test.** Swap in
+the live keys and the live signing secret (`npx wrangler secret put`, then
+`npm run deploy`).
+
+Partly done already: the **After payment → Redirect** to
+`https://www.bandincc.it/grazie/` was set on both the test and the live Payment
+Links on 2026-08-04, so live Payment Links exist and their URLs can be pasted
+into the site now (step 3). What is unconfirmed is the rest of the live-mode
+setup — portal config, the live webhook endpoint and its signing secret, and the
+live MailerLite webhook.
 
 **3. Paste the three live URLs** into `locales/it.json` (see "Read first"). The
 `?locale=it` on both Payment Links is not optional — without it Stripe renders
 checkout in the *browser's* language, and a fair share of this audience runs an
 English-configured browser. The suite enforces it once the URLs are real.
 
-**4. Then:** switch each Payment Link to **After payment → Redirect** pointing at
-`https://www.bandincc.it/grazie/` (they currently use Stripe's default hosted
-confirmation page), and run one real €5.90 charge on your own card, refunded.
+**4. One real €5.90 charge** on your own card, refunded — the end-to-end proof
+that checkout → redirect → webhook → MailerLite group works on live keys. The
+redirect half of this step is already done (see step 2).
 
 **5. OSS registration** — the blocker above. Must exist before live payments.
 
@@ -162,6 +169,21 @@ stops being true the moment Stripe and MailerLite are in the chain.
 **Notify (§8f item 6)** — no change needed: `mailTo` is already
 info@bandincc.it, which is the colleague's address.
 
+**Payment Link redirects (2026-08-04)** — both the test and the live links now
+use **After payment → Redirect** to `https://www.bandincc.it/grazie/` instead of
+Stripe's hosted confirmation page.
+
+**Promotion of the newsletter across the site (2026-08-04)** — the three ad
+slots that were commented out now carry `NewsletterAd`: the home banner, the two
+desktop side rails (hidden on `/abbonamento` and `/grazie`), and the bid-detail
+strip. `/grazie` also got a CSS-only confetti/balloon celebration. See
+`CLAUDE.md` → Ad Slots.
+
+**Deployed to staging (2026-08-04)** and verified there. `netlify-deploy.yml`
+runs the full Cypress suite before it publishes, so the whole batch — the two new
+pages, the ad slots, `subscription.cy.ts`, and the reworked hero — is green
+against the built export. Only the merge to `master` is left.
+
 **Unrelated, finished and live:** the newsletter chains off a successful deploy
 via `workflow_run` rather than the push, and diffs against the last commit
 actually mailed (moving `newsletter-sent` tag), so a batch missed by a failed
@@ -173,11 +195,13 @@ Nothing outstanding.
 ## Remaining
 
 1. Verify unsubscribe → cancel (never tested — "Resume here" 1).
-2. Recreate everything in live mode ("Resume here" 2).
+2. Finish live mode: portal config, webhook endpoint + signing secret, MailerLite
+   webhook ("Resume here" 2). The live Payment Links already exist.
 3. Paste the three live Stripe URLs into `locales/it.json` ("Resume here" 3).
-4. Payment Links → **After payment → Redirect** to `/grazie/`; one real charge,
-   refunded.
+4. One real €5.90 charge on your own card, refunded.
 5. **OSS registration** — the blocker.
+6. Merge to `master` so the work reaches production. Staging is already green
+   (see "Done"), so this is the same tested export going to GitHub Pages.
 
 ### Open, low stakes
 
@@ -186,12 +210,13 @@ Nothing outstanding.
   customer identifies themselves; only the login screen itself is in question.
 - **Cookie policy is untouched**, deliberately: Stripe Checkout and the portal
   are hosted on Stripe's own domains, so they set no cookies on bandincc.it.
-- **The controller is still identified only as "bandincc.it"** in privacy policy
-  section 1. Once money changes hands, art. 13 wants the Swiss company's legal
-  name and address, and a controller outside the EU offering services to EU data
-  subjects may also need an art. 27 EU representative. Left alone because the
-  legal entity's details are not in this repo — worth one question to the
-  accountant who handles the OSS registration.
+
+### Closed, do not reopen
+
+- **Privacy policy section 1** ("bandincc.it" as the controller, no legal entity
+  name, no art. 27 representative) — reviewed and accepted as-is on 2026-08-04.
+- **`components/SideAdBanner.tsx`** is dead code, the leftover "EGAF" placeholder
+  from the old ad slots. Kept on purpose in case that rail is ever sold.
 
 ### Deferred
 
