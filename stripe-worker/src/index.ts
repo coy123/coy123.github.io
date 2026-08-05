@@ -159,9 +159,13 @@ const revoke = async (env: Env, email: string): Promise<void> => {
 // English "your payment failed" email is the kind of seam that makes a small
 // operation look unreliable.
 //
-// The `locale` param that would do this directly only exists on API-created
-// portal sessions; the no-code portal login link the site uses cannot take one.
-// Setting it on the customer is the lever that reaches that link.
+// The no-code portal login link the site uses does accept `?locale=it` on its
+// own login screen (verified 2026-08-05), and `locales/it.json` carries it. But
+// that param reaches exactly one page. Everything the customer sees afterwards —
+// the portal itself, receipts, invoices, dunning mail — is rendered from the
+// customer record, and a returning customer arriving from a Stripe email never
+// passes through a URL we control at all. Setting the preference on the customer
+// is the only lever that covers those.
 //
 // Best-effort on purpose: a language preference is cosmetic. Throwing here would
 // return 500, make Stripe retry, and put the entitlement grant at risk for the

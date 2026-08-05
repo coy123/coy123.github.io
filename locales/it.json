@@ -202,8 +202,8 @@
         "heading": "Hai già un abbonamento?",
         "description": "Dal portale clienti Stripe puoi aggiornare il metodo di pagamento, scaricare le ricevute, passare dal mensile all'annuale e disdire. Ti basta l'indirizzo email con cui ti sei abbonato.",
         "cta": "Gestisci abbonamento →",
-        "href": "https://billing.stripe.com/p/login/TODO_PORTAL_LINK",
-        "hrefTest": "https://billing.stripe.com/p/login/test_cNi14namu0kOaTH4fXfEk00"
+        "href": "https://billing.stripe.com/p/login/TODO_PORTAL_LINK?locale=it",
+        "hrefTest": "https://billing.stripe.com/p/login/test_cNi14namu0kOaTH4fXfEk00?locale=it"
       },
       "testModeNotice": "Ambiente di prova: i pagamenti su questa versione del sito passano da Stripe in modalità test e non addebitano nulla. Nessuna carta reale viene accettata.",
       "legal": "Servizio di informazione su bandi pubblici. BandiNCC non gestisce le domande di partecipazione e non ha alcun rapporto con i comuni che pubblicano i bandi. Trattiamo il tuo indirizzo email come descritto nell'Informativa sulla Privacy."

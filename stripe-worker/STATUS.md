@@ -103,13 +103,30 @@ yet open. Confirm the details with the accountant before relying on any of it �
 this is a reading of the rules, not tax advice. The low-drama version is to keep
 the page in its current unsellable state until the registration exists.
 
-### Accepted risk, not a blocker (decided 2026-08-03)
+### Accepted risk, not a blocker (decided 2026-08-03, softened 2026-08-05)
 
-**Returning unsubscribers cannot be reactivated by API.** Shipping without the
-`/grazie/` re-subscribe form: the subscriber base is zero, so there is nobody to
-strand, and the failure is loud rather than silent. `/grazie/` now tells anyone
-affected to write to info@bandincc.it, which is the whole mitigation until the
-form exists. Revisit when someone actually complains — see "Deferred" below.
+**Returning unsubscribers cannot be reactivated by API** — this turns out to be
+**less absolute than MailerLite's docs claim**. Tested 2026-08-05 against
+`denisuzelgecici@gmail.com`, immediately after it unsubscribed by clicking
+`{$unsubscribe}` in a real campaign: `POST /subscribers` with
+`status:'active', resubscribe:true` — the exact call `grant()` makes — returned
+200 and the **stored** record came back `active`, back in the group, with
+`unsubscribed_at: null`. No dashboard delete, no form, no manual step.
+
+What that does **not** establish: MailerLite's restriction names "unsubscribed /
+bounced / junk", and only the first was tested. A hard bounce or a spam complaint
+may still be unreactivatable, and that is the case their abuse prevention is
+presumably actually for. It is also one observation against documentation that
+says the opposite, so it can change without notice.
+
+Which is exactly why **`grant()`'s echoed-status verification stays**. It is not
+redundant now that reactivation appears to work — it is the thing that will
+notice the day it stops, instead of leaving a paying customer silently receiving
+nothing.
+
+`/grazie/`'s "scrivici a info@bandincc.it" copy stays too, as the net for the
+cases still unproven. Shipping without the re-subscribe form remains fine: the
+subscriber base is zero, and the failure is loud rather than silent.
 
 ---
 
@@ -240,20 +257,45 @@ Nothing outstanding.
 ## Remaining
 
 1. ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging ("Resume here" 1).
-   Redeploy both Workers to ship the `resource_missing` fix that test produced.
-2. Finish live mode: portal config, webhook endpoint + signing secret, MailerLite
-   webhook ("Resume here" 2). The live Payment Links already exist.
-3. Paste the three live Stripe URLs into `locales/it.json` ("Resume here" 3).
+   ~~Redeploy both Workers~~ — both shipped 2026-08-05 with the
+   `resource_missing` fix.
+2. Finish live mode: portal config, live webhook endpoint + its signing secret,
+   live MailerLite webhook ("Resume here" 2). The live Payment Links already
+   exist. **`bandincc-stripe` still carries TEST Stripe secrets** — it was the
+   original test deployment and only became "production" when `--env test` was
+   added, so `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` both need swapping
+   there. Its MailerLite webhook (`194877758477698574`) and
+   `MAILERLITE_WEBHOOK_SECRET` are already correct and need no change.
+3. Paste the three live Stripe URLs into `locales/it.json` — the **`href`** keys,
+   not `hrefTest` ("Resume here" 3). While checking them, confirm both live
+   Payment Links redirect to `https://www.bandincc.it/grazie/` **with the
+   trailing slash**: the site is `trailingSlash: true`, and the test-mode pair
+   disagree with each other (`/grazie` vs `/grazie/`), so the live pair may too.
 4. One real €5.90 charge on your own card, refunded.
 5. **OSS registration** — the blocker.
-6. Merge to `master` so the work reaches production. Staging is already green
-   (see "Done"), so this is the same tested export going to GitHub Pages.
+6. **Merge to `master` — this is the launch, and it happens LAST** (decided
+   2026-08-05). It was listed as independent of 2–5 because the placeholder guard
+   makes the pages safe to ship unsold; that is true but beside the point. The
+   subscription pages, the newsletter ads in all three slots and the footer link
+   would announce a product to real visitors weeks before it can take a payment,
+   so `master` stays where it is until live mode works end to end. Staging is
+   green, so when the time comes it is the same tested export going to GitHub
+   Pages — no extra risk from the wait.
+
+   Checked 2026-08-05: `data/` is **identical** on `master` and `dev` (90 bandi
+   each), so holding master back is not accumulating a newsletter batch. Re-check
+   before merging if the crawler has landed anything since — `newsletter.yml`
+   diffs against the `newsletter-sent` tag and would mail the whole backlog in one
+   campaign.
 
 ### Open, low stakes
 
-- **Does the portal login URL accept `?locale=it`?** Unverified, so the link
-  ships bare. `preferred_locales: ['it']` already covers everything *after* the
-  customer identifies themselves; only the login screen itself is in question.
+- ~~**Does the portal login URL accept `?locale=it`?**~~ **Answered 2026-08-05:
+  yes.** The test-mode portal login screen renders in Italian with the param.
+  Both `manage.href` and `manage.hrefTest` in `locales/it.json` now carry it, so
+  keep it when the live URL is pasted in — it is the one surface
+  `preferred_locales: ['it']` cannot reach, since that only applies once the
+  customer has identified themselves.
 - **Cookie policy is untouched**, deliberately: Stripe Checkout and the portal
   are hosted on Stripe's own domains, so they set no cookies on bandincc.it.
 
@@ -268,8 +310,14 @@ Nothing outstanding.
 
 **A `/grazie/` MailerLite subscribe form**, so a returning unsubscriber can
 re-subscribe themselves right after paying. MailerLite treats a form or landing
-page as an approved reactivation route, which is the only path around the API
-restriction. Accepted risk for now (see above).
+page as an approved reactivation route, which the docs present as the only path
+around the API restriction.
+
+**Deprioritised 2026-08-05**: the API reactivated a plain unsubscriber directly
+(see "Accepted risk" above), so the form is no longer the only route — it is a
+fallback for the bounced/junk cases that remain untested, and for the day
+MailerLite starts enforcing what its docs say. Still worth building eventually;
+no longer the thing standing between a returning customer and their newsletter.
 
 ---
 
