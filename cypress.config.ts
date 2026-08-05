@@ -42,6 +42,13 @@ export default defineConfig({
       // `next dev` throws "missing param in generateStaticParams()" because
       // `output: 'export'` is set. Set by the `cy:run:static` script.
       staticExport: false,
+      // Which Stripe account the export under test was BUILT against — it must
+      // be the same value `next build` saw, which is why `e2e.yml` puts
+      // STRIPE_MODE on both steps. Read here in Node because the specs run in
+      // a browser and have no `process.env`; `subscription.cy.ts` picks it up
+      // via `Cypress.env('stripeMode')`. Defaults to `live` to match
+      // `currentStripeMode()` in lib/subscription.ts.
+      stripeMode: process.env.STRIPE_MODE === 'test' ? 'test' : 'live',
     },
   },
 })

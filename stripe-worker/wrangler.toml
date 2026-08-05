@@ -15,5 +15,47 @@ enabled = true
 # NOT a secret — it identifies the list, it does not grant access to it. Secrets
 # (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, MAILERLITE_API_KEY) never appear in
 # this file; see README.md.
+#
+# The top level is PRODUCTION: live Stripe keys, the real subscriber group.
 [vars]
 MAILERLITE_GROUP_ID = "193718534342181983"
+
+# ---------------------------------------------------------------------------
+# Staging / test mode  —  `npm run deploy:test`, `npm run tail:test`
+#
+# Deploys a SECOND Worker, `bandincc-stripe-test.<subdomain>.workers.dev`, wired
+# to the Stripe TEST account and a throwaway MailerLite group. The Netlify
+# staging build points its Payment Links at test mode (see
+# .github/workflows/netlify-deploy.yml), and those checkouts have to land
+# somewhere that is not the live subscriber list.
+#
+# Two Workers rather than one that branches: a Stripe webhook endpoint is
+# registered per mode and carries its own signing secret, and the secret is what
+# decides whether an event is genuine. One Worker cannot hold two
+# STRIPE_WEBHOOK_SECRETs, so test events would have to be accepted unverified —
+# which is precisely the hole the signature check exists to close.
+#
+# Everything here is duplicated rather than inherited: named environments do NOT
+# inherit `vars` from the top level. Leaving this block out would mean the test
+# Worker deploying with no MAILERLITE_GROUP_ID at all — caught by the REQUIRED
+# check in src/index.ts, but only at the first webhook.
+#
+# Secrets are per-environment too, and none of the four carry over:
+#   printf '%s' "$KEY" | npx wrangler secret put STRIPE_SECRET_KEY --env test
+# ...for STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, MAILERLITE_API_KEY and
+# MAILERLITE_WEBHOOK_SECRET. The pipe matters for the MailerLite API key: it is
+# ~987 chars and terminal paste into the hidden prompt truncates it silently.
+#
+# Note the MailerLite API key is the SAME key in both environments — MailerLite
+# has no test mode. Only the group differs, so a staging checkout adds an
+# address to the throwaway group and never to the one the campaigns go to.
+# ---------------------------------------------------------------------------
+[env.test]
+
+[env.test.observability]
+enabled = true
+
+[env.test.vars]
+# Not a secret, same as above. A wrong id here is silent: the grant succeeds and
+# the address lands in the wrong group.
+MAILERLITE_GROUP_ID = "194986214311330839"

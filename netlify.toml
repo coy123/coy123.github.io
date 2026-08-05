@@ -8,3 +8,16 @@
 [build]
   command   = "npm run build"
   publish   = "out"
+
+# This file only ever applies to the STAGING site — production is GitHub Pages
+# and never reads it — so the Stripe test account is the right answer here
+# unconditionally.
+#
+# The CI path already sets this (netlify-deploy.yml passes `stripe-mode: test`
+# to e2e.yml, which puts STRIPE_MODE on both the build and the test run). This
+# covers the other path: a deploy triggered from the Netlify UI, which runs the
+# command above with none of that environment. Without it such a build falls
+# back to `live`, and staging quietly reverts to showing "Attivazione a breve"
+# instead of the test-mode checkout.
+[build.environment]
+  STRIPE_MODE = "test"

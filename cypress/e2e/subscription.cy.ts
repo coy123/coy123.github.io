@@ -1,6 +1,12 @@
 import { sel } from '../support/selectors'
 import { bidPath, bids, hrefSelector, t } from '../support/site'
-import { hasItalianLocale, isPlaceholderLink } from '../../lib/subscription'
+import {
+  hasItalianLocale,
+  isPlaceholderLink,
+  matchesStripeMode,
+  stripeHref,
+  type StripeMode,
+} from '../../lib/subscription'
 
 /**
  * The paid-newsletter surface: /abbonamento (the pitch and the Stripe Payment
@@ -12,13 +18,31 @@ import { hasItalianLocale, isPlaceholderLink } from '../../lib/subscription'
  * deploy, and with it the newsletter that chains off it — each test asserts the
  * contract that applies to the state the JSON is actually in. Both branches are
  * real assertions: nothing here silently passes.
+ *
+ * Every link is resolved through `stripeHref` for the mode the export was built
+ * in, so the DOM assertions below double as a check that `next build` and this
+ * run agreed on `STRIPE_MODE`: if they disagreed, the anchor carries the other
+ * mode's URL and is simply not found.
  */
-type Plan = { id: string; name: string; price: string; note: string; cta: string; href: string }
+type Plan = {
+  id: string
+  name: string
+  price: string
+  note: string
+  cta: string
+  href: string
+  hrefTest?: string
+}
 
 const page = t.pages.abbonamento
 const plans = page.plans as Plan[]
-const paymentLinksLive = plans.every((plan) => !isPlaceholderLink(plan.href))
-const portalLive = !isPlaceholderLink(page.manage.href)
+
+const mode: StripeMode = Cypress.env('stripeMode') === 'test' ? 'test' : 'live'
+const planLinks = plans.map((plan) => ({ plan, href: stripeHref(plan, mode) }))
+const portalHref = stripeHref(page.manage, mode)
+
+const paymentLinksLive = planLinks.every(({ href }) => !isPlaceholderLink(href))
+const portalLive = !isPlaceholderLink(portalHref)
 
 describe('Abbonamento', () => {
   beforeEach(() => {
@@ -42,13 +66,39 @@ describe('Abbonamento', () => {
     })
   })
 
+  it(`ships only ${mode}-mode Stripe links`, () => {
+    // The hard gate on the whole two-mode arrangement, and the reason
+    // `stripeHref` does not need to throw during the build: `e2e.yml` runs this
+    // against the built `out/` before either deploy job starts.
+    //
+    // A test-mode Payment Link on www.bandincc.it would take a card, charge
+    // nobody and grant nothing — a broken checkout that looks like a working
+    // one. A live link on staging is the mirror image: a routine test run that
+    // silently bills a real card.
+    ;[...planLinks.map(({ plan, href }) => [plan.name, href] as const), ['portale', portalHref] as const]
+      .forEach(([name, href]) => {
+        expect(matchesStripeMode(href, mode), `${name}: ${href} belongs in ${mode} mode`).to.be.true
+      })
+  })
+
+  it(
+    mode === 'test'
+      ? 'says out loud that this build is the test environment'
+      : 'carries no test-environment banner in production',
+    () => {
+      // Test checkout is indistinguishable from the real thing, redirect to
+      // /grazie/ included, so staging says so and production must not.
+      cy.contains(page.testModeNotice).should(mode === 'test' ? 'be.visible' : 'not.exist')
+    }
+  )
+
   if (paymentLinksLive) {
     it('sends each plan to a Stripe Payment Link', () => {
-      plans.forEach((plan) => {
-        const url = new URL(plan.href)
+      planLinks.forEach(({ plan, href }) => {
+        const url = new URL(href)
         expect(url.protocol, `${plan.name} protocol`).to.eq('https:')
         expect(url.hostname, `${plan.name} host`).to.eq('buy.stripe.com')
-        cy.get(`a[href="${plan.href}"]`)
+        cy.get(`a[href="${href}"]`)
           .should('be.visible')
           .and('have.attr', 'target', '_blank')
           .and('have.attr', 'rel')
@@ -59,8 +109,8 @@ describe('Abbonamento', () => {
     it('asks Stripe for Italian checkout on every plan', () => {
       // Without `locale=it` Stripe renders checkout in the browser's language,
       // and a fair share of this audience runs an English browser.
-      plans.forEach((plan) => {
-        expect(hasItalianLocale(plan.href), `${plan.name} carries locale=it`).to.be.true
+      planLinks.forEach(({ plan, href }) => {
+        expect(hasItalianLocale(href), `${plan.name} carries locale=it`).to.be.true
       })
     })
   } else {
@@ -83,8 +133,8 @@ describe('Abbonamento', () => {
       : 'renders no portal link while the portal URL is a placeholder',
     () => {
       if (portalLive) {
-        expect(new URL(page.manage.href).hostname).to.eq('billing.stripe.com')
-        cy.get(`a[href="${page.manage.href}"]`)
+        expect(new URL(portalHref).hostname).to.eq('billing.stripe.com')
+        cy.get(`a[href="${portalHref}"]`)
           .should('be.visible')
           .and('have.attr', 'target', '_blank')
       } else {

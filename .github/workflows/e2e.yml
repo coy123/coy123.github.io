@@ -18,6 +18,15 @@ on:
         description: Name of the uploaded static export, consumed by the caller.
         type: string
         default: static-export
+      stripe-mode:
+        description: >-
+          Which Stripe account the export is built against: `live` (production,
+          GitHub Pages) or `test` (staging, Netlify). Defaults to `live`, and
+          that direction is deliberate — a caller that forgets to pass `test`
+          ships the placeholder state to staging, which is visible and harmless,
+          whereas the reverse would put a test-mode checkout on the real domain.
+        type: string
+        default: live
 
 jobs:
   build-and-test:
@@ -64,11 +73,19 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          STRIPE_MODE: ${{ inputs.stripe-mode }}
 
       # Serves `out/` on :3000 and runs the suite in static-export mode.
       # A failure here fails the job, and every deploy job needs this one.
+      #
+      # STRIPE_MODE is repeated here on purpose: `subscription.cy.ts` resolves
+      # the Stripe URLs for this mode and then looks for those exact hrefs in
+      # the DOM, so if the two steps ever disagreed the anchors would not be
+      # found and the suite would go red rather than ship a mismatched export.
       - name: Run E2E tests against the static export
         run: npm run test:e2e:static
+        env:
+          STRIPE_MODE: ${{ inputs.stripe-mode }}
 
       - name: Upload Cypress screenshots
         if: failure()

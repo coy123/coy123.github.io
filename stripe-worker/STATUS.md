@@ -36,6 +36,43 @@ needed.
 
 ---
 
+## Staging runs Stripe test mode (added 2026-08-05)
+
+So the whole funnel — page → Payment Link → checkout → `/grazie/` → Worker →
+MailerLite — can be exercised on staging without moving money or touching a real
+subscriber. The site is `output: 'export'`, so there is no server to branch on a
+hostname: the choice is made at build time from **`STRIPE_MODE`**.
+
+| | Stripe | JSON key | Worker | MailerLite group | Workflow |
+|---|---|---|---|---|---|
+| Production | live | `href` | `bandincc-stripe` | real subscribers | `deploy.yml` (`stripe-mode: live`) |
+| Staging | test | `hrefTest` | `bandincc-stripe-test` | throwaway | `netlify-deploy.yml` (`stripe-mode: test`) |
+
+- `lib/subscription.ts` → `stripeHref(link, mode)` picks the URL;
+  `currentStripeMode()` defaults to **`live`**, and that direction is deliberate.
+  A build that loses the variable falls back to the placeholder state on staging
+  (visible, harmless); the reverse would put a test checkout on the real domain.
+- An empty slot never falls through to the *other* mode — it resolves to a
+  `TODO_` URL and renders "Attivazione a breve".
+- `isTestModeLink()` keys on Stripe's `test_` path segment
+  (`buy.stripe.com/test_…`, `billing.stripe.com/p/login/test_…`). Host cannot
+  tell the modes apart, so that segment is the only discriminator a static build
+  has.
+- **The gate is `subscription.cy.ts`, not the build.** `e2e.yml` passes
+  `STRIPE_MODE` to *both* the build and the test run, and the spec resolves the
+  links for that mode and then looks for those exact hrefs in the DOM — so a
+  mode/link mismatch, or the two steps disagreeing, fails the suite before either
+  deploy job starts.
+- `/abbonamento` renders an amber "ambiente di prova" banner in test mode only.
+  Test checkout is otherwise indistinguishable from the real thing, redirect
+  included.
+
+Still `TODO_` and needed before staging can actually sell anything: the test
+Payment Links and portal link in `locales/it.json` (`hrefTest`), and
+`MAILERLITE_GROUP_ID` under `[env.test.vars]` in `wrangler.toml`.
+
+---
+
 ## 🚨 Hard blocker — nothing goes live until this is done
 
 **Non-Union OSS registration is NOT in place.** A Swiss company selling a
@@ -240,8 +277,14 @@ restriction. Accepted risk for now (see above).
   **DNS stays at IONOS** — that zone carries the MailerLite DKIM/SPF records and
   the DMARC policy, and moving it for a prettier hostname risks newsletter
   deliverability for nothing.
-- **Live MailerLite group for testing, no test group** — the only addresses
-  involved are already on the list, so `grant` is a no-op upsert.
+- ~~**Live MailerLite group for testing, no test group**~~ — **reversed
+  2026-08-05.** It held while testing meant a handful of manual `stripe trigger`
+  calls against addresses already on the list. It stops holding now that staging
+  runs a full test-mode checkout funnel on every deploy: those checkouts carry
+  whatever address the tester types, and a live group is not the place for them.
+  Staging now has its own group (see "Staging runs Stripe test mode"). The
+  pleasant side effect is that the revoke test no longer removes anyone from the
+  real newsletter.
 - **Entitlement = group membership.** Stripe only adds and removes; the send
   pipeline knows nothing about Stripe and needs no edit.
 - **Unsubscribe cancels immediately, not at period end.** At period end the
@@ -278,13 +321,17 @@ restriction. Accepted risk for now (see above).
   there before concluding an event never arrived.
 - **A `200` in Stripe's event log is not proof.** Check the MailerLite group
   directly; the group is what actually gets sent to.
-- **Grant path: real checkouts only.** Never `stripe trigger
-  checkout.session.completed` — its fixture invents an email that would join the
-  live list and hard-bounce on the next campaign, exactly the sender-reputation
-  damage §8e warns about. `stripe trigger` is fine for update/delete, where a
-  fixture email just 404s on lookup.
-- **The cancel test really removes you from the live newsletter.** Re-add
-  yourself and the colleague or you will silently miss a real send.
+- **Grant path against the LIVE Worker: real checkouts only.** Never `stripe
+  trigger checkout.session.completed` there — its fixture invents an email that
+  would join the live list and hard-bounce on the next campaign, exactly the
+  sender-reputation damage §8e warns about. `stripe trigger` is fine for
+  update/delete, where a fixture email just 404s on lookup. Against
+  `bandincc-stripe-test` the restriction lifts: fixture addresses land in the
+  throwaway group, which no campaign sends to.
+- **The cancel test really removes you from the live newsletter** — when run
+  against the production Worker. Re-add yourself and the colleague or you will
+  silently miss a real send. Against `--env test` it only touches the throwaway
+  group, which is the point of having one.
 - **Cancel *immediately*, not at period end, when testing revoke.** At period end
   the status stays `active` and no revoke fires — correct behaviour that looks
   exactly like a broken Worker.

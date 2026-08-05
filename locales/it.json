@@ -179,7 +179,8 @@
           "period": "al mese",
           "note": "IVA inclusa. Rinnovo automatico, disdici quando vuoi.",
           "cta": "Abbonati – 5,90 €/mese",
-          "href": "https://buy.stripe.com/TODO_PAYMENT_LINK_MENSILE?locale=it"
+          "href": "https://buy.stripe.com/TODO_PAYMENT_LINK_MENSILE?locale=it",
+          "hrefTest": "https://buy.stripe.com/test_cNi14namu0kOaTH4fXfEk00?locale=it"
         },
         {
           "id": "annuale",
@@ -190,6 +191,7 @@
           "note": "IVA inclusa. Equivale a 4,92 € al mese: risparmi il 17% rispetto al mensile.",
           "cta": "Abbonati – 59 €/anno",
           "href": "https://buy.stripe.com/TODO_PAYMENT_LINK_ANNUALE?locale=it",
+          "hrefTest": "https://buy.stripe.com/test_28EaEX8emc3w9PDfYFfEk01?locale=it",
           "highlight": true
         }
       ],
@@ -200,8 +202,10 @@
         "heading": "Hai già un abbonamento?",
         "description": "Dal portale clienti Stripe puoi aggiornare il metodo di pagamento, scaricare le ricevute, passare dal mensile all'annuale e disdire. Ti basta l'indirizzo email con cui ti sei abbonato.",
         "cta": "Gestisci abbonamento →",
-        "href": "https://billing.stripe.com/p/login/TODO_PORTAL_LINK"
+        "href": "https://billing.stripe.com/p/login/TODO_PORTAL_LINK",
+        "hrefTest": "https://billing.stripe.com/p/login/test_cNi14namu0kOaTH4fXfEk00"
       },
+      "testModeNotice": "Ambiente di prova: i pagamenti su questa versione del sito passano da Stripe in modalità test e non addebitano nulla. Nessuna carta reale viene accettata.",
       "legal": "Servizio di informazione su bandi pubblici. BandiNCC non gestisce le domande di partecipazione e non ha alcun rapporto con i comuni che pubblicano i bandi. Trattiamo il tuo indirizzo email come descritto nell'Informativa sulla Privacy."
     },
     "grazie": {

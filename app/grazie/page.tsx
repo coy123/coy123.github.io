@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
-import { isPlaceholderLink } from '@/lib/subscription'
+import { isPlaceholderLink, stripeHref } from '@/lib/subscription'
 import HeroCrest from '@/components/HeroCrest'
 import Celebration from '@/components/Celebration'
 
@@ -29,6 +29,10 @@ export const metadata: Metadata = {
 export default function GraziePage() {
   const t = getTranslations()
   const page = t.pages.grazie
+
+  // Test mode on staging, live in production — the same build-time switch
+  // /abbonamento uses, so the two pages can never point at different accounts.
+  const portalHref = stripeHref(t.pages.abbonamento.manage)
 
   return (
     <div className="w-full mx-auto">
@@ -93,10 +97,10 @@ export default function GraziePage() {
           {/* Omitted entirely while the portal link is a placeholder: a dead
               "manage subscription" link is worse than none. See
               lib/subscription.ts. */}
-          {!isPlaceholderLink(t.pages.abbonamento.manage.href) && (
+          {!isPlaceholderLink(portalHref) && (
             <p className="text-sm">
               <a
-                href={t.pages.abbonamento.manage.href}
+                href={portalHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:text-blue-300 transition-colors"

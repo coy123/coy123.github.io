@@ -532,6 +532,43 @@ off `deploy.yml`.
 
 Full state of the payments work: `stripe-worker/STATUS.md`.
 
+## Stripe test mode vs live mode (`STRIPE_MODE`)
+Staging runs Stripe's **test** account so the whole funnel — page → Payment Link
+→ checkout → `/grazie/` → Worker → MailerLite — can be exercised without moving
+money or touching a real subscriber. Production runs live. `output: 'export'`
+means there is no server to branch on a hostname, so the choice is made **at
+build time** from `STRIPE_MODE` (server components only — no `NEXT_PUBLIC_`
+prefix, never in the browser bundle).
+
+Each link in `locales/it.json` carries both URLs: `href` (live) and `hrefTest`
+(test). `lib/subscription.ts` → `stripeHref(link, mode)` picks one;
+`currentStripeMode()` defaults to **`live`**, deliberately — a build that loses
+the variable shows staging the placeholder state, whereas defaulting to `test`
+would let a test checkout reach the real domain, taking a card, charging nobody
+and granting nothing. An empty slot resolves to a `TODO_` URL rather than
+falling through to the other mode.
+
+`isTestModeLink()` keys on Stripe's `test_` path segment
+(`buy.stripe.com/test_…`, `billing.stripe.com/p/login/test_…`): both modes share
+a host, so that segment is the only discriminator a static build has.
+
+**The gate is the Cypress suite, not the build.** `e2e.yml` takes a
+`stripe-mode` input and puts `STRIPE_MODE` on *both* the build step and the test
+step; `deploy.yml` passes `live`, `netlify-deploy.yml` passes `test`.
+`subscription.cy.ts` resolves the links for that mode and then asserts those
+exact hrefs in the DOM, so a mode/link mismatch — or the two steps disagreeing —
+fails the suite before either deploy job runs. That is why `stripeHref` is a
+pure resolver that never throws.
+
+`/abbonamento` renders an amber "ambiente di prova" banner in test mode only;
+test checkout is otherwise indistinguishable from the real thing.
+
+Worker side: two deployments, since a Stripe signing secret is per mode and one
+Worker holds one `STRIPE_WEBHOOK_SECRET` — `bandincc-stripe` (live keys, real
+MailerLite group) and `bandincc-stripe-test` (`wrangler --env test`, test keys,
+throwaway group). Named environments inherit **no** vars or secrets; all four
+secrets must be uploaded again with `--env test`.
+
 ## Affiliate Link
 The home page section about participating in bids contains a Keliweb affiliate link for PEC (certified email): `https://www.keliweb.it/billing/aff.php?aff=6108`. This is in `locales/it.json` within the `pages.home.sections[3].content` markdown string.
 

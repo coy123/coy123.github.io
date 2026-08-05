@@ -118,6 +118,37 @@ one `stripe listen` printed for local use.
 Test mode and live mode are separate: endpoints, keys and signing secrets do not
 copy across. You will do this twice.
 
+### Two Workers, one per Stripe mode
+
+Because a signing secret is per mode and one Worker can hold only one
+`STRIPE_WEBHOOK_SECRET`, test and live get their own deployment:
+
+| | Worker | Stripe | MailerLite group | Built by |
+|---|---|---|---|---|
+| Production | `bandincc-stripe` | live | the real subscriber group | `deploy.yml` → GitHub Pages |
+| Staging | `bandincc-stripe-test` | test | a throwaway group | `netlify-deploy.yml` → Netlify |
+
+```sh
+npm run deploy:test   # wrangler deploy --env test
+npm run tail:test
+```
+
+Secrets and vars are **per environment** and nothing is inherited from the top
+level, so all four secrets go up again with `--env test`:
+
+```sh
+printf '%s' "$MAILERLITE_API_KEY" | npx wrangler secret put MAILERLITE_API_KEY --env test
+```
+
+(The pipe is not optional for that one — see "Known limitation".) The MailerLite
+API key is the *same* key in both environments, since MailerLite has no test
+mode; only `MAILERLITE_GROUP_ID` in `wrangler.toml` differs, and that is what
+keeps a staging checkout out of the real list.
+
+Which mode the *site* links to is a build-time switch, `STRIPE_MODE`, resolved
+in `lib/subscription.ts` and set per workflow. The staging build ships the
+`hrefTest` URLs from `locales/it.json`; production ships `href`.
+
 ## Behaviour
 
 Two routes, opposite directions:

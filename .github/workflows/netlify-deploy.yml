@@ -22,6 +22,11 @@ jobs:
     uses: ./.github/workflows/e2e.yml
     with:
       artifact-name: static-export-netlify
+      # Staging exercises the full funnel — page → Payment Link → checkout →
+      # /grazie/ → Worker → MailerLite — against Stripe's test account and a
+      # throwaway MailerLite group, so no real card is ever charged and no real
+      # subscriber is ever touched. See lib/subscription.ts.
+      stripe-mode: test
 
   # Pull requests stop after `test`. Only a push to staging (or a manual
   # dispatch) is allowed to publish.

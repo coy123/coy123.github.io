@@ -32,6 +32,9 @@ jobs:
     uses: ./.github/workflows/e2e.yml
     with:
       artifact-name: static-export-pages
+      # The real domain, the real money. Stated rather than left to the default
+      # so that anyone reading this file sees which Stripe account it ships.
+      stripe-mode: live
 
   # Pull requests stop after `test`. Only a push to master (or a manual
   # dispatch) is allowed to publish.
