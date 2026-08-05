@@ -288,6 +288,28 @@ export const unsubscribedEmails = (body: unknown): string[] => {
   return emails
 }
 
+// `list` and `cancel` are two round trips with a gap between them, and a
+// subscription can reach a terminal state inside that gap: a concurrent
+// canceller, a redelivery of the same unsubscribe, a batched payload naming the
+// address twice, or the customer clicking unsubscribe in two tabs. Stripe
+// reports a cancel against an already-cancelled subscription as `resource_missing`
+// — "No such subscription: sub_…" — even though the object is still retrievable.
+//
+// Observed for real on 2026-08-05: while `bandincc-stripe` still carried test
+// keys, both MailerLite webhooks reached the same test account and raced. The
+// cancellation succeeded, and the loser still returned 500.
+//
+// Within this function the id came from a `list` on this same account moments
+// earlier, so `resource_missing` cannot mean "wrong id" or "wrong mode" — it can
+// only mean the subscription is already in the state we wanted. Anything else
+// still throws: `/mailerlite` answering 200 to a genuine failure would drop a
+// cancellation permanently and leave someone paying for a newsletter they have
+// unsubscribed from.
+const alreadyCancelled = (err: unknown): boolean => {
+  const stripeError = err as { code?: string; statusCode?: number } | null | undefined
+  return stripeError?.code === 'resource_missing' || stripeError?.statusCode === 404
+}
+
 const cancelSubscriptionsFor = async (stripe: Stripe, email: string): Promise<number> => {
   // One email can map to several Stripe customers (a repeat buyer who checked
   // out twice), so every match is swept, not just the first.
@@ -303,7 +325,18 @@ const cancelSubscriptionsFor = async (stripe: Stripe, email: string): Promise<nu
 
     for (const subscription of subscriptions.data) {
       if (TERMINAL.has(subscription.status)) continue
-      await stripe.subscriptions.cancel(subscription.id)
+
+      try {
+        await stripe.subscriptions.cancel(subscription.id)
+      } catch (err) {
+        if (!alreadyCancelled(err)) throw err
+        // Someone else got there first. The desired state holds, so this is a
+        // no-op, not a failure — and it is deliberately not counted, since
+        // `cancelled` reports what THIS call changed.
+        console.log(`${subscription.id} for ${email} was already cancelled elsewhere`)
+        continue
+      }
+
       cancelled += 1
       console.log(`Cancelled ${subscription.id} for ${email} (was ${subscription.status})`)
     }

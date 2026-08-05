@@ -115,19 +115,27 @@ form exists. Revisit when someone actually complains — see "Deferred" below.
 
 ## → Resume here
 
-**1. Verify the unsubscribe → cancel path once.** `MAILERLITE_WEBHOOK_SECRET`
-went in on 2026-08-04, *after* the 2026-08-03 test round, so `POST /mailerlite`
-has never been exercised end to end. It is the one payment-adjacent path with no
-live evidence behind it, and MailerLite **disables a webhook after 3 days of
-non-2xx**, so a wrong secret ends with the integration quietly switching itself
-off.
+**1. ~~Verify the unsubscribe → cancel path once.~~ DONE 2026-08-05** — the
+faithful test, on staging: a real campaign to the test group, `{$unsubscribe}`
+clicked by a real subscriber. Stripe went `canceled`, MailerLite went
+`unsubscribed` with no groups, and both webhooks sit at `response_code=200,
+enabled=true`. Both directions of the integration now have live evidence behind
+them.
 
-- Click `{$unsubscribe}` in a campaign as a test subscriber
-- Expect: the Stripe subscription cancels immediately; `npm run tail` logs it;
-  MailerLite → Integrations → Webhooks shows a 2xx in the delivery history
+One thing surfaced and is fixed in `src/index.ts`: because `bandincc-stripe`
+still carries **test** keys, both MailerLite webhooks reached the same test
+Stripe account and raced to cancel the same subscription. The winner succeeded;
+the loser's `subscriptions.cancel` hit an already-cancelled subscription, which
+Stripe reports as `resource_missing`, and `/mailerlite` returned 500.
+`cancelSubscriptionsFor` now treats that as the no-op it is — the same tolerance
+`revoke()` already had for its 404 — and still throws on anything else. **Needs
+`npm run deploy:test` and `npm run deploy` to actually ship.**
 
-`wrangler secret put` republishes the Worker itself, so **no redeploy is needed**
-after setting the secret.
+The race disappears at live cutover (the production Worker will look in the live
+account and find nothing), but the fix stands on its own: a redelivery, a batched
+payload naming an address twice, or a double click produce the same collision,
+and a 5xx on `/mailerlite` is the expensive kind of wrong — MailerLite
+**disables a webhook after 3 days of non-2xx**.
 
 **2. Finish live mode** — product, prices, Payment Links, portal config, Stripe
 webhook endpoint, MailerLite webhook. **None of it copies from test.** Swap in
@@ -174,8 +182,8 @@ deployed 2026-08-03, endpoint registered in test mode, all four secrets set
 - `POST /mailerlite` — unsubscribe cancels the Stripe subscription immediately
 
 Verified against the deployed Worker on 2026-08-03: grant, revoke, signature
-rejection, `preferred_locales`. **Not yet verified: unsubscribe → cancel** (see
-"Resume here").
+rejection, `preferred_locales`. **Unsubscribe → cancel verified 2026-08-05** on
+the staging/test pair, via a real campaign and a real `{$unsubscribe}` click.
 
 **Step 6 — site changes (2026-08-04).** All copy in `locales/it.json`, nothing
 hardcoded in a component:
@@ -231,7 +239,8 @@ Nothing outstanding.
 
 ## Remaining
 
-1. Verify unsubscribe → cancel (never tested — "Resume here" 1).
+1. ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging ("Resume here" 1).
+   Redeploy both Workers to ship the `resource_missing` fix that test produced.
 2. Finish live mode: portal config, webhook endpoint + signing secret, MailerLite
    webhook ("Resume here" 2). The live Payment Links already exist.
 3. Paste the three live Stripe URLs into `locales/it.json` ("Resume here" 3).
