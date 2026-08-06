@@ -532,8 +532,9 @@ off `deploy.yml`.
 
 Full state of the payments work: `stripe-worker/STATUS.md`. Its
 **"→ Resume here — the go-live runbook"** is the canonical answer to "what is
-left to do?" — ten ordered steps. Read it before answering that question, and
-verify anything it claims is done rather than restating it blind.
+left to do?" — twelve ordered steps, starting with the OSS registration. Read it
+before answering that question, and verify anything it claims is done rather than
+restating it blind.
 
 ## Stripe test mode vs live mode (`STRIPE_MODE`)
 Staging runs Stripe's **test** account so the whole funnel — page → Payment Link

@@ -7,8 +7,8 @@ next, and what not to re-litigate". Delete it once payments are live.
 **Where things stand:** the Worker is deployed and fully configured, both
 directions. The site pages are **live on staging** and the whole test-mode funnel
 works there end to end; `master` is deliberately held back (see "Remaining" 6).
-The **live-mode** Stripe URLs are still placeholders. What is left is the
-live-mode cutover and the OSS registration.
+The **live-mode** Stripe URLs are still placeholders. What is left is the OSS
+registration, the tax configuration in Stripe, and the live-mode cutover.
 
 ---
 
@@ -91,7 +91,8 @@ for a non-EU seller there is **no threshold** — VAT is due from the very first
 EU subscriber. Register in one member state, file quarterly; needs a Swiss/EU
 VAT accountant. **This is the long-lead item — it runs on someone else's
 turnaround, so it should be in flight before the remaining engineering, not
-after.**
+after.** It is **runbook step 1**: the owner does it personally and reports back,
+and it stays in every status answer until they do.
 
 ### "Can I start charging now and sort the tax out later?" (asked 2026-08-04)
 
@@ -142,9 +143,11 @@ subscriber base is zero, and the failure is loud rather than silent.
 
 ## → Resume here — the go-live runbook
 
-**This is the answer to "what is left to do?". Give these ten steps, in this
+**This is the answer to "what is left to do?". Give these twelve steps, in this
 order, and check nothing else is stale before answering.** OSS registration is
-being handled by the owner directly and is tracked below, not in this list.
+step 1 and **must be listed every time** (revoked 2026-08-06 — it was previously
+suppressed from status answers). The owner does that step personally and will say
+when it is done; until then it stays in the list.
 
 **A hard ordering constraint to state first:** both live Payment Links redirect to
 `https://www.bandincc.it/grazie/`, and **`/grazie/` does not exist on `master`**
@@ -153,27 +156,78 @@ So the real charge has to come *after* the merge, not before.
 
 ---
 
-**1. Live product + prices.** In Stripe **live** mode, confirm or create one
+**1. Non-Union OSS registration.** The hard blocker — see the section above for
+why there is no threshold for a non-EU seller and why "charge now, file later"
+hangs on a deadline measured in days. **The owner handles this personally and
+will report when it is done; nobody else can move it.** It is the long-lead item,
+so it should be in flight while the rest of the runbook is worked, and nothing
+below step 11 can actually go live without it. Two questions worth putting to the
+accountant in the same conversation, because steps 2–3 depend on the answers:
+whether tax-inclusive pricing is the right call for a mixed B2C/B2B book, and how
+reverse-charge B2B revenue gets declared alongside the OSS return.
+
+**2. Live product + prices.** In Stripe **live** mode, confirm or create one
 product with two recurring prices — €5.90/month, €59/year, EUR, **tax behaviour
 inclusive**. Nothing copies from test. Inclusive is irreversible per price:
 getting it wrong means new prices and re-issued Payment Links.
 
-**2. Verify the two live Payment Links.** They already exist (created 2026-08-04,
+**3. Tax configuration — make Stripe distinguish business from private
+customers.** As a Swiss (non-EU) seller: a B2C sale into the EU carries the
+customer's national VAT rate, but a sale to an EU **business** with a valid VAT
+number is **reverse charge — no VAT is charged at all**, and those supplies fall
+outside OSS entirely (they are not on the OSS return). Stripe cannot tell the two
+apart unless it is told to ask. Do all of this **before** step 4 locks the links:
+
+- **Enable Stripe Tax** in live mode and add the OSS registration to it, so
+  `automatic_tax` applies each member state's rate. Decided 2026-08-06 in
+  preference to computing VAT by hand — see "Stripe Tax vs. doing it by hand"
+  below for the numbers behind that.
+- **Turn on Tax ID collection** on both live Payment Links *and* the test pair,
+  so staging exercises both paths. With Stripe Tax on, a supplied VAT number is
+  zero-rated as reverse charge and the subscription invoice carries the number
+  and the reverse-charge treatment.
+- **Set billing address collection to required** on all four links. Needed for
+  rate determination, and as a non-EU seller you want two non-contradictory
+  pieces of place-of-supply evidence — billing country plus the card issuer
+  country in `charge.payment_method_details.card.country`.
+- **Set `automatic_tax` on the test links too**, and re-run the staging funnel
+  once: a tax line appearing mid-checkout is exactly the kind of change that
+  makes an otherwise-passing Payment Link behave differently.
+- Then **confirm both live prices still read `inclusive`** — see the trade-off
+  below; changing it later means new prices and re-issued links, i.e. redoing
+  steps 2 and 4.
+
+Three consequences to be aware of rather than surprised by:
+
+- **Inclusive pricing means a business customer pays the same €5.90.** The
+  consumer's €5.90 is gross of e.g. 22% Italian VAT; the reverse-charge business
+  pays €5.90 with no VAT in it and we keep the difference. If a business should
+  instead *pay less*, prices must be **exclusive** — irreversible per price.
+- **The tax ID field is optional for the buyer.** Anyone who leaves it blank is
+  charged as a consumer. Safe failure direction, but some businesses will pay VAT
+  they could have avoided. Note this audience is largely `partita IVA` holders,
+  so B2B may be the majority of the book, not an edge case.
+- **Stripe Tax is billed per transaction, including renewals and including
+  zero-tax (reverse-charge) ones** — 0.5%, so ~€0.03 on €5.90. Budget ~€3/month
+  per 100 monthly subscribers. It does **not** file anything; the OSS return is
+  still ours.
+
+**4. Verify the two live Payment Links.** They already exist (created 2026-08-04,
 redirect set). For each, confirm **After payment → Redirect** is
 `https://www.bandincc.it/grazie/` **with the trailing slash** — the site is
 `trailingSlash: true`, and the test-mode pair disagree with each other, so the
 live pair may too. Copy both URLs.
 
-**3. Live customer portal config.** Enable it in live mode, allow monthly↔annual
+**5. Live customer portal config.** Enable it in live mode, allow monthly↔annual
 switching and cancellation, copy the portal login URL.
 
-**4. Live Stripe webhook endpoint.** Register
+**6. Live Stripe webhook endpoint.** Register
 `https://bandincc-stripe.bandincc.workers.dev/` in **live** mode for exactly three
 events: `checkout.session.completed`, `customer.subscription.updated`,
 `customer.subscription.deleted`. Copy the `whsec_…`. This is a *third* distinct
 signing secret — not the `stripe listen` one, not the test endpoint's.
 
-**5. Swap the production Worker's secrets.** `bandincc-stripe` still carries
+**7. Swap the production Worker's secrets.** `bandincc-stripe` still carries
 **test** Stripe keys — it was the original test deployment and only became
 "production" when `--env test` was added:
 
@@ -185,17 +239,17 @@ printf '%s' "$LIVE_WHSEC"      | npx wrangler secret put STRIPE_WEBHOOK_SECRET
 No `--env`. Leave both `MAILERLITE_*` secrets alone. `secret put` republishes the
 Worker, so no deploy is owed after.
 
-**6. Check the MailerLite side of production.** STATUS is ambiguous here — one
+**8. Check the MailerLite side of production.** STATUS is ambiguous here — one
 line lists "live MailerLite webhook" as outstanding, another says webhook
 `194877758477698574` and its secret are already correct. Verify rather than
 assume: the webhook targets `…workers.dev/mailerlite`, and `MAILERLITE_GROUP_ID`
 in `[vars]` is the real subscriber group `193718534342181983`.
 
-**7. Paste the three live URLs** into `locales/it.json` → `pages.abbonamento`,
+**9. Paste the three live URLs** into `locales/it.json` → `pages.abbonamento`,
 the **`href`** keys (not `hrefTest`), each keeping `?locale=it`. Deleting the
 `TODO_` markers is what arms the buy buttons.
 
-**8. Run the suite locally with `STRIPE_MODE=live` before merging.** This one
+**10. Run the suite locally with `STRIPE_MODE=live` before merging.** This one
 matters: `netlify-deploy.yml` passes `stripe-mode: test`, so staging asserts
 `hrefTest` and will stay green no matter what you pasted into `href`. The live
 contract (https, `buy.stripe.com`, `locale=it`, `target=_blank`) is first
@@ -203,12 +257,14 @@ exercised by `deploy.yml` — *on master*. A malformed live URL therefore fails 
 master deploy, and the newsletter chains off that deploy. Build and run
 `test:e2e:static` with `STRIPE_MODE=live` locally first.
 
-**9. Merge to `master`.** Re-check `data/` parity immediately before (identical at
+**11. Merge to `master`.** Re-check `data/` parity immediately before (identical at
 90/90 as of 2026-08-06) — `newsletter.yml` diffs against the `newsletter-sent`
 tag and would mail the whole backlog as one campaign. This merge is the launch:
 it publishes `/abbonamento/`, `/grazie/`, the three ad slots and the footer link.
 
-**10. One real €5.90 charge on your own card, then refund.** Now `/grazie/`
+**12. One real €5.90 charge on your own card, then refund.** Do not reach this
+step with step 1 unfinished: the merge in step 11 opens the page to real EU
+buyers, and the first of those is a supply that OSS has to cover. Now `/grazie/`
 exists, so the full path is real: checkout → redirect → webhook → MailerLite.
 Then verify directly in the live group — **a 200 in Stripe's event log is not
 proof**. Note the revoke half genuinely removes you from the live newsletter, so
@@ -246,13 +302,51 @@ payload naming an address twice, or a double click produce the same collision,
 and a 5xx on `/mailerlite` is the expensive kind of wrong — MailerLite
 **disables a webhook after 3 days of non-2xx**.
 
-**Why `?locale=it` is not optional** (runbook step 7): without it Stripe renders
+**Why `?locale=it` is not optional** (runbook step 9): without it Stripe renders
 checkout in the *browser's* language, and a fair share of this audience runs an
 English-configured browser. The suite enforces it once the URLs are real.
 
 **OSS registration** — the blocker described above. Must exist before live
-payments. **Being handled by the owner directly**; it is not part of the runbook
-and does not need to be raised in status answers.
+payments. **Being handled by the owner directly, who will say when it is done.**
+It is **runbook step 1** and belongs in every status answer until then. (It spent
+2026-08-05 → 2026-08-06 suppressed from those answers on the owner's instruction;
+that instruction was revoked on 2026-08-06.)
+
+---
+
+## Stripe Tax vs. doing it by hand (decided 2026-08-06)
+
+**Use Stripe Tax.** The question asked was whether the VAT could be computed
+in-house to avoid the fee. It can, but not for the reason of cost, and the manual
+route is worse here:
+
+- **The fee is tiny at this price point.** Stripe Tax Basic is **0.5% per
+  transaction**, no monthly fee, charged on the initial invoice *and every
+  renewal*, and charged even when the calculated tax is zero (so reverse-charge
+  B2B costs it too). On €5.90 that is ~€0.03 — about €3/month per 100 monthly
+  subscribers. Fees only apply in jurisdictions with an active registration.
+  Basic does **not** file: the OSS return stays ours. (The plan that files is Tax
+  Complete, from CHF 80/month — far past what this revenue justifies.)
+- **Payment Links cannot use manual tax rates.** Their only tax options are
+  `automatic_tax` (Stripe Tax) or Managed Payments, which is the
+  Merchant-of-Record model already rejected. Tax Rate objects attach only to
+  API-created Checkout Sessions — and even there they don't fit, because the rate
+  depends on a country the buyer types *during* checkout.
+- **So the manual route is "no tax line at all"** — which works, because prices
+  are inclusive: charge €5.90, then back the VAT out per country each quarter
+  (Italy 22% → €4.84 net + €1.06 VAT; margin varies by member state). Nothing in
+  checkout changes. What it costs is ours to build and maintain: a rate table, a
+  per-country quarterly report over Stripe data, a documented rule for when the
+  billing country and the card issuer country disagree, and manual VAT invoices
+  with reverse-charge wording for what may be a majority-B2B book.
+- `tax_id_collection` and VIES validation are **not** gated on Stripe Tax — they
+  are Checkout/Billing features (`customer.tax_id.updated` fires with the VIES
+  result), so a manual route could still collect and validate VAT numbers for
+  free. What it would lose is automatic zero-rating and, more importantly, the
+  invoice that states it.
+
+Revisit at scale: at ~10,000 subscribers the fee is ~€350/month and writing the
+reporting script starts to pay for itself.
 
 ---
 
@@ -333,14 +427,15 @@ Nothing outstanding.
 
 ## Remaining
 
-**The work is the ten-step runbook in "→ Resume here" above — that is the list,
-don't restate it here.** Two standing items that sit outside it:
+**The work is the twelve-step runbook in "→ Resume here" above — that is the list,
+don't restate it here.** OSS registration is no longer outside that list — it is
+step 1, done by the owner personally, and it gets named in every status answer
+until the owner says it is finished. One standing item:
 
-- **OSS registration** — handled by the owner directly, outside this repo.
 - ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging. ~~Redeploy both
   Workers~~ — both shipped 2026-08-05 with the `resource_missing` fix.
 
-And the reasoning behind runbook step 9, which is worth not re-litigating:
+And the reasoning behind runbook step 11, which is worth not re-litigating:
 
 - **Merge to `master` — this is the launch, and it happens LAST** (decided
   2026-08-05). It was listed as independent of the rest because the placeholder
@@ -391,7 +486,9 @@ And the reasoning behind runbook step 9, which is worth not re-litigating:
 - **One product, two prices.** Two products would split reporting, break
   monthly↔annual switching in the portal, and force the webhook to know two ids.
 - **Tax behaviour inclusive**, and **irreversible per price** — changing it means
-  new prices and re-issued Payment Links.
+  new prices and re-issued Payment Links. Open only against runbook step 3: with
+  inclusive pricing a reverse-charge business customer pays the same €5.90 as a
+  consumer, and we keep the VAT difference rather than passing it on.
 - **No free trial** at this price point; it mostly attracts card testing.
 - **Cloudflare Worker as the host.** GH Pages is static, Netlify is staging-only.
   **DNS stays at IONOS** — that zone carries the MailerLite DKIM/SPF records and
