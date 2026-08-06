@@ -808,5 +808,14 @@
         "image": "https://upload.wikimedia.org/wikipedia/it/2/2b/Anfo-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "latitude": "45.7666",
         "longitude": "10.5"
+    },
+    {
+        "location": "Comune di Cossogno (VB)",
+        "deadline": "2026-09-04",
+        "url": "https://www.comune.cossogno.vb.it/Dettaglionews?IDNews=410339",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/it/e/e0/Cossogno-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "45.96361",
+        "longitude": "8.5091666"
     }
 ]
