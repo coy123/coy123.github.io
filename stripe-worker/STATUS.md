@@ -1,19 +1,20 @@
-# Payments — status and TODOs (last updated 2026-08-04)
+# Payments — status and TODOs (last updated 2026-08-06)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
 next, and what not to re-litigate". Delete it once payments are live.
 
 **Where things stand:** the Worker is deployed and fully configured, both
-directions. The site pages exist in the repo but have not deployed yet, and
-carry placeholder Stripe URLs. What is left is the live-mode cutover and the
-OSS registration.
+directions. The site pages are **live on staging** and the whole test-mode funnel
+works there end to end; `master` is deliberately held back (see "Remaining" 6).
+The **live-mode** Stripe URLs are still placeholders. What is left is the
+live-mode cutover and the OSS registration.
 
 ---
 
-## ⚠️ Read first — the Stripe URLs on the site are placeholders
+## ⚠️ Read first — the LIVE Stripe URLs on the site are placeholders
 
-`locales/it.json` → `pages.abbonamento` holds three Stripe URLs, all still
+`locales/it.json` → `pages.abbonamento` holds three live Stripe URLs, all still
 `TODO_…`:
 
 | Key | Needs |
@@ -22,10 +23,12 @@ OSS registration.
 | `plans[1].href` | the **live** annual Payment Link + `?locale=it` |
 | `manage.href` | the **live** customer-portal login URL |
 
+Their `hrefTest` counterparts are all real — test mode is fully wired, see below.
+
 `lib/subscription.ts` → `isPlaceholderLink()` detects the `TODO_` marker, and
 `/abbonamento/` then renders the price cards with a greyed-out "Attivazione a
 breve" instead of a button, while `/grazie/` drops its portal link. So the page
-is safe to deploy as it is — it just cannot sell anything yet.
+is safe to deploy as it is — it just cannot sell anything on the live domain yet.
 
 This was deliberate: asserting the real shape in the test suite would have gone
 red until the URLs were pasted, and a red suite blocks *every* deploy, including
@@ -67,9 +70,16 @@ hostname: the choice is made at build time from **`STRIPE_MODE`**.
   Test checkout is otherwise indistinguishable from the real thing, redirect
   included.
 
-Still `TODO_` and needed before staging can actually sell anything: the test
-Payment Links and portal link in `locales/it.json` (`hrefTest`), and
-`MAILERLITE_GROUP_ID` under `[env.test.vars]` in `wrangler.toml`.
+**Test mode is fully wired (done 2026-08-05/06).** All three `hrefTest` values in
+`locales/it.json` are real test-mode links carrying `?locale=it`, and
+`[env.test.vars]` in `wrangler.toml` holds the throwaway group
+(`194986214311330839`). Nothing on the test side is a placeholder any more — the
+`TODO_` markers that remain are all in the **live** `href` keys.
+
+The test portal link's id happens to be byte-identical to the monthly Payment
+Link's (`test_cNi14namu0kOaTH4fXfEk00`). That is not a copy-paste slip — checked
+2026-08-06, `billing.stripe.com/p/login/test_cNi14namu0kOaTH4fXfEk00?locale=it`
+serves the real BandiNCC portal login. Don't "fix" it.
 
 ---
 
@@ -130,9 +140,90 @@ subscriber base is zero, and the failure is loud rather than silent.
 
 ---
 
-## → Resume here
+## → Resume here — the go-live runbook
 
-**1. ~~Verify the unsubscribe → cancel path once.~~ DONE 2026-08-05** — the
+**This is the answer to "what is left to do?". Give these ten steps, in this
+order, and check nothing else is stale before answering.** OSS registration is
+being handled by the owner directly and is tracked below, not in this list.
+
+**A hard ordering constraint to state first:** both live Payment Links redirect to
+`https://www.bandincc.it/grazie/`, and **`/grazie/` does not exist on `master`**
+(neither does `/abbonamento/`). Until the merge, a live checkout ends on a 404.
+So the real charge has to come *after* the merge, not before.
+
+---
+
+**1. Live product + prices.** In Stripe **live** mode, confirm or create one
+product with two recurring prices — €5.90/month, €59/year, EUR, **tax behaviour
+inclusive**. Nothing copies from test. Inclusive is irreversible per price:
+getting it wrong means new prices and re-issued Payment Links.
+
+**2. Verify the two live Payment Links.** They already exist (created 2026-08-04,
+redirect set). For each, confirm **After payment → Redirect** is
+`https://www.bandincc.it/grazie/` **with the trailing slash** — the site is
+`trailingSlash: true`, and the test-mode pair disagree with each other, so the
+live pair may too. Copy both URLs.
+
+**3. Live customer portal config.** Enable it in live mode, allow monthly↔annual
+switching and cancellation, copy the portal login URL.
+
+**4. Live Stripe webhook endpoint.** Register
+`https://bandincc-stripe.bandincc.workers.dev/` in **live** mode for exactly three
+events: `checkout.session.completed`, `customer.subscription.updated`,
+`customer.subscription.deleted`. Copy the `whsec_…`. This is a *third* distinct
+signing secret — not the `stripe listen` one, not the test endpoint's.
+
+**5. Swap the production Worker's secrets.** `bandincc-stripe` still carries
+**test** Stripe keys — it was the original test deployment and only became
+"production" when `--env test` was added:
+
+```
+printf '%s' "$LIVE_SECRET_KEY" | npx wrangler secret put STRIPE_SECRET_KEY
+printf '%s' "$LIVE_WHSEC"      | npx wrangler secret put STRIPE_WEBHOOK_SECRET
+```
+
+No `--env`. Leave both `MAILERLITE_*` secrets alone. `secret put` republishes the
+Worker, so no deploy is owed after.
+
+**6. Check the MailerLite side of production.** STATUS is ambiguous here — one
+line lists "live MailerLite webhook" as outstanding, another says webhook
+`194877758477698574` and its secret are already correct. Verify rather than
+assume: the webhook targets `…workers.dev/mailerlite`, and `MAILERLITE_GROUP_ID`
+in `[vars]` is the real subscriber group `193718534342181983`.
+
+**7. Paste the three live URLs** into `locales/it.json` → `pages.abbonamento`,
+the **`href`** keys (not `hrefTest`), each keeping `?locale=it`. Deleting the
+`TODO_` markers is what arms the buy buttons.
+
+**8. Run the suite locally with `STRIPE_MODE=live` before merging.** This one
+matters: `netlify-deploy.yml` passes `stripe-mode: test`, so staging asserts
+`hrefTest` and will stay green no matter what you pasted into `href`. The live
+contract (https, `buy.stripe.com`, `locale=it`, `target=_blank`) is first
+exercised by `deploy.yml` — *on master*. A malformed live URL therefore fails the
+master deploy, and the newsletter chains off that deploy. Build and run
+`test:e2e:static` with `STRIPE_MODE=live` locally first.
+
+**9. Merge to `master`.** Re-check `data/` parity immediately before (identical at
+90/90 as of 2026-08-06) — `newsletter.yml` diffs against the `newsletter-sent`
+tag and would mail the whole backlog as one campaign. This merge is the launch:
+it publishes `/abbonamento/`, `/grazie/`, the three ad slots and the footer link.
+
+**10. One real €5.90 charge on your own card, then refund.** Now `/grazie/`
+exists, so the full path is real: checkout → redirect → webhook → MailerLite.
+Then verify directly in the live group — **a 200 in Stripe's event log is not
+proof**. Note the revoke half genuinely removes you from the live newsletter, so
+re-add yourself and the colleague afterwards.
+
+Two things to keep in mind while testing: never run `stripe trigger
+checkout.session.completed` against the live Worker (its fixture invents an email
+that joins the live list and hard-bounces), and stop any `stripe listen` first or
+every event gets handled twice.
+
+---
+
+## Background to the runbook
+
+**~~Verify the unsubscribe → cancel path once.~~ DONE 2026-08-05** — the
 faithful test, on staging: a real campaign to the test group, `{$unsubscribe}`
 clicked by a real subscriber. Stripe went `canceled`, MailerLite went
 `unsubscribed` with no groups, and both webhooks sit at `response_code=200,
@@ -145,8 +236,9 @@ Stripe account and raced to cancel the same subscription. The winner succeeded;
 the loser's `subscriptions.cancel` hit an already-cancelled subscription, which
 Stripe reports as `resource_missing`, and `/mailerlite` returned 500.
 `cancelSubscriptionsFor` now treats that as the no-op it is — the same tolerance
-`revoke()` already had for its 404 — and still throws on anything else. **Needs
-`npm run deploy:test` and `npm run deploy` to actually ship.**
+`revoke()` already had for its 404 — and still throws on anything else. **Shipped 2026-08-05 to
+both Workers** (`npm run deploy:test` + `npm run deploy`); the only change to
+`src/index.ts` since is a comment, so neither owes a redeploy.
 
 The race disappears at live cutover (the production Worker will look in the live
 account and find nothing), but the fix stands on its own: a redelivery, a batched
@@ -154,28 +246,13 @@ payload naming an address twice, or a double click produce the same collision,
 and a 5xx on `/mailerlite` is the expensive kind of wrong — MailerLite
 **disables a webhook after 3 days of non-2xx**.
 
-**2. Finish live mode** — product, prices, Payment Links, portal config, Stripe
-webhook endpoint, MailerLite webhook. **None of it copies from test.** Swap in
-the live keys and the live signing secret (`npx wrangler secret put`, then
-`npm run deploy`).
-
-Partly done already: the **After payment → Redirect** to
-`https://www.bandincc.it/grazie/` was set on both the test and the live Payment
-Links on 2026-08-04, so live Payment Links exist and their URLs can be pasted
-into the site now (step 3). What is unconfirmed is the rest of the live-mode
-setup — portal config, the live webhook endpoint and its signing secret, and the
-live MailerLite webhook.
-
-**3. Paste the three live URLs** into `locales/it.json` (see "Read first"). The
-`?locale=it` on both Payment Links is not optional — without it Stripe renders
+**Why `?locale=it` is not optional** (runbook step 7): without it Stripe renders
 checkout in the *browser's* language, and a fair share of this audience runs an
 English-configured browser. The suite enforces it once the URLs are real.
 
-**4. One real €5.90 charge** on your own card, refunded — the end-to-end proof
-that checkout → redirect → webhook → MailerLite group works on live keys. The
-redirect half of this step is already done (see step 2).
-
-**5. OSS registration** — the blocker above. Must exist before live payments.
+**OSS registration** — the blocker described above. Must exist before live
+payments. **Being handled by the owner directly**; it is not part of the runbook
+and does not need to be raised in status answers.
 
 ---
 
@@ -256,37 +333,30 @@ Nothing outstanding.
 
 ## Remaining
 
-1. ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging ("Resume here" 1).
-   ~~Redeploy both Workers~~ — both shipped 2026-08-05 with the
-   `resource_missing` fix.
-2. Finish live mode: portal config, live webhook endpoint + its signing secret,
-   live MailerLite webhook ("Resume here" 2). The live Payment Links already
-   exist. **`bandincc-stripe` still carries TEST Stripe secrets** — it was the
-   original test deployment and only became "production" when `--env test` was
-   added, so `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` both need swapping
-   there. Its MailerLite webhook (`194877758477698574`) and
-   `MAILERLITE_WEBHOOK_SECRET` are already correct and need no change.
-3. Paste the three live Stripe URLs into `locales/it.json` — the **`href`** keys,
-   not `hrefTest` ("Resume here" 3). While checking them, confirm both live
-   Payment Links redirect to `https://www.bandincc.it/grazie/` **with the
-   trailing slash**: the site is `trailingSlash: true`, and the test-mode pair
-   disagree with each other (`/grazie` vs `/grazie/`), so the live pair may too.
-4. One real €5.90 charge on your own card, refunded.
-5. **OSS registration** — the blocker.
-6. **Merge to `master` — this is the launch, and it happens LAST** (decided
-   2026-08-05). It was listed as independent of 2–5 because the placeholder guard
-   makes the pages safe to ship unsold; that is true but beside the point. The
-   subscription pages, the newsletter ads in all three slots and the footer link
-   would announce a product to real visitors weeks before it can take a payment,
-   so `master` stays where it is until live mode works end to end. Staging is
-   green, so when the time comes it is the same tested export going to GitHub
-   Pages — no extra risk from the wait.
+**The work is the ten-step runbook in "→ Resume here" above — that is the list,
+don't restate it here.** Two standing items that sit outside it:
 
-   Checked 2026-08-05: `data/` is **identical** on `master` and `dev` (90 bandi
-   each), so holding master back is not accumulating a newsletter batch. Re-check
-   before merging if the crawler has landed anything since — `newsletter.yml`
-   diffs against the `newsletter-sent` tag and would mail the whole backlog in one
-   campaign.
+- **OSS registration** — handled by the owner directly, outside this repo.
+- ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging. ~~Redeploy both
+  Workers~~ — both shipped 2026-08-05 with the `resource_missing` fix.
+
+And the reasoning behind runbook step 9, which is worth not re-litigating:
+
+- **Merge to `master` — this is the launch, and it happens LAST** (decided
+  2026-08-05). It was listed as independent of the rest because the placeholder
+  guard makes the pages safe to ship unsold; that is true but beside the point.
+  The subscription pages, the newsletter ads in all three slots and the footer
+  link would announce a product to real visitors weeks before it can take a
+  payment, so `master` stays where it is until live mode works end to end.
+  Staging is green, so when the time comes it is the same tested export going to
+  GitHub Pages — no extra risk from the wait.
+
+  Re-checked 2026-08-06: `data/` is still **identical** on `master` and `dev`
+  (90 bandi each), so holding master back is not accumulating a newsletter
+  batch. `staging` and `dev` are the same commit; `master` is 9 behind. Re-check
+  before merging if the crawler has landed anything since — `newsletter.yml`
+  diffs against the `newsletter-sent` tag and would mail the whole backlog in one
+  campaign.
 
 ### Open, low stakes
 
@@ -305,19 +375,12 @@ Nothing outstanding.
   name, no art. 27 representative) — reviewed and accepted as-is on 2026-08-04.
 - **`components/SideAdBanner.tsx`** is dead code, the leftover "EGAF" placeholder
   from the old ad slots. Kept on purpose in case that rail is ever sold.
-
-### Deferred
-
-**A `/grazie/` MailerLite subscribe form**, so a returning unsubscriber can
-re-subscribe themselves right after paying. MailerLite treats a form or landing
-page as an approved reactivation route, which the docs present as the only path
-around the API restriction.
-
-**Deprioritised 2026-08-05**: the API reactivated a plain unsubscriber directly
-(see "Accepted risk" above), so the form is no longer the only route — it is a
-fallback for the bounced/junk cases that remain untested, and for the day
-MailerLite starts enforcing what its docs say. Still worth building eventually;
-no longer the thing standing between a returning customer and their newsletter.
+- **A `/grazie/` MailerLite re-subscribe form — declined 2026-08-06.** Not
+  necessary; do not propose it again. It was only ever a workaround for
+  MailerLite refusing API reactivation, and the API reactivated a plain
+  unsubscriber directly (see "Accepted risk" above). The mitigations that stay:
+  `grant()`'s echoed-status verification, so a refusal is loud, and the
+  "scrivici a info@bandincc.it" line on `/grazie/`.
 
 ---
 

@@ -530,7 +530,10 @@ is written that way on purpose: a test that went red until someone pasted the
 URLs would block every unrelated deploy, and with it the newsletter that chains
 off `deploy.yml`.
 
-Full state of the payments work: `stripe-worker/STATUS.md`.
+Full state of the payments work: `stripe-worker/STATUS.md`. Its
+**"→ Resume here — the go-live runbook"** is the canonical answer to "what is
+left to do?" — ten ordered steps. Read it before answering that question, and
+verify anything it claims is done rather than restating it blind.
 
 ## Stripe test mode vs live mode (`STRIPE_MODE`)
 Staging runs Stripe's **test** account so the whole funnel — page → Payment Link
