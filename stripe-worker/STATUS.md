@@ -1,4 +1,4 @@
-# Payments — status and TODOs (last updated 2026-08-06)
+# Payments — status and TODOs (last updated 2026-08-07)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
@@ -8,7 +8,22 @@ next, and what not to re-litigate". Delete it once payments are live.
 directions. The site pages are **live on staging** and the whole test-mode funnel
 works there end to end; `master` is deliberately held back (see "Remaining" 6).
 The **live-mode** Stripe URLs are still placeholders. What is left is the OSS
-registration, the tax configuration in Stripe, and the live-mode cutover.
+registration, the rest of the tax configuration in Stripe, and the live-mode
+cutover.
+
+Updated 2026-08-07: **step 2 is done** — the live product and both prices were
+already correct, and tax-inclusive pricing plus the newsletter tax code are now
+set as Stripe Tax *account defaults* (reversible) rather than per price
+(irreversible). Stripe Tax itself is already active in live mode with **zero
+registrations**, which is the expected shape until OSS lands. Step 4's redirect
+check also came back clean.
+
+**Step 3 is part-done:** Tax ID collection on and billing address required on all
+four Payment Links; `automatic_tax` deliberately left off until OSS exists. And
+the plan changed shape — selling before the OSS registration is now an accepted,
+costed option (**plan A**, see "If we do sell before OSS lands"), so step 1 no
+longer hard-blocks the merge. It does still gate how long the notification window
+is, which is why the *month* the page opens in now matters.
 
 ---
 
@@ -114,6 +129,48 @@ yet open. Confirm the details with the accountant before relying on any of it �
 this is a reading of the rules, not tax advice. The low-drama version is to keep
 the page in its current unsellable state until the registration exists.
 
+### If we do sell before OSS lands: plan A, not plan B (decided 2026-08-07)
+
+A follow-up question — *can we switch tax collection on in Stripe now and fix the
+invoices later?* — resolves into two different plans with very different
+exposure. **Plan A is the decision.**
+
+- **Plan A — sell with zero registrations declared in Stripe.** Stripe computes
+  0%, invoices show €5.90 with no VAT line. When OSS goes active, the VAT is
+  back-paid out of revenue already collected. Because prices are **inclusive**
+  the buyer pays €5.90 either way, so nothing customer-facing changes; the cost is
+  ~€1.06 of margin per Italian sale, retroactively. **Every document issued stays
+  correct** — there is nothing to fix, only a bill to settle.
+- **Plan B — declare the registration early so Stripe states VAT. Rejected.**
+  Under the EU VAT Directive, **VAT entered on an invoice is owed because it was
+  entered on the invoice** (Art. 203): state it without being entitled to charge
+  it and the full amount is due regardless of intent, and unwinding it needs
+  credit notes and reissuance rather than a quiet edit. It also issues B2B
+  customers invoices carrying a VAT line with no valid VAT number, which they
+  cannot use to deduct input VAT — and this audience is largely `partita IVA`, so
+  that is most of the book, not an edge case.
+
+**"Fix the invoices later" is not available inside Stripe.** `active_from` accepts
+only `now` or a future timestamp, so a later registration cannot recompute or
+reissue anything from before it. Under plan A that costs nothing (the documents
+were never wrong); under plan B every correction is manual, per invoice, outside
+Stripe. That asymmetry is the whole argument.
+
+**The notification deadline is rolling, not a fixed date.** It is keyed to the
+month of the **first supply** — first sale in August → notify by 10 September;
+first sale on 2 September → 10 October. Until `/abbonamento/` is on `master`
+nothing is sellable, so **no clock is running at all**. The trap is that the
+window is *shortest* when sales open late in a month: merging on 30 August could
+leave 11 days, merging on 1 September leaves five or six weeks. **If sales open
+before OSS is granted, open them at the start of a month** — it is free and it
+buys most of the margin for error.
+
+This does not decouple from step 1 as much as it looks: notifying the member
+state of identification presupposes one has been chosen and the application is
+far enough along to file against. Confirm the carve-out and the deadline with the
+accountant before relying on either — as above, a reading of the rules, not tax
+advice.
+
 ### Accepted risk, not a blocker (decided 2026-08-03, softened 2026-08-05)
 
 **Returning unsubscribers cannot be reactivated by API** — this turns out to be
@@ -160,16 +217,56 @@ So the real charge has to come *after* the merge, not before.
 why there is no threshold for a non-EU seller and why "charge now, file later"
 hangs on a deadline measured in days. **The owner handles this personally and
 will report when it is done; nobody else can move it.** It is the long-lead item,
-so it should be in flight while the rest of the runbook is worked, and nothing
-below step 11 can actually go live without it. Two questions worth putting to the
-accountant in the same conversation, because steps 2–3 depend on the answers:
-whether tax-inclusive pricing is the right call for a mixed B2C/B2B book, and how
-reverse-charge B2B revenue gets declared alongside the OSS return.
+so it should be in flight while the rest of the runbook is worked.
 
-**2. Live product + prices.** In Stripe **live** mode, confirm or create one
-product with two recurring prices — €5.90/month, €59/year, EUR, **tax behaviour
-inclusive**. Nothing copies from test. Inclusive is irreversible per price:
-getting it wrong means new prices and re-issued Payment Links.
+**Softened 2026-08-07:** this used to read "nothing below step 11 can go live
+without it". Selling before OSS is granted is now an accepted, costed option —
+but only as **plan A** (zero registrations declared in Stripe, VAT back-paid out
+of inclusive revenue), never plan B, and only with the rolling notification
+deadline understood. See "If we do sell before OSS lands" above; do not re-derive
+that trade-off. One question remains for the
+accountant: how reverse-charge B2B revenue gets declared alongside the OSS
+return. (The other one — whether tax-inclusive pricing is right for a mixed
+B2C/B2B book — was answered **inclusive** on 2026-08-07 and applied; see step 2.)
+
+**Ask the accountant for the *effective date*, not just "it's filed."** Stripe's
+`active_from` on a tax registration accepts only `now` or a **future**
+timestamp — **there is no backdating** (verified against the API reference
+2026-08-07). Any sale that settles before the registration is active gets zero
+tax calculated, permanently; correcting it means rebuilding those invoices by
+hand outside Stripe. That is the mechanical reason step 1 must land before step
+11, on top of the legal one. Once the effective date is known the registration
+can be created ahead of time with `active_from` set to it, and it switches itself
+on — that is the honest version of "set it up before OSS exists". Creating it
+*without* a registration is possible (Stripe verifies nothing) but pointless:
+`/abbonamento/` is not on `master`, so there is nothing to sell yet.
+
+Registering directly with the authority is not the only route — Stripe can
+register on your behalf outside the US via Taxually. Named here as an option
+because it changes the lead time; the choice is the accountant's.
+
+**~~2. Live product + prices.~~ DONE 2026-08-07.** Already existed in live mode
+and needed no changes:
+
+- Product `prod_UyWn4isXcO6DFE` "Abbonamento BandiNCC"
+- `price_1TyZkOGZN5xaIveHNTFjI7F7` — €5.90 EUR/month → link `…fEk00`
+- `price_1TyZlUGZN5xaIveHtakxPrNE` — €59.00 EUR/year → link `…fEk01`
+
+Tax-inclusive was applied **at account level, not per price** — Stripe Tax
+settings now read `defaults.tax_behavior: inclusive` and
+`defaults.tax_code: txcd_10503002` ("Digital other news or documents —
+downloadable — subscription — with conditional rights", the newsletter code; the
+periodical codes were rejected because this sends on new bandi, not at regular
+intervals). Both prices remain `tax_behavior: unspecified` and the product
+remains `tax_code: null`; **both inherit the defaults, and that is correct — not
+a regression.**
+
+This was deliberate. The claim that inclusive is irreversible per price is only
+true **once set**: from `unspecified` the field is updatable in place, once. Using
+the account default keeps the decision reversible, is what Stripe itself
+recommends, and — contrary to what was assumed here — `automatic_tax` does *not*
+reject prices whose `tax_behavior` is `unspecified` when a default exists. **No
+irreversible write has been made to this account.**
 
 **3. Tax configuration — make Stripe distinguish business from private
 customers.** As a Swiss (non-EU) seller: a B2C sale into the EU carries the
@@ -178,24 +275,58 @@ number is **reverse charge — no VAT is charged at all**, and those supplies fa
 outside OSS entirely (they are not on the OSS return). Stripe cannot tell the two
 apart unless it is told to ask. Do all of this **before** step 4 locks the links:
 
-- **Enable Stripe Tax** in live mode and add the OSS registration to it, so
-  `automatic_tax` applies each member state's rate. Decided 2026-08-06 in
-  preference to computing VAT by hand — see "Stripe Tax vs. doing it by hand"
-  below for the numbers behind that.
-- **Turn on Tax ID collection** on both live Payment Links *and* the test pair,
-  so staging exercises both paths. With Stripe Tax on, a supplied VAT number is
-  zero-rated as reverse charge and the subscription invoice carries the number
-  and the reverse-charge treatment.
-- **Set billing address collection to required** on all four links. Needed for
-  rate determination, and as a non-EU seller you want two non-contradictory
-  pieces of place-of-supply evidence — billing country plus the card issuer
-  country in `charge.payment_method_details.card.country`.
-- **Set `automatic_tax` on the test links too**, and re-run the staging funnel
-  once: a tax line appearing mid-checkout is exactly the kind of change that
+- ~~**Enable Stripe Tax** in live mode~~ — **already active** (verified
+  2026-08-07: `/v1/tax/settings` → `status: active`, head office Oberglatt/CH).
+  Decided 2026-08-06 in preference to computing VAT by hand — see "Stripe Tax vs.
+  doing it by hand" below for the numbers behind that.
+- **Add the OSS registration to it** once step 1 lands — **and not before.**
+  `automatic_tax` then applies each member state's rate. **Live registrations are
+  currently zero** (`/v1/tax/registrations` → `count 0`), so Stripe Tax is
+  switched on but computing 0% everywhere. That is expected, not a fault — it is
+  also exactly the state plan A depends on, so **do not declare a registration
+  early to "start collecting"** (see "plan A, not plan B" above). Create it with
+  `country_options[<state of identification>][type]=oss_non_union` and
+  `active_from` set to the effective date — see step 1 on why the date matters.
+- ~~**Turn on Tax ID collection**~~ **DONE 2026-08-07** — `tax_id_collection`
+  is now `true` on all four links (both live, both test). Note the claim that a
+  supplied VAT number is "zero-rated as reverse charge and the invoice carries the
+  reverse-charge treatment" is **only true once a registration exists**. Pre-OSS,
+  with zero registrations, Stripe computes 0% for everyone and a business and a
+  consumer receive byte-identical invoices — no VAT line, no reverse-charge note.
+  Collection is on anyway because it is **record-keeping, not tax logic**: VIES
+  validation runs regardless of registration state, so the B2B/B2C split of the
+  pre-OSS book is captured at the time of sale and can be classified later.
+  Without it that split cannot be reconstructed and everything defaults to B2C.
+  **Decided 2026-08-07:** business customers get the same plain invoice during the
+  gap; anyone who writes in gets helped by hand, which the captured + validated
+  VAT number makes possible.
+- ~~**Set billing address collection to required**~~ **DONE 2026-08-07** —
+  `required` on all four links. Needed for rate determination, and as a non-EU
+  seller you want two non-contradictory pieces of place-of-supply evidence —
+  billing country plus the card issuer country in
+  `charge.payment_method_details.card.country`. Under plan A it is the
+  **load-bearing** one: without a billing country per sale there is no way to work
+  out what is owed to which member state later, and that is true even under the
+  simplest "treat it all as B2C" treatment, since the rate is the customer's
+  national rate.
+- **`automatic_tax` is still `false` on all four — deliberately deferred
+  2026-08-07.** With zero registrations it would compute 0% anyway, so it buys
+  nothing today. **Two things it defers rather than avoids, and both bite later:**
+  (a) turning it on becomes *mandatory* at OSS time — a registration added while
+  `automatic_tax` is off means Stripe calculates nothing while we are registered,
+  i.e. liability for VAT never collected, **with no error raised anywhere**;
+  (b) the staging funnel re-test moves to OSS time too, which is a worse moment
+  for it. A tax line appearing mid-checkout is exactly the kind of change that
   makes an otherwise-passing Payment Link behave differently.
-- Then **confirm both live prices still read `inclusive`** — see the trade-off
-  below; changing it later means new prices and re-issued links, i.e. redoing
-  steps 2 and 4.
+- **Owed now, not at OSS time:** one test checkout on staging to re-prove
+  checkout → `/grazie/` → Worker → MailerLite. Required billing address plus a tax
+  ID field *is* a checkout change, and the Cypress suite cannot see it — it
+  asserts the hrefs, never what happens inside Stripe's hosted page.
+- **Do not expect the prices to read `inclusive`** — they read `unspecified` and
+  inherit `defaults.tax_behavior: inclusive` from the account. That is the
+  intended state as of 2026-08-07 (step 2). What to confirm instead is that the
+  Tax settings default is still `inclusive`; if someone sets a price-level value,
+  *that* becomes the irreversible one.
 
 Three consequences to be aware of rather than surprised by:
 
@@ -212,32 +343,103 @@ Three consequences to be aware of rather than surprised by:
   per 100 monthly subscribers. It does **not** file anything; the OSS return is
   still ours.
 
-**4. Verify the two live Payment Links.** They already exist (created 2026-08-04,
-redirect set). For each, confirm **After payment → Redirect** is
-`https://www.bandincc.it/grazie/` **with the trailing slash** — the site is
-`trailingSlash: true`, and the test-mode pair disagree with each other, so the
-live pair may too. Copy both URLs.
+**~~4. Verify the two live Payment Links.~~ Redirects VERIFIED 2026-08-07** —
+both already end in `https://www.bandincc.it/grazie/` **with** the trailing
+slash, so the `trailingSlash: true` worry is settled. The live URLs, for step 9
+(add `?locale=it` to each):
 
-**5. Live customer portal config.** Enable it in live mode, allow monthly↔annual
-switching and cancellation, copy the portal login URL.
+- monthly `plink_1U0j3uGZN5xaIveHie2O8Gwc` → `https://buy.stripe.com/cNi14namu0kOaTH4fXfEk00`
+- annual  `plink_1U0j4BGZN5xaIveHdpqNXGQf` → `https://buy.stripe.com/28EaEX8emc3w9PDfYFfEk01`
 
-**6. Live Stripe webhook endpoint.** Register
+Note the live slugs are the test slugs minus the `test_` prefix — which is direct
+confirmation that `isTestModeLink()`'s discriminator is sound.
+
+Updated 2026-08-07: `tax_id_collection` is now `true` and
+`billing_address_collection` is `required` on all four links; `automatic_tax`
+remains `false` on all four by decision (step 3). The test pair's trailing-slash
+disagreement is also fixed — `test_cNi14…fEk00` was redirecting to `/grazie`
+without the slash and now matches the other three.
+
+**~~5. Live customer portal config.~~ ALREADY DONE — verified 2026-08-07.**
+Live config `bpc_1TzukCGZN5xaIveHqkH7Clbe`, active and default:
+
+- login page **enabled** → `https://billing.stripe.com/p/login/cNi14namu0kOaTH4fXfEk00`
+  (this is the URL step 9 needs, plus `?locale=it`)
+- `subscription_cancel`: enabled, `at_period_end`, reasons collected
+- `subscription_update`: enabled, `default_allowed_updates: ["price"]` — the
+  monthly↔annual switching the step asks for
+- `invoice_history`, `payment_method_update`: enabled
+- `customer_update` allows `tax_id` — useful under plan A, since a business can
+  add its VAT number itself after the fact
+- headline set: "BandiNCC collabora con Stripe per la fatturazione."
+
+**The portal login slug is identical to the live monthly Payment Link slug**
+(`cNi14namu0kOaTH4fXfEk00` on both `buy.stripe.com` and
+`billing.stripe.com/p/login/`), and the same is true of the test pair. That is
+what Stripe actually returns — **not** a copy-paste error in `locales/it.json`.
+Do not "fix" it.
+
+Two things still worth a look, neither blocking:
+
+- ~~**`subscription_update.products` is absent from the API response**~~ —
+  **checked in the Dashboard 2026-08-07: both prices are listed**, so plan
+  switching genuinely works. Note the field simply does not come back on this
+  endpoint even when populated, so **absence proves nothing** — do not re-raise
+  this from the API output alone. The settings live at
+  `dashboard.stripe.com/settings/billing/portal` (Settings → Billing → Customer
+  portal), *not* under Product catalog, which is where the search naturally goes.
+- **The test portal config diverges from live**, so staging cannot rehearse the
+  portal faithfully: test `bpc_1U19PJGZN5xaIveHFL6Ew1Qo` has
+  `subscription_update.enabled: false` (no plan switching at all), no `tax_id` in
+  `customer_update`, no headline, and a shorter cancellation-reason list. Align it
+  if the portal is ever going to be exercised on staging.
+
+**~~6. Live Stripe webhook endpoint.~~ DONE 2026-08-07** — `we_1U1nJ7GZN5xaIveH0fIgB3h2`
+→ `https://bandincc-stripe.bandincc.workers.dev`, enabled, exactly the three
+events, and **`api_version` matched to the test endpoint's `2026-06-24.dahlia`**
+so staging stays a faithful rehearsal of the payload shape. Original instructions
+below for reference.
+
+**6 (original). Live Stripe webhook endpoint.** Register
 `https://bandincc-stripe.bandincc.workers.dev/` in **live** mode for exactly three
 events: `checkout.session.completed`, `customer.subscription.updated`,
 `customer.subscription.deleted`. Copy the `whsec_…`. This is a *third* distinct
 signing secret — not the `stripe listen` one, not the test endpoint's.
 
-**7. Swap the production Worker's secrets.** `bandincc-stripe` still carries
-**test** Stripe keys — it was the original test deployment and only became
-"production" when `--env test` was added:
+**~~7. Swap the production Worker's secrets.~~ DONE 2026-08-07.**
+`bandincc-stripe` previously carried **test** Stripe keys — it was the original
+test deployment and only became "production" when `--env test` was added. It now
+holds a **live restricted key** plus the live `whsec`. Verified by probing the
+deployed Worker: both `/` and `/mailerlite` return `400` (past the `REQUIRED`
+check, failing signature verification as they should) on 15/15 request pairs.
+
+`STRIPE_SECRET_KEY` is an `rk_live_…` restricted key, **not** the account secret
+key, scoped to exactly what `src/index.ts` calls:
+
+| Resource | Level | Used by |
+|---|---|---|
+| Customers | Write | `customers.update` (183), `.retrieve` (198), `.list` (320) |
+| Subscriptions | Write | `subscriptions.list` (324), `.cancel` (334) |
+
+`webhooks.constructEventAsync` (522) verifies locally and needs no API scope. If
+the Worker ever grows a new Stripe call it will fail with
+`more_permissions_required` naming the missing scope — expected, not a fault.
+Don't confuse this key with the CLI's read-only `rk_live_` from `stripe login`.
+
+Use guards when re-running, and **verify by probe, never by `secret list`** — see
+the two new entries in "Gotchas that will bite":
 
 ```
-printf '%s' "$LIVE_SECRET_KEY" | npx wrangler secret put STRIPE_SECRET_KEY
-printf '%s' "$LIVE_WHSEC"      | npx wrangler secret put STRIPE_WEBHOOK_SECRET
+read -rs -p "value: " V; echo
+[ -n "$V" ] && printf '%s' "$V" | npx wrangler secret put NAME || echo "EMPTY — aborted"
 ```
 
 No `--env`. Leave both `MAILERLITE_*` secrets alone. `secret put` republishes the
 Worker, so no deploy is owed after.
+
+**What the probe does *not* prove: that the values are correct.** A wrong-but-
+present `whsec` is indistinguishable from a right one until a real signed event
+arrives. That is step 12's job.
 
 **8. Check the MailerLite side of production.** STATUS is ambiguous here — one
 line lists "live MailerLite webhook" as outstanding, another says webhook
@@ -245,27 +447,70 @@ line lists "live MailerLite webhook" as outstanding, another says webhook
 assume: the webhook targets `…workers.dev/mailerlite`, and `MAILERLITE_GROUP_ID`
 in `[vars]` is the real subscriber group `193718534342181983`.
 
-**9. Paste the three live URLs** into `locales/it.json` → `pages.abbonamento`,
-the **`href`** keys (not `hrefTest`), each keeping `?locale=it`. Deleting the
-`TODO_` markers is what arms the buy buttons.
+**~~9. Paste the three live URLs~~ DONE 2026-08-07** — all three `TODO_` markers
+in `locales/it.json` → `pages.abbonamento` are gone, `?locale=it` kept on each:
 
-**10. Run the suite locally with `STRIPE_MODE=live` before merging.** This one
-matters: `netlify-deploy.yml` passes `stripe-mode: test`, so staging asserts
-`hrefTest` and will stay green no matter what you pasted into `href`. The live
-contract (https, `buy.stripe.com`, `locale=it`, `target=_blank`) is first
-exercised by `deploy.yml` — *on master*. A malformed live URL therefore fails the
-master deploy, and the newsletter chains off that deploy. Build and run
-`test:e2e:static` with `STRIPE_MODE=live` locally first.
+```
+plans[0].href  https://buy.stripe.com/cNi14namu0kOaTH4fXfEk00?locale=it
+plans[1].href  https://buy.stripe.com/28EaEX8emc3w9PDfYFfEk01?locale=it
+manage.href    https://billing.stripe.com/p/login/cNi14namu0kOaTH4fXfEk00?locale=it
+```
 
-**11. Merge to `master`.** Re-check `data/` parity immediately before (identical at
-90/90 as of 2026-08-06) — `newsletter.yml` diffs against the `newsletter-sent`
-tag and would mail the whole backlog as one campaign. This merge is the launch:
-it publishes `/abbonamento/`, `/grazie/`, the three ad slots and the footer link.
+**`manage.href` and `plans[0].href` share the slug `cNi14namu0kOaTH4fXfEk00`.**
+That is correct — Stripe returns the same slug for the monthly Payment Link and
+the portal login page, on different hosts, and the already-working `hrefTest`
+pair has the identical collision. Do not "fix" it.
 
-**12. One real €5.90 charge on your own card, then refund.** Do not reach this
-step with step 1 unfinished: the merge in step 11 opens the page to real EU
-buyers, and the first of those is a supply that OSS has to cover. Now `/grazie/`
-exists, so the full path is real: checkout → redirect → webhook → MailerLite.
+**The buy buttons are now armed in live builds.** `isPlaceholderLink()` no longer
+matches, so a `STRIPE_MODE=live` export renders real buttons instead of
+"Attivazione a breve". Staging is unaffected: `netlify-deploy.yml` passes
+`stripe-mode: test`, `stripeHref` resolves `hrefTest`, and those were already
+real — so `subscription.cy.ts` was already asserting the live contract there and
+its behaviour does not change. What *does* change is the `master` path: the spec
+will now assert the live contract (https, `buy.stripe.com`, `locale=it`,
+`target=_blank`) instead of the placeholder one. Hence step 10.
+
+**~~10. Run the suite locally with `STRIPE_MODE=live`~~ DONE 2026-08-07 — all
+green.** The live contract (https, `buy.stripe.com`, `locale=it`,
+`target=_blank`) has now been exercised once, locally, against the real URLs.
+Run it from the **repo root**, not `stripe-worker/` (that is a separate npm
+project with no `build` or `test:e2e:static`), and put `STRIPE_MODE` on **both**
+commands — `e2e.yml` sets it on the build step and the test step, and a
+disagreement fails the suite by design:
+
+```
+STRIPE_MODE=live npm run build && STRIPE_MODE=live npm run test:e2e:static
+```
+
+Why it mattered: `netlify-deploy.yml` passes `stripe-mode: test`, so staging
+asserts `hrefTest` and stays green no matter what is in `href`. The live contract
+is otherwise first exercised by `deploy.yml` — *on master* — and a malformed live
+URL would fail that deploy, taking the newsletter chained off it with it.
+
+**11. Merge to `master`.** Re-check `data/` parity immediately before —
+`newsletter.yml` diffs against the `newsletter-sent` tag and would mail a backlog
+as one campaign. This merge is the launch: it publishes `/abbonamento/`,
+`/grazie/`, the three ad slots and the footer link.
+
+**Parity re-checked 2026-08-07 (later): clean.** `master` briefly ran ahead on
+`data/data.json` after taking `366c8bf` and `789a2ec` directly, which created a
+risk that merging `dev` would *delete* already-published bandi. That has since
+been resolved — `git log dev..master` is empty (`master` is fully contained in
+`dev`) and `git diff master dev -- data/data.json` is empty. Nothing would be
+rolled back.
+
+**Newsletter exposure at merge: one bando.** `newsletter-sent` points at
+`28cc85c` with **90** bandi; `dev` has **91**. So the first successful `master`
+deploy mails a single-bando campaign, which is normal traffic, not a backlog.
+Re-check both numbers immediately before merging if the crawler has landed
+anything since.
+
+**12. One real €5.90 charge on your own card, then refund.** With plan A accepted
+(2026-08-07) this no longer *blocks* on step 1 — but the merge in step 11 opens
+the page to real EU buyers, and **the first of those starts the notification
+clock**, so know which month you are opening in before you get here. Now
+`/grazie/` exists, so the full path is real: checkout → redirect → webhook →
+MailerLite.
 Then verify directly in the live group — **a 200 in Stripe's event log is not
 proof**. Note the revoke half genuinely removes you from the live newsletter, so
 re-add yourself and the colleague afterwards.
@@ -446,12 +691,13 @@ And the reasoning behind runbook step 11, which is worth not re-litigating:
   Staging is green, so when the time comes it is the same tested export going to
   GitHub Pages — no extra risk from the wait.
 
-  Re-checked 2026-08-06: `data/` is still **identical** on `master` and `dev`
-  (90 bandi each), so holding master back is not accumulating a newsletter
-  batch. `staging` and `dev` are the same commit; `master` is 9 behind. Re-check
-  before merging if the crawler has landed anything since — `newsletter.yml`
-  diffs against the `newsletter-sent` tag and would mail the whole backlog in one
-  campaign.
+  ~~Re-checked 2026-08-06: `data/` is still **identical** on `master` and `dev`
+  (90 bandi each)~~ — **stale as of 2026-08-07.** `master` has since taken
+  `366c8bf` and `789a2ec`, both "Update data.json", directly. Holding `master`
+  back is not accumulating a newsletter batch (the crawler's commits deploy and
+  mail from `master` as they land), but `dev` is now the *older* copy of
+  `data/data.json`. See step 11 — the merge must not resolve that file in `dev`'s
+  favour.
 
 ### Open, low stakes
 
@@ -517,6 +763,17 @@ And the reasoning behind runbook step 11, which is worth not re-litigating:
 
 ## Gotchas that will bite
 
+- **The Stripe CLI's live key on this machine is read-only.** `stripe login`
+  stored a restricted key (`rk_live_…`, key `mk_1U06EgGZN5xaIveHwCWo4fR1`,
+  expires **2026-10-31**) that can read products, prices, payment links and tax
+  settings but **cannot write any of them** — writes fail with
+  `more_permissions_required` naming `product_write` / `feature_write` /
+  `plan_write`. So live-mode changes go through the Dashboard unless those scopes
+  are granted deliberately. Reads are fine and are the right way to *verify* what
+  the Dashboard actually saved.
+- **`stripe <resource> list 2>&1 | python3 -` breaks**: the CLI writes a notice to
+  stderr, and merging it corrupts the JSON. Use `2>/dev/null` when piping, and
+  `2>&1` only when you want to read an error body.
 - **Three different `whsec_…` values** exist: `stripe listen` (local), the test
   dashboard endpoint, the live dashboard endpoint. Mixing them up fails every
   signature check with a confusing error. A fourth, unrelated secret belongs to
@@ -524,6 +781,28 @@ And the reasoning behind runbook step 11, which is worth not re-litigating:
 - **`wrangler secret put` is separate from `wrangler deploy`** — but it
   republishes the Worker itself, so setting a secret needs no redeploy after it.
   A deployed but unconfigured Worker is still a normal state to end up in.
+- **`printf '%s' "$VAR" | wrangler secret put NAME` uploads an *empty secret* if
+  `$VAR` is unset** — no warning, exit 0, and `secret list` still shows the name.
+  Hit for real on 2026-08-07: both live Stripe secrets went up empty because the
+  runbook's `$LIVE_SECRET_KEY` / `$LIVE_WHSEC` were placeholder names, not set
+  variables. It is *worse* than not running the command, because it replaced
+  working test keys with nothing and every route began 500ing. Always guard:
+  `[ -n "$VAR" ] && printf '%s' "$VAR" | npx wrangler secret put NAME || echo EMPTY`.
+- **`wrangler secret put` is not atomic across colos.** For a minute or two after
+  upload, some requests hit the old Worker version and some the new — observed
+  2026-08-07, where consecutive probes returned "missing both", "missing one" and
+  "fully configured" within seconds, converging to 15/15 correct after ~90s. Two
+  consequences: a single probe straight after a `secret put` proves nothing, and
+  **if a real webhook fails right after a secret change, re-deliver it from the
+  Stripe Dashboard before debugging anything** — it may have landed on a stale
+  version. Let the Worker settle before step 12.
+- **Probe the deployed Worker instead of trusting `secret list`:**
+  `curl -sS -X POST https://bandincc-stripe.bandincc.workers.dev -d '{}'`.
+  The `REQUIRED` check in `src/index.ts` runs before anything else and answers
+  `500 Worker misconfigured: missing <NAMES>` when a binding is absent *or
+  empty*; a configured Worker gets past it and fails signature verification with
+  a 400 instead. No Stripe call, no MailerLite call, no side effects — safe to run
+  against live.
 - **The MailerLite API key is ~987 chars** and gets silently truncated by
   terminal paste into the hidden prompt. Pipe it:
   `printf '%s' "$MAILERLITE_API_KEY" | npx wrangler secret put MAILERLITE_API_KEY`.
