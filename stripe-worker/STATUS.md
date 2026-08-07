@@ -11,19 +11,29 @@ The **live-mode** Stripe URLs are still placeholders. What is left is the OSS
 registration, the rest of the tax configuration in Stripe, and the live-mode
 cutover.
 
-Updated 2026-08-07: **step 2 is done** — the live product and both prices were
-already correct, and tax-inclusive pricing plus the newsletter tax code are now
-set as Stripe Tax *account defaults* (reversible) rather than per price
-(irreversible). Stripe Tax itself is already active in live mode with **zero
-registrations**, which is the expected shape until OSS lands. Step 4's redirect
-check also came back clean.
+**Updated 2026-08-07 — steps 2 through 10 are DONE.** Live product and prices
+confirmed; tax-inclusive pricing and the newsletter tax code set as Stripe Tax
+*account defaults* (reversible) rather than per price (irreversible); Tax ID
+collection on and billing address required on all four Payment Links; live portal
+verified; live webhook endpoint registered on the same API version as test;
+production Worker swapped to a live restricted key + live `whsec` and probe-
+verified; the three live URLs pasted into `locales/it.json`; the
+`STRIPE_MODE=live` suite green locally; and the staging funnel re-tested after
+the checkout-options change.
 
-**Step 3 is part-done:** Tax ID collection on and billing address required on all
-four Payment Links; `automatic_tax` deliberately left off until OSS exists. And
-the plan changed shape — selling before the OSS registration is now an accepted,
-costed option (**plan A**, see "If we do sell before OSS lands"), so step 1 no
-longer hard-blocks the merge. It does still gate how long the notification window
-is, which is why the *month* the page opens in now matters.
+**What is left: step 11 (merge = launch), step 12 (one real charge), then OSS
+registration immediately after the first sale.** Step 1 moved *behind* the launch
+on 2026-08-07: neither Austria's nor Ireland's portal will accept a non-Union OSS
+application without a first-supply date, which does not exist until someone buys.
+See "Registration attempt 2026-08-07" under step 1 — **the 10th of the month
+following the first sale is a hard deadline with no slack in it.** Plus one
+deliberate deferral: `automatic_tax` is still `false` on all four links and
+**becomes mandatory the moment a registration is added** — see step 3.
+
+The plan also changed shape: selling before the OSS registration is now an
+accepted, costed option (**plan A**, see "If we do sell before OSS lands"), so
+step 1 no longer hard-blocks the merge. It does still gate how long the
+notification window is, which is why the *month* the page opens in now matters.
 
 ---
 
@@ -122,6 +132,15 @@ Mechanically yes; it is a bad trade. Two things are true at once:
   outside OSS — they then have to be declared through a direct VAT registration
   in each member state where a customer sat, which is the entire administrative
   cost OSS exists to avoid.
+
+**Both rules CONFIRMED 2026-08-07** against the European Commission's own OSS
+registration page (`vat-one-stop-shop.ec.europa.eu/one-stop-shop/register-oss_en`),
+which had been recorded here since 2026-08-04 as an unverified reading. Effect is
+"the first day of the calendar quarter following that in which the taxable person
+informs the Member State of identification"; the exception applies "provided that
+the Member State of identification is informed of this by the tenth day of the
+month following that first supply", and failure requires direct registration in
+the consumption Member State(s). Plan A's cost profile therefore stands.
 
 So "charge now, file later" hangs on a hard deadline measured in days, set by
 the timing of a sale that could arrive at any moment, in a scheme that is not
@@ -245,6 +264,55 @@ Registering directly with the authority is not the only route — Stripe can
 register on your behalf outside the US via Taxually. Named here as an option
 because it changes the lead time; the choice is the accountant's.
 
+### Registration attempt 2026-08-07 — deferred until after the first sale
+
+**Decision: register immediately AFTER the first sale, not before.** Two things
+were tried and both pointed the same way:
+
+- **Austria — blocked.** FinanzOnline login fails despite an existing account.
+  Unresolved; the non-EU OSS path (Austria calls it **Non-EU-OSS (eVAT)**) may
+  need separate credentials from an ordinary FinanzOnline account. Not
+  investigated further because of the next point.
+- **Ireland — cannot be completed early, by design.** Its non-Union OSS form
+  **requires the date of the first supply** and a tick-box declaring all data
+  correct. With no sale yet there is no truthful date to give, so the form cannot
+  be submitted before launch. This is the deciding constraint, and it is very
+  likely not Ireland-specific: the carve-out is worded around informing the state
+  about a supply that *has occurred*, so any member state's form may ask the same.
+
+**Member state of identification is therefore still open** — Austria and Ireland
+both remain valid (a non-EU business may choose any). Ireland's form at least
+loads and is in English; Austria's blocker is a login problem, not a rule.
+
+**Accepted risk: process latency inside the deadline window.** Registering only
+after the first sale means the *entire* registration — credentials included — has
+to complete before the 10th of the month following that sale. A sale on the 30th
+leaves eleven days. The alternative (open the account early, notify the date
+later) was not available, because neither portal would take an application
+without a first-supply date. **So the deadline is the critical path and there is
+no slack in it — treat registration as the first action after the first sale,
+not a task for later that week.**
+
+**Bounded worst case.** If the deadline is missed, pre-registration supplies fall
+outside OSS and need direct VAT registration in each member state where a
+customer sat. The audience is Italian NCC operators, so realistically that is
+**one direct Italian registration**, not a pan-EU exercise — and since
+`billing_address_collection` is now `required` on all four links, the actual
+countries will be known rather than guessed.
+
+**On the first sale — do these in this order:**
+
+1. Record the date of the first `checkout.session.completed` (Stripe timestamps
+   it; this is the "first supply date" the form asks for).
+2. Register for non-Union OSS naming that date, before the 10th of the following
+   month.
+3. Once granted, create the Stripe tax registration with `active_from` set to the
+   effective date Austria/Ireland gives, **and** turn on `automatic_tax` on all
+   four Payment Links in the same sitting — see step 3 on why doing one without
+   the other fails silently.
+4. Re-run the staging funnel afterwards: a tax line mid-checkout is a checkout
+   change.
+
 **~~2. Live product + prices.~~ DONE 2026-08-07.** Already existed in live mode
 and needed no changes:
 
@@ -318,10 +386,11 @@ apart unless it is told to ask. Do all of this **before** step 4 locks the links
   (b) the staging funnel re-test moves to OSS time too, which is a worse moment
   for it. A tax line appearing mid-checkout is exactly the kind of change that
   makes an otherwise-passing Payment Link behave differently.
-- **Owed now, not at OSS time:** one test checkout on staging to re-prove
-  checkout → `/grazie/` → Worker → MailerLite. Required billing address plus a tax
-  ID field *is* a checkout change, and the Cypress suite cannot see it — it
-  asserts the hrefs, never what happens inside Stripe's hosted page.
+- ~~**Owed now, not at OSS time:** one test checkout on staging to re-prove
+  checkout → `/grazie/` → Worker → MailerLite.~~ **DONE 2026-08-07.** Required
+  billing address plus a tax ID field *is* a checkout change, and the Cypress
+  suite cannot see it — it asserts the hrefs, never what happens inside Stripe's
+  hosted page. Re-run this whenever a link's checkout options change again.
 - **Do not expect the prices to read `inclusive`** — they read `unspecified` and
   inherit `defaults.tax_behavior: inclusive` from the account. That is the
   intended state as of 2026-08-07 (step 2). What to confirm instead is that the
