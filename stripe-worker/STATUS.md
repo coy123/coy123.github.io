@@ -568,11 +568,36 @@ been resolved — `git log dev..master` is empty (`master` is fully contained in
 `dev`) and `git diff master dev -- data/data.json` is empty. Nothing would be
 rolled back.
 
-**Newsletter exposure at merge: one bando.** `newsletter-sent` points at
-`28cc85c` with **90** bandi; `dev` has **91**. So the first successful `master`
-deploy mails a single-bando campaign, which is normal traffic, not a backlog.
-Re-check both numbers immediately before merging if the crawler has landed
-anything since.
+**Newsletter exposure at merge: zero bandi (re-checked 2026-08-08).**
+`newsletter-sent` points at `9badaa7`, which is also `master`'s HEAD, and
+`git diff 9badaa7 dev -- data/data.json` is empty. The post-merge run will diff
+to nothing, log "No new bandi", advance the marker to the merge commit and send
+no campaign.
+
+**Read the tag from the remote, never from your clone:**
+
+```
+git ls-remote --tags origin newsletter-sent
+```
+
+`newsletter.yml` *force-updates* the tag, and `git fetch` will not move an
+existing local tag that has been force-moved — so a local
+`git log newsletter-sent` can be arbitrarily far behind, silently. That is
+exactly what happened here: this file previously recorded the marker at
+`28cc85c` with 90 bandi and predicted a one-bando campaign, read off a stale
+clone, while the real marker had already advanced twice (Cossogno, then
+Taranto — both mailed normally).
+
+**Don't force-fetch it into this clone to "fix" that.** The marker is CI state,
+not something this machine needs to track, and a local copy only creates another
+thing that can go stale. `ls-remote` answers the question without leaving a
+ref behind. CI is unaffected either way — its "Resolve the diff base" step
+force-fetches the tag before reading it.
+
+Re-check immediately before merging anyway if a new `data/data.json` has landed
+on `master` since (the colleague pushes those by hand — see `CLAUDE.md` → How to
+Add/Edit Data). Such a push deploys and mails on its own, after which the merge
+again diffs to nothing.
 
 **12. One real €5.90 charge on your own card, then refund.** With plan A accepted
 (2026-08-07) this no longer *blocks* on step 1 — but the merge in step 11 opens

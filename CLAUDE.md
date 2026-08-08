@@ -32,6 +32,13 @@ Do not ever try to deploy. You can only run on dev mode locally.
 Do not ever run or build the application (no `npm run dev`, `npm run build`, `next build`, etc.). The user runs it themselves and reports back.
 There are two branches: staging and master. Development is done on staging. Staging is connected to Netlify for deployment and master is connected to GitHub Pages for deployment. The domain is www.bandincc.it
 
+**Planned (not in place yet): the colleague gets push access to `staging` only,
+and changes reach `master` through pull requests** so the checks always run
+before anything hits production. Until that lands, direct pushes to `master`
+still happen — `data/data.json` updates in particular (see "Adding a new NCC
+bid"). Don't assume a PR-gated `master` when reasoning about how a commit got
+there.
+
 ## CI/CD Pipelines (`.github/workflows/`)
 - **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
 - **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
@@ -392,6 +399,14 @@ The JSON structure includes:
 # How to Add/Edit Data
 
 ## Adding a new NCC bid
+
+**`data/data.json` is pushed by hand, by the colleague.** The crawler
+(`bandincc-crawler`) never writes to it and never pushes — it produces candidate
+results, the colleague reviews them, and then commits `data/data.json` himself.
+So a `Update data.json` commit appearing on a branch is a deliberate human push,
+not an automated job, and "wait for the crawler to land something" is not a
+thing that happens on its own.
+
 Add an entry to `data/data.json`. Required fields:
 ```json
 {
