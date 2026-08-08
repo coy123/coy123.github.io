@@ -105,7 +105,7 @@ Key conventions:
 │   ├── disclaimer/page.tsx     # Legal disclaimer
 │   ├── faq/page.tsx            # FAQ + Glossary (accordion UI)
 │   ├── how-to-become-driver/   # Guide article
-│   │   ├── page.tsx            # Renders markdown via react-markdown
+│   │   ├── page.tsx            # Renders markdown via MarkdownArticle
 │   │   └── howToBecomeDriver.md # Article content
 │   ├── income-calculator/      # NCC income calculator
 │   │   ├── page.tsx            # Calculator form + result modal
@@ -113,7 +113,7 @@ Key conventions:
 │   ├── privacy-policy/page.tsx # Privacy policy (content from translations)
 │   ├── regional-laws/page.tsx  # Regional laws table
 │   └── utilities/              # Useful tools/resources article
-│       ├── page.tsx            # Renders markdown via react-markdown
+│       ├── page.tsx            # Renders markdown via MarkdownArticle
 │       └── utilities.md        # Article content
 ├── components/                 # Reusable React components
 │   ├── AuthorBox.tsx           # Author attribution box
@@ -127,6 +127,7 @@ Key conventions:
 │   ├── LawsContent.tsx         # Regional laws client component (search + table)
 │   ├── LawsTable.tsx           # Table for regional law entries
 │   ├── MapView.tsx             # Leaflet map with circle markers for all bids
+│   ├── MarkdownArticle.tsx     # Renderer for the two .md long-form pages (see "Article typography")
 │   ├── Navigation.tsx          # Desktop + mobile nav with hamburger menu
 │   ├── NewsletterAd.tsx        # House ad for the paid newsletter (banner + side variants)
 │   ├── SideAdBanner.tsx        # UNUSED — leftover "EGAF" placeholder from the old ad slots
@@ -220,8 +221,10 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 
 ## How to Become a Driver (`app/how-to-become-driver/page.tsx`)
 - Reads `howToBecomeDriver.md` at build time using `fs.readFileSync`
-- Renders markdown with `react-markdown` + `remark-gfm` (supports tables)
-- Empty lines preserved by replacing `\n\n` with `\n\n&nbsp;\n\n`
+- Renders it with `MarkdownArticle` inside a gray-900 card (see "Article typography")
+- Split in two at `'#### 2.'` so an ad can sit after step 1. The slot is
+  currently a commented-out placeholder, and both halves render inside the same
+  card, so the seam is invisible — **the marker has to track the heading text**
 - Content covers: requirements, CAP/KB certification, municipal enrollment, SCIA, vehicle requirements, insurance
 - JSON-LD Article schema
 - `AuthorBox` + internal resource links
@@ -251,7 +254,8 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - JSON-LD WebPage schema
 
 ## Utilities Page (`app/utilities/page.tsx`)
-- Reads `utilities.md` at build time, renders with `react-markdown` + `remark-gfm`
+- Reads `utilities.md` at build time, renders it with `MarkdownArticle` inside
+  the same gray-900 card as the driver guide (see "Article typography")
 - Content covers: startup costs (tables), recurring costs, revenue estimates, useful links, tips
 - JSON-LD Article schema + `AuthorBox`
 
@@ -336,7 +340,8 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 ## FAQAccordion (`components/FAQAccordion.tsx`)
 - Single-open accordion: clicking one item closes the previously open one
 - Animated expand/collapse using CSS grid-rows transition
-- Answers rendered as markdown via `react-markdown`
+- Answers rendered as markdown via `react-markdown`, styled by `.rich-text`
+  (see "Article typography") — most of them run to several paragraphs
 - Chevron icon rotates 180° when open
 
 ## AuthorBox (`components/AuthorBox.tsx`)
@@ -492,6 +497,53 @@ styled as a finished block rather than a dashed outline because it ships to
 production; copy lives at the top level of `locales/it.json` under
 `newsletterAd`, next to `nav`/`footer`, since it is not tied to one page.
 
+## Article typography (`.article-body`)
+**`@tailwindcss/typography` is not a dependency.** `prose prose-invert` appears
+in several places in this codebase and generates **no CSS at all** — those
+classes are inert. Combined with preflight, which flattens headings, lists and
+tables to body copy, that is why the two markdown pages used to render as one
+undifferentiated wall of text, and why they carried a `\n\n` → `\n\n&nbsp;\n\n`
+substitution to fake paragraph spacing. Both are gone.
+
+The replacement is plain CSS in `app/globals.css`, in two layers:
+
+- **`.rich-text`** — block rhythm, lists, links, emphasis, callouts. Enough for
+  short markdown on its own; that is what `FAQAccordion` uses. **14 of the 17
+  FAQ answers are multi-paragraph**, and with only the inert `prose` classes
+  they rendered as one solid block.
+- **`.article-body`** — layered on top for long-form: a heading scale, prose
+  capped at 70ch, tables. `MarkdownArticle` emits both classes.
+
+`--rich-gap` is the one knob: it sets a surface's vertical rhythm.
+
+`/how-to-become-driver` and `/utilities` render through
+`components/MarkdownArticle.tsx`, which exists for the two things that need
+extra DOM rather than extra rules:
+
+- **`table`** is wrapped in `.article-table`, which scrolls horizontally. The
+  cost tables have no readable layout below ~32rem, so on a phone the table
+  scrolls inside its own box rather than widening the page.
+- **`li`** lifts a leading ✅ / ❌ out of the text and into the marker slot,
+  tagging the item `.article-glyph` so the CSS drops the bullet it would
+  otherwise draw right beside the glyph. The glyphs stay in the `.md` so the
+  source still reads as a checklist.
+
+**These rules sit after `@tailwind utilities`**, so on a specificity tie they
+beat a utility class. Do not try to recolour a `.rich-text` block with a
+`text-…` utility on the same element — change the rule, or scope one to the
+call site. (The home page's SEO sections are single paragraphs and stay on
+plain utilities for that reason; they only lost their inert `prose` classes.)
+
+**No `prose` class survives anywhere in `app/` or `components/`.** If you see
+one reappear, it is doing nothing. Tests anchor on `sel.richText`,
+`sel.articleBody` and `.article-table`; `home.cy.ts` finds an SEO section's
+body with `h3 + div`.
+
+Installing `@tailwindcss/typography` was considered and rejected: the palette
+would need overriding anyway, the whole `prose` ruleset ships whether or not
+the content uses those elements, and neither of the two DOM-level fixes above
+is something a stylesheet plugin can do.
+
 ## Slug Generation
 Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `MapView`, `generateStaticParams()` and `findBid()` alike. It strips diacritics, folds typographic quotes and dashes to their ASCII equivalents, drops anything still outside printable ASCII, then hyphenates whitespace:
 
@@ -506,7 +558,7 @@ On bid detail pages, `findLaw()` matches a bid's location against law entries us
 
 ## Content Sources
 - **Most page text**: Lives in `locales/it.json` under `pages.*` keys (titles, subtitles, descriptions, section content)
-- **Long-form articles**: `howToBecomeDriver.md` and `utilities.md` — read at build time via `fs.readFileSync`, rendered with react-markdown
+- **Long-form articles**: `howToBecomeDriver.md` and `utilities.md` — read at build time via `fs.readFileSync`, rendered by `MarkdownArticle`
 - **FAQ/Glossary**: `data/faq.json` (FAQ) + `locales/it.json` `pages.glossario.terms` (glossary)
 
 ## Stripe links and the placeholder guard

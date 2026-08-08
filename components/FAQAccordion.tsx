@@ -56,7 +56,10 @@ function FAQItemComponent({ item, index, isOpen, onToggle }: FAQItemProps) {
         }`}
       >
         <div className="overflow-hidden">
-          <div className="px-4 pb-4 pl-10 prose prose-invert prose-sm max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_strong]:text-gray-300 [&_a]:text-blue-400 [&_a:hover]:text-blue-300 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4">
+          {/* `rich-text` carries the whole answer's typography (globals.css).
+              Most answers run to several paragraphs, which preflight would
+              otherwise jam into one block. */}
+          <div className="px-4 pb-4 pl-10 rich-text text-sm">
             <ReactMarkdown>{item.answer}</ReactMarkdown>
           </div>
         </div>

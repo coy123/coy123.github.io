@@ -1,12 +1,10 @@
-## **NCC Utilities – Numeri, strumenti e link utili**
+## NCC Utilities – Numeri, strumenti e link utili
 
-Questa pagina raccoglie **strumenti pratici, stime indicative e link utili** per chi sta valutando di entrare nel mondo **NCC**
+Questa pagina raccoglie **strumenti pratici, stime indicative e link utili** per chi sta valutando di entrare nel mondo **NCC**.
 
----
+### 💶 Costi tipici per avviare un'attività NCC
 
-### **Costi tipici per avviare un’attività NCC**
-
-#### **🔹 Costi iniziali (one-off)**
+#### Costi iniziali (una tantum)
 
 | Voce | Costo |
 | ----- | ----- |
@@ -17,9 +15,7 @@ Questa pagina raccoglie **strumenti pratici, stime indicative e link utili** per
 | Allestimenti / accessori | €1.000 – €3.000 |
 | Avvio attività / pratiche | €1.000 – €3.000 |
 
----
-
-#### **🔹 Costi ricorrenti (mensili)**
+#### Costi ricorrenti (mensili)
 
 | Voce | Costo |
 | ----- | ----- |
@@ -29,64 +25,45 @@ Questa pagina raccoglie **strumenti pratici, stime indicative e link utili** per
 | Commercialista / gestione | €100 – €200 |
 | Piattaforme / commissioni | 10% – 25% del fatturato |
 
-**Break-even tipico**: raggiungibile con **15–20 giorni lavorativi/mese** se ben posizionati.
+> **Break-even tipico:** raggiungibile con **15–20 giorni lavorativi al mese**, se ben posizionati.
 
----
-
-### **Business plan NCC – schema semplice**
+### 📈 Business plan NCC – schema semplice
 
 Un **business plan NCC minimo** risponde a 5 domande:
 
 1. **Dove lavoro?**  
-   Capoluogo, città turistica o area mista?  
-2. **Quante ore/giorni lavoro davvero?**  
-   (non “teorici”, ma sostenibili)  
+   Capoluogo, città turistica o area mista?
+2. **Quante ore e quanti giorni lavoro davvero?**  
+   Non quelli “teorici”, ma quelli sostenibili nel tempo.
 3. **Notte sì o no?**  
-   Fa spesso la differenza sui margini.  
+   Fa spesso la differenza sui margini.
 4. **Veicolo di che tipo?**  
-   Benzina / diesel / elettrico (costi molto diversi).  
-5. **Canali di acquisizione clienti?**  
+   Benzina, diesel o elettrico: i costi cambiano molto.
+5. **Quali canali di acquisizione clienti?**  
    Privati, hotel, aziende, piattaforme.
 
-Per aiutarti, prova il nostro [calcolatore guadagni NCC](/income-calculator)
+Per farti un'idea dei numeri, prova il nostro [calcolatore guadagni NCC](/income-calculator).
 
----
+### 🚕 Iscrizione alle principali piattaforme NCC
 
-### **Iscrizione alle principali piattaforme NCC**
+Queste piattaforme possono aiutare **all'inizio** o come integrazione:
 
-Queste piattaforme possono aiutare **all’inizio** o come integrazione:
+* **Uber** — [uber.com/it/it/drive](https://www.uber.com/it/it/drive/)
+* **Bolt** — [bolt.eu/it/driver](https://bolt.eu/it/driver/)
+* **Free Now (ex MyTaxi)** — [free-now.com/it/driver](https://www.free-now.com/it/driver/)
 
-* **Uber**  
-  [https://www.uber.com/it/it/drive/](https://www.uber.com/it/it/drive/)  
-* **Bolt**  
-  https://bolt.eu/it/driver/  
-* **Free Now (ex MyTaxi)**  
-  https://www.free-now.com/it/driver/
+> **Nota importante:** le piattaforme **non sostituiscono** un portafoglio clienti diretto. Sono utili soprattutto per riempire i buchi in agenda, per partire e per testare la domanda locale.
 
-Nota importante:
+### ⚠️ Errori comuni da evitare
 
-Le piattaforme **non sostituiscono** un portafoglio clienti diretto.  
-Sono utili per:
+* ❌ Sottostimare i costi fissi
+* ❌ Comprare l'auto “troppo bella” subito
+* ❌ Dipendere solo da una piattaforma
+* ❌ Non considerare notte e weekend
+* ❌ Pensare che “più ore = più guadagno” (non sempre è vero)
 
-* riempire i buchi  
-* partire  
-* testare la domanda locale
+### 🧰 Strumenti utili di bandincc.it
 
----
-
-### **Errori comuni da evitare**
-
-❌ Sottostimare i costi fissi  
-❌ Comprare l’auto “troppo bella” subito  
-❌ Dipendere solo da una piattaforma  
-❌ Non considerare notte / weekend  
-❌ Pensare che “più ore \= più guadagno” (non sempre vero)
-
----
-
-### **Strumenti utili di bandincc.it:**
-
-* [Calcolatore fatturato & profitti NCC](/income-calculator)
+* [Calcolatore fatturato e profitti NCC](/income-calculator)
 * [Elenco bandi NCC aperti](/)
 * [Guida pratica per diventare NCC](/how-to-become-driver)
-

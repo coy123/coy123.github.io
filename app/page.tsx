@@ -110,7 +110,10 @@ export default async function HomePage() {
               <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
                 {section.heading}
               </h3>
-              <div className="text-sm sm:text-base text-white prose prose-invert prose-sm max-w-none [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
+              {/* Single paragraphs, so no `rich-text` needed — but no `prose`
+                  either: without the typography plugin those classes were
+                  inert. See "Article typography" in CLAUDE.md. */}
+              <div className="text-sm sm:text-base text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
                 <ReactMarkdown>{section.content}</ReactMarkdown>
               </div>
               {/* Section-specific internal links */}

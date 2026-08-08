@@ -110,6 +110,32 @@ describe('FAQ and glossary page', () => {
     glossaryAccordion().find(sel.accordionPanel).first().should('have.class', OPEN)
   })
 
+  it('gives every answer its markdown typography', () => {
+    // The panels used to carry inert `prose` classes, which left the many
+    // multi-paragraph answers jammed into one block: preflight zeroes <p>
+    // margins and nothing put them back. `.rich-text` is what does now.
+    faqAccordion().find(sel.accordionPanel).each(($panel) => {
+      expect($panel.find(sel.richText), 'rich-text wrapper').to.have.length(1)
+    })
+  })
+
+  it('separates the paragraphs of a multi-paragraph answer', () => {
+    const multiParagraph = faqs.findIndex((faq) => /\n\s*\n/.test(faq.answer))
+    if (multiParagraph === -1) return
+    faqAccordion().find('button').eq(multiParagraph).click()
+    faqAccordion()
+      .find(sel.accordionPanel)
+      .eq(multiParagraph)
+      .find('p')
+      .should('have.length.greaterThan', 1)
+      .first()
+      .should(($p) => {
+        // A zeroed bottom margin is the symptom `prose` never fixed: preflight
+        // strips it and an inert class cannot put it back.
+        expect(parseFloat($p.css('margin-bottom')), 'paragraph gap').to.be.greaterThan(0)
+      })
+  })
+
   it('renders links inside answers as real anchors', () => {
     const withLink = faqs.findIndex((faq) => /\]\(\//.test(faq.answer))
     if (withLink === -1) return

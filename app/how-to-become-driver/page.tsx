@@ -2,8 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
 import AuthorBox from '@/components/AuthorBox'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import MarkdownArticle from '@/components/MarkdownArticle'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import HeroCrest from '@/components/HeroCrest'
@@ -18,13 +17,10 @@ export default function HowToBecomeDriverPage() {
 
   // Read the markdown file
   const markdownPath = join(process.cwd(), 'app', 'how-to-become-driver', 'howToBecomeDriver.md')
-  let markdownContent = readFileSync(markdownPath, 'utf-8')
-
-  // Preserve empty lines by replacing them with line breaks
-  markdownContent = markdownContent.replace(/\n\n/g, '\n\n&nbsp;\n\n')
+  const markdownContent = readFileSync(markdownPath, 'utf-8')
 
   // Split after point 1 (the CAP/KB section) to insert ad banner
-  const splitMarker = '#### **2'
+  const splitMarker = '#### 2.'
   const splitIndex = markdownContent.indexOf(splitMarker)
   const markdownPart1 = splitIndex !== -1 ? markdownContent.slice(0, splitIndex) : markdownContent
   const markdownPart2 = splitIndex !== -1 ? markdownContent.slice(splitIndex) : ''
@@ -72,24 +68,18 @@ export default function HowToBecomeDriverPage() {
           {t.pages.howToBecomeDriver.subtitle}
         </h2>
       </div>
-      <div className="prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {markdownPart1}
-        </ReactMarkdown>
+      {/* The article reads as a sheet laid on the gray-800 page: one darker
+          surface, so the eye has a single column to follow. */}
+      <div className="mt-5 sm:mt-6 mb-6 sm:mb-8 rounded-xl border border-gray-700 bg-gray-900 p-5 sm:p-8">
+        <MarkdownArticle>{markdownPart1}</MarkdownArticle>
+
+        {/* Banner Ad after point 1 */}
+        {/* <div className="my-6 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
+          <p className="text-3xl font-bold text-gray-300">EGAF</p>
+        </div> */}
+
+        {markdownPart2 && <MarkdownArticle className="mt-10">{markdownPart2}</MarkdownArticle>}
       </div>
-
-      {/* Banner Ad after point 1 */}
-      {/* <div className="mb-6 w-full h-[90px] bg-gray-700 border border-gray-500 rounded-lg flex items-center justify-center">
-        <p className="text-3xl font-bold text-gray-300">EGAF</p>
-      </div> */}
-
-      {markdownPart2 && (
-        <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {markdownPart2}
-          </ReactMarkdown>
-        </div>
-      )}
 
       <AuthorBox />
 

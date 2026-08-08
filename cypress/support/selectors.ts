@@ -53,6 +53,14 @@ export const sel = {
   calculatorModal: 'div.animate-scaleIn',
   calculatorBackdrop: 'div.animate-fadeIn > div.absolute.inset-0',
 
+  /* Rendered markdown --------------------------------------------------- */
+  /** Any markdown surface: the two article pages and the FAQ answers. */
+  richText: '.rich-text',
+  /** One rendered .md block (components/MarkdownArticle.tsx). */
+  articleBody: '.article-body',
+  /** A GFM table and its horizontal-scroll container. */
+  articleTable: '.article-table',
+
   /* Shared ------------------------------------------------------------- */
   /** The page-content column between the two ad rails. */
   contentArea: 'div.max-w-5xl',

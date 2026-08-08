@@ -73,7 +73,10 @@ describe('Home page', () => {
       sections.forEach((section, index) => {
         cy.get(`#section-${index}`).within(() => {
           cy.get('h3').should('have.text', section.heading)
-          cy.get('.prose')
+          // The rendered markdown is the div right after the heading. It used
+          // to be found by `.prose`, which the typography plugin never styled
+          // and which no longer exists — see "Article typography" in CLAUDE.md.
+          cy.get('h3 + div')
             .invoke('text')
             .then((text) => {
               expect(normalize(text).length, `${section.heading} body`).to.be.greaterThan(50)

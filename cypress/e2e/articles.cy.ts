@@ -2,10 +2,12 @@ import { sel } from '../support/selectors'
 import { hrefSelector, samePath, t } from '../support/site'
 
 /**
- * The two long-form pages read a .md file at build time and render it with
- * react-markdown + remark-gfm. These tests guard the rendering pipeline: raw
- * markdown must not leak, GFM tables must become real tables, and the
- * `&nbsp;`-based blank-line preservation must not show up as literal text.
+ * The two long-form pages read a .md file at build time and render it through
+ * `components/MarkdownArticle.tsx` (react-markdown + remark-gfm). These tests
+ * guard the rendering pipeline: raw markdown must not leak, GFM tables must
+ * become real tables inside their scroll container, and no HTML entity may
+ * show up as literal text — the pages used to inject `&nbsp;` between blocks
+ * to fake paragraph spacing, which the `.article-body` CSS now provides.
  */
 interface ArticleSpec {
   path: string
@@ -91,9 +93,19 @@ describe('Markdown article pages', () => {
           })
       })
 
+      it('wraps every table in its horizontal-scroll container', () => {
+        // The cost tables have no readable layout below ~32rem, so they scroll
+        // inside their own box rather than widening the page on a phone.
+        cy.get(sel.contentArea)
+          .find('table')
+          .each(($table) => {
+            expect($table.parent().hasClass('article-table'), 'table parent').to.be.true
+          })
+      })
+
       it('renders markdown links as anchors with resolvable hrefs', () => {
         cy.get(sel.contentArea)
-          .find('.prose a')
+          .find(`${sel.articleBody} a`)
           .should('have.length.greaterThan', 0)
           .each(($link) => {
             const href = $link.attr('href') ?? ''

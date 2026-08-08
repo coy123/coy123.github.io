@@ -1,8 +1,7 @@
 import { Metadata } from 'next'
 import { getTranslations } from '@/lib/translations'
 import AuthorBox from '@/components/AuthorBox'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import MarkdownArticle from '@/components/MarkdownArticle'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import HeroCrest from '@/components/HeroCrest'
@@ -17,10 +16,7 @@ export default function UtilitiesPage() {
 
   // Read the markdown file
   const markdownPath = join(process.cwd(), 'app', 'utilities', 'utilities.md')
-  let markdownContent = readFileSync(markdownPath, 'utf-8')
-
-  // Preserve empty lines by replacing them with line breaks
-  markdownContent = markdownContent.replace(/\n\n/g, '\n\n&nbsp;\n\n')
+  const markdownContent = readFileSync(markdownPath, 'utf-8')
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -65,10 +61,9 @@ export default function UtilitiesPage() {
           {t.pages.utilities.subtitle}
         </h2>
       </div>
-      <div className="mb-6 sm:mb-8 prose prose-invert prose-sm sm:prose-base max-w-none [&>*]:text-white [&_p]:text-white [&_li]:text-white [&_td]:text-white [&_th]:text-white [&_strong]:text-white [&_a]:text-blue-400 [&_a:hover]:text-blue-300 [&_table]:border [&_table]:border-gray-400 [&_td]:border [&_td]:border-gray-400 [&_th]:border [&_th]:border-gray-400 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {markdownContent}
-        </ReactMarkdown>
+      {/* Same sheet-on-page treatment as /how-to-become-driver. */}
+      <div className="mt-5 sm:mt-6 mb-6 sm:mb-8 rounded-xl border border-gray-700 bg-gray-900 p-5 sm:p-8">
+        <MarkdownArticle>{markdownContent}</MarkdownArticle>
       </div>
 
       <AuthorBox />
