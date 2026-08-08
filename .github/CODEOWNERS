@@ -1,0 +1,11 @@
+# Every change to this repo requests a review from the owner automatically.
+#
+# CODEOWNERS is read from the DEFAULT branch (master), so this file only has
+# any effect once it has been merged into master. Keeping it on staging too
+# means it survives the next staging -> master merge.
+#
+# The master ruleset requires 1 approving review. GitHub never lets a PR author
+# approve their own PR, so with only two people holding write access, @coy123
+# is the only possible approver. This file just makes the review request
+# automatic instead of something the author has to remember to add.
+* @coy123

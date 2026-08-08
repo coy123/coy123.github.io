@@ -1,15 +1,21 @@
-# Payments — status and TODOs (last updated 2026-08-07)
+# Payments — status and TODOs (last updated 2026-08-08)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
 next, and what not to re-litigate". Delete it once payments are live.
 
-**Where things stand:** the Worker is deployed and fully configured, both
-directions. The site pages are **live on staging** and the whole test-mode funnel
-works there end to end; `master` is deliberately held back (see "Remaining" 6).
-The **live-mode** Stripe URLs are still placeholders. What is left is the OSS
-registration, the rest of the tax configuration in Stripe, and the live-mode
-cutover.
+**LAUNCHED 2026-08-08.** `dev` merged to `master`, the deploy went green, and
+the live funnel was exercised end to end with a real card: checkout → `/grazie/`
+→ Worker → MailerLite grant, then unsubscribe → revoke, then refund. All three
+behaved. `/abbonamento/` is selling on www.bandincc.it.
+
+**Every runbook step is now done except step 1.** Steps 11–13 all closed on
+2026-08-08. **Nothing else is owed until a stranger buys** — at which point the
+whole of step 1 fires at once: record the `checkout.session.completed` date,
+register for non-Union OSS naming it before the 10th of the following month,
+then create the Stripe tax registration with `active_from` set to the granted
+effective date **and** flip `automatic_tax` to `true` on all four Payment Links
+in the same sitting. Doing either half alone fails silently.
 
 **Updated 2026-08-07 — steps 2 through 10 are DONE.** Live product and prices
 confirmed; tax-inclusive pricing and the newsletter tax code set as Stripe Tax
@@ -21,8 +27,7 @@ verified; the three live URLs pasted into `locales/it.json`; the
 `STRIPE_MODE=live` suite green locally; and the staging funnel re-tested after
 the checkout-options change.
 
-**What is left: step 11 (merge = launch), step 12 (one real charge), then OSS
-registration immediately after the first sale.** Step 1 moved *behind* the launch
+**Steps 11 and 12 are now DONE (2026-08-08).** Step 1 moved *behind* the launch
 on 2026-08-07: neither Austria's nor Ireland's portal will accept a non-Union OSS
 application without a first-supply date, which does not exist until someone buys.
 See "Registration attempt 2026-08-07" under step 1 — **the 10th of the month
@@ -37,30 +42,36 @@ notification window is, which is why the *month* the page opens in now matters.
 
 ---
 
-## ⚠️ Read first — the LIVE Stripe URLs on the site are placeholders
+## The Stripe URLs on the site — all six are real (as of 2026-08-07)
 
-`locales/it.json` → `pages.abbonamento` holds three live Stripe URLs, all still
-`TODO_…`:
+`locales/it.json` → `pages.abbonamento` holds three live URLs and three test
+ones. **No `TODO_` marker remains anywhere**, so the buy buttons are armed in
+both modes; this section used to say the opposite and is kept for the mechanism,
+not the state.
 
-| Key | Needs |
+| Key | Value |
 |---|---|
-| `plans[0].href` | the **live** monthly Payment Link + `?locale=it` |
-| `plans[1].href` | the **live** annual Payment Link + `?locale=it` |
-| `manage.href` | the **live** customer-portal login URL |
+| `plans[0].href` | `buy.stripe.com/cNi14namu0kOaTH4fXfEk00?locale=it` |
+| `plans[1].href` | `buy.stripe.com/28EaEX8emc3w9PDfYFfEk01?locale=it` |
+| `manage.href` | `billing.stripe.com/p/login/cNi14namu0kOaTH4fXfEk00?locale=it` |
 
-Their `hrefTest` counterparts are all real — test mode is fully wired, see below.
+The `hrefTest` counterparts are the same slugs with Stripe's `test_` prefix.
+**`manage.href` and `plans[0].href` sharing a slug is what Stripe returns — do
+not "fix" it.**
 
-`lib/subscription.ts` → `isPlaceholderLink()` detects the `TODO_` marker, and
-`/abbonamento/` then renders the price cards with a greyed-out "Attivazione a
-breve" instead of a button, while `/grazie/` drops its portal link. So the page
-is safe to deploy as it is — it just cannot sell anything on the live domain yet.
+The placeholder machinery is still in the code and still worth keeping:
+`lib/subscription.ts` → `isPlaceholderLink()` detects a `TODO_` marker, and
+`/abbonamento/` then renders the price cards greyed out as "Attivazione a breve"
+while `/grazie/` drops its portal link. That is what makes it safe to ship a
+half-configured mode — a live page whose button 404s is worse than one that says
+subscriptions are not open yet.
 
-This was deliberate: asserting the real shape in the test suite would have gone
-red until the URLs were pasted, and a red suite blocks *every* deploy, including
-the newsletter that chains off it. `cypress/e2e/subscription.cy.ts` asserts the
-placeholder contract now and the live contract (https, `buy.stripe.com`,
-`locale=it`, `target=_blank`) the moment the real URLs land — no test edit
-needed.
+It was built that way deliberately: asserting the real shape in the test suite
+would have gone red until the URLs were pasted, and a red suite blocks *every*
+deploy, including the newsletter that chains off it.
+`cypress/e2e/subscription.cy.ts` asserts whichever contract applies — and since
+2026-08-07 that is the live one (https, `buy.stripe.com`, `locale=it`,
+`target=_blank`), with no test edit needed.
 
 ---
 
@@ -108,7 +119,12 @@ serves the real BandiNCC portal login. Don't "fix" it.
 
 ---
 
-## 🚨 Hard blocker — nothing goes live until this is done
+## 🚨 The tax obligation — now running against a clock, not blocking a launch
+
+**Heading softened 2026-08-08 (launch day).** This used to read "nothing goes
+live until this is done". The site *is* live and selling, by the plan-A decision
+below; what the section describes is no longer a gate on shipping but an
+obligation that starts the moment a stranger buys.
 
 **Non-Union OSS registration is NOT in place.** A Swiss company selling a
 digital subscription B2C into the EU owes VAT in the *customer's* country, and
@@ -614,6 +630,69 @@ checkout.session.completed` against the live Worker (its fixture invents an emai
 that joins the live list and hard-bounces), and stop any `stripe listen` first or
 every event gets handled twice.
 
+**~~12.~~ DONE 2026-08-08 — merged, charged, unsubscribed, refunded, all green.**
+Grant, revoke and refund all behaved. One gap surfaced, see below.
+
+**~~13. Stripe's customer emails.~~ DONE 2026-08-08** — every item below was
+applied the same day it was found: receipts + refunds on, public details filled
+(support email now `info@bandincc.it`), branding set, default language Italian,
+failed-payment / expiring-card / renewal emails on and pointed at the hosted
+portal. Kept in full because it is all Dashboard state, invisible from the repo,
+and nothing in CI would notice it being switched back off.
+
+The gap as found: the step-12
+charge produced **no email of any kind** — no receipt, no refund confirmation.
+Not an integration fault: Stripe *generates* a receipt for every successful
+payment including subscription invoices, but only **mails** it if the setting is
+on, and it never sends a "subscription started" email at all — **the receipt is
+the customer's only confirmation of purchase.**
+
+- ~~**Settings → Business → Customer emails**
+  (`dashboard.stripe.com/settings/emails`) → under *Payments* enable **Successful
+  payments** and **Refunds**~~ — **DONE 2026-08-08.** The toggles are **per
+  mode**; these were set in live.
+- **Support email on receipts — outstanding.** The receipt footer named
+  `canyil@gmail.com`, the personal address the Stripe account was opened with,
+  because the public support email was blank and Stripe falls back to the account
+  email. Fix at **Settings → Business → Business details**
+  (`dashboard.stripe.com/settings/business`) → **Public details → Edit**. Four
+  fields are compliance-required on every receipt, so fill all four: legal
+  business name, support address, **support email → info@bandincc.it**, and
+  privacy policy URL → `https://www.bandincc.it/privacy-policy/`. This does not
+  change the login or where Stripe notifies the owner — those stay personal.
+- **Branding** (`dashboard.stripe.com/settings/branding`) → *Email receipts* tab.
+  Receipts and every billing email inherit it. Square PNG, min 128×128, ≤512KB.
+- **Default language** in the Customer emails settings → Italian. Covers the case
+  where no locale data exists on the customer; `preferItalian()` wins whenever it
+  does.
+- **Billing-side emails live on two other pages, both outstanding:**
+  - `dashboard.stripe.com/revenue_recovery/emails` → **Send emails when card
+    payments fail.** The important one — without it an expired card churns a
+    subscriber silently.
+  - `dashboard.stripe.com/settings/billing/automatic` → *Email notifications and
+    customer management*: enable **expiring card notifications** and **upcoming
+    renewal emails** (the latter mostly for the €59 annual — an unannounced yearly
+    charge is the classic chargeback). Point these at the **Stripe-hosted portal**,
+    not a custom URL: `bpc_1TzukCGZN5xaIveHqkH7Clbe` already allows
+    `payment_method_update` and plan switching.
+  - Leave **payment confirmation notifications** off — receipts are on now and
+    this would send a second mail for the same payment. Skip trial-end reminders
+    (no trials) and "reminders when a recurring invoice isn't paid" (applies only
+    to `collection_method=send_invoice`; Checkout subscriptions are
+    `charge_automatically`).
+- **Diagnose before changing anything:** the payment detail page has a *Receipt
+  history* panel. Empty = the toggle is off; a listed receipt = it sent and the
+  problem is deliverability instead.
+- **Verify without another charge:** Payments → the charge → Receipt history →
+  ⋯ → **Send receipt**. Confirms delivery and shows the Italian rendering with no
+  money moved.
+- `preferItalian()` already sets `preferred_locales: ['it']` on the customer, so
+  receipts come out in Italian once they are switched on. Nothing to change in
+  the Worker.
+
+Dashboard-only, no code and no deploy — but customer-facing, so do it before the
+page is promoted anywhere.
+
 ---
 
 ## Background to the runbook
@@ -766,10 +845,11 @@ Nothing outstanding.
 
 ## Remaining
 
-**The work is the twelve-step runbook in "→ Resume here" above — that is the list,
-don't restate it here.** OSS registration is no longer outside that list — it is
-step 1, done by the owner personally, and it gets named in every status answer
-until the owner says it is finished. One standing item:
+**As of 2026-08-08 only step 1 is left, and it cannot start until a stranger
+buys.** The runbook in "→ Resume here" above ran to thirteen steps; 2 through 13
+are closed. OSS registration is step 1, done by the owner personally, and it gets
+named in every status answer until the owner says it is finished. One standing
+item:
 
 - ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging. ~~Redeploy both
   Workers~~ — both shipped 2026-08-05 with the `resource_missing` fix.
