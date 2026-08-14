@@ -826,5 +826,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Taranto-Stemma.svg/960px-Taranto-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=index&utm_content=thumbnail",
         "latitude": "40.43302",
         "longitude": "17.273"
+    },
+    {
+        "location": "Città di Locri (RC)",
+        "deadline": "2026-09-12",
+        "url": "https://comune.locri.rc.it/novita/avviso-pubblico-per-lassegnazione-mediante-pubblico-concorso-di-n-6-autorizzazioni-per-lesercizio-del-servizio-di-noleggio-con-conducente/",
+        "amount": 6,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Locri-Stemma.svg/960px-Locri-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "latitude": "38.233",
+        "longitude": "16.26"
+    },
+    {
+        "location": "Comune di Valdina (ME)",
+        "deadline": "2026-09-10",
+        "url": "https://www.comune.valdina.me.it/novita/avvisi/novita_176.html",
+        "amount": 1,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Valdina-Stemma.svg/960px-Valdina-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "latitude": "38.1936",
+        "longitude": "15.3688"
     }
 ]
