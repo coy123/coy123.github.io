@@ -97,6 +97,18 @@ export default function AboutUsPage() {
             >
               info@bandincc.it
             </a>
+            {/* TODO: DELETE LATER — temporary, for the OSS VAT registration only.
+                Remove this whole block once the registration is through.
+                Hardcoded on purpose rather than put in `locales/it.json`: that
+                file is imported wholesale by client components, so anything in
+                it ships in the site-wide JS bundle. Here the name exists only in
+                this page's HTML, which is the point — it is meant to appear on
+                /about-us/ and nowhere else. */}
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <p className="text-gray-300 mb-2">Titolare del sito:</p>
+              <p className="text-white text-lg font-medium">Siksok Inh. Yilmaz</p>
+              <p className="text-sm text-gray-400">Svizzera</p>
+            </div>
           </div>
         </section>
 
