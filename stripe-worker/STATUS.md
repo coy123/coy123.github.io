@@ -1,21 +1,50 @@
-# Payments — status and TODOs (last updated 2026-08-08)
+# Payments — status and TODOs (last updated 2026-08-18)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
-next, and what not to re-litigate". Delete it once payments are live.
+next, and what not to re-litigate". Delete it once the tax wiring below is
+finished — **not yet**.
 
 **LAUNCHED 2026-08-08.** `dev` merged to `master`, the deploy went green, and
 the live funnel was exercised end to end with a real card: checkout → `/grazie/`
 → Worker → MailerLite grant, then unsubscribe → revoke, then refund. All three
 behaved. `/abbonamento/` is selling on www.bandincc.it.
 
-**Every runbook step is now done except step 1.** Steps 11–13 all closed on
-2026-08-08. **Nothing else is owed until a stranger buys** — at which point the
-whole of step 1 fires at once: record the `checkout.session.completed` date,
-register for non-Union OSS naming it before the 10th of the following month,
-then create the Stripe tax registration with `active_from` set to the granted
-effective date **and** flip `automatic_tax` to `true` on all four Payment Links
-in the same sitting. Doing either half alone fails silently.
+**OSS REGISTRATION IS DONE — reported by the owner 2026-08-18.** That closes the
+legal half of step 1, and it landed inside the notification window (first supply
+9 August → deadline 10 September). **It also opens the engineering half, which
+is now the only thing outstanding and is on a clock.**
+
+## ⚠️ Current state: registered for VAT, collecting none
+
+Verified directly against live Stripe on **2026-08-18**:
+
+| Check | Value | Should be |
+|---|---|---|
+| `/v1/tax/registrations` (live) | **count 0** | one `oss_non_union` registration |
+| `automatic_tax` on both live Payment Links | **false** | `true` |
+| `automatic_tax` on `sub_1U2ZuSGZN5xaIveHh8CoEhLw` | **false** | `true` |
+| `automatic_tax` on `sub_1U2wzVGZN5xaIveHGV2Dp783` | **false** | `true` |
+| Tax settings | `active`, `inclusive`, `txcd_10503002` | unchanged, correct |
+
+This is precisely the silent-failure state the doc has warned about since
+2026-08-07, only reached from the other direction: the registration exists in the
+real world but not in Stripe, so **Stripe computes 0% on every invoice while we
+are legally registered.** Nothing errors, nothing alerts. See "On the OSS grant"
+below for the ordered fix.
+
+**Live sales so far** (read 2026-08-18):
+
+| Date | Charge | Country | Status |
+|---|---|---|---|
+| 2026-08-08 | `ch_3U27WgGZN5xaIveH1N9i0V2r` | AT | refunded — the owner's own step-12 test |
+| 2026-08-09 | `ch_3U2ZuQGZN5xaIveH1dUw2zfe` | **IT** | paid — first real supply |
+| 2026-08-10 | `ch_3U2wyvGZN5xaIveH16WAjo7p` | **IT** | paid |
+
+Two `active` monthly subscriptions at €5.90, **renewing 9 and 10 September**.
+Both are Italian, so the back-payable VAT under plan A is Italy at 22% ≈ €1.06
+per charge — currently two charges, i.e. ~€2.12 owed out of margin. That number
+grows by one charge per subscriber per month until `automatic_tax` is on.
 
 **Updated 2026-08-07 — steps 2 through 10 are DONE.** Live product and prices
 confirmed; tax-inclusive pricing and the newsletter tax code set as Stripe Tax
@@ -27,18 +56,13 @@ verified; the three live URLs pasted into `locales/it.json`; the
 `STRIPE_MODE=live` suite green locally; and the staging funnel re-tested after
 the checkout-options change.
 
-**Steps 11 and 12 are now DONE (2026-08-08).** Step 1 moved *behind* the launch
-on 2026-08-07: neither Austria's nor Ireland's portal will accept a non-Union OSS
-application without a first-supply date, which does not exist until someone buys.
-See "Registration attempt 2026-08-07" under step 1 — **the 10th of the month
-following the first sale is a hard deadline with no slack in it.** Plus one
-deliberate deferral: `automatic_tax` is still `false` on all four links and
-**becomes mandatory the moment a registration is added** — see step 3.
+**Steps 11, 12 and 13 are DONE (2026-08-08).** Merged, charged, unsubscribed,
+refunded, and Stripe's customer emails configured.
 
-The plan also changed shape: selling before the OSS registration is now an
-accepted, costed option (**plan A**, see "If we do sell before OSS lands"), so
-step 1 no longer hard-blocks the merge. It does still gate how long the
-notification window is, which is why the *month* the page opens in now matters.
+Selling before the OSS registration was an accepted, costed decision (**plan A**,
+see "If we do sell before OSS lands"). It worked as designed: three sales landed
+in the gap, the notification deadline was met, and the only cost is the VAT to be
+back-paid on the two Italian charges.
 
 ---
 
@@ -119,21 +143,22 @@ serves the real BandiNCC portal login. Don't "fix" it.
 
 ---
 
-## 🚨 The tax obligation — now running against a clock, not blocking a launch
+## The tax obligation — registration granted, Stripe not yet told
 
-**Heading softened 2026-08-08 (launch day).** This used to read "nothing goes
-live until this is done". The site *is* live and selling, by the plan-A decision
-below; what the section describes is no longer a gate on shipping but an
-obligation that starts the moment a stranger buys.
+**Updated 2026-08-18. The registration is DONE.** The history below is kept
+because the reasoning still governs what happens next — in particular why plan A
+was the right call and what it now costs to settle.
 
-**Non-Union OSS registration is NOT in place.** A Swiss company selling a
-digital subscription B2C into the EU owes VAT in the *customer's* country, and
-for a non-EU seller there is **no threshold** — VAT is due from the very first
-EU subscriber. Register in one member state, file quarterly; needs a Swiss/EU
-VAT accountant. **This is the long-lead item — it runs on someone else's
-turnaround, so it should be in flight before the remaining engineering, not
-after.** It is **runbook step 1**: the owner does it personally and reports back,
-and it stays in every status answer until they do.
+**Non-Union OSS registration is in place** (owner-reported 2026-08-18). A Swiss
+company selling a digital subscription B2C into the EU owes VAT in the
+*customer's* country, and for a non-EU seller there is **no threshold** — VAT was
+due from the very first EU subscriber. Filing is quarterly and stays ours; Stripe
+Tax Basic does not file.
+
+**What remains is making Stripe act on it** — see "On the OSS grant" in step 1.
+Until that is done the registration is real but invisible to the billing system,
+which is worse than not being registered, because the liability now accrues
+while nothing collects it.
 
 ### "Can I start charging now and sort the tax out later?" (asked 2026-08-04)
 
@@ -235,55 +260,75 @@ subscriber base is zero, and the failure is loud rather than silent.
 
 ## → Resume here — the go-live runbook
 
-**This is the answer to "what is left to do?". Give these twelve steps, in this
-order, and check nothing else is stale before answering.** OSS registration is
-step 1 and **must be listed every time** (revoked 2026-08-06 — it was previously
-suppressed from status answers). The owner does that step personally and will say
-when it is done; until then it stays in the list.
+**This is the answer to "what is left to do?".** As of **2026-08-18** steps 2–13
+are closed and the OSS registration in step 1 is granted. **What is left is step
+1's Stripe half — the four actions under "On the OSS grant" below.** Check
+nothing else is stale before answering; the "Current state" table at the top of
+this file was read from live Stripe and is the thing to re-verify.
 
-**A hard ordering constraint to state first:** both live Payment Links redirect to
-`https://www.bandincc.it/grazie/`, and **`/grazie/` does not exist on `master`**
-(neither does `/abbonamento/`). Until the merge, a live checkout ends on a 404.
-So the real charge has to come *after* the merge, not before.
+Steps 2–13 are kept below because they record *why* the account is configured the
+way it is. They are history, not work.
 
 ---
 
-**1. Non-Union OSS registration.** The hard blocker — see the section above for
-why there is no threshold for a non-EU seller and why "charge now, file later"
-hangs on a deadline measured in days. **The owner handles this personally and
-will report when it is done; nobody else can move it.** It is the long-lead item,
-so it should be in flight while the rest of the runbook is worked.
+**1. Non-Union OSS registration. ~~Registration~~ DONE 2026-08-18 — the Stripe
+half is NOT.**
 
-**Softened 2026-08-07:** this used to read "nothing below step 11 can go live
-without it". Selling before OSS is granted is now an accepted, costed option —
-but only as **plan A** (zero registrations declared in Stripe, VAT back-paid out
-of inclusive revenue), never plan B, and only with the rolling notification
-deadline understood. See "If we do sell before OSS lands" above; do not re-derive
-that trade-off. One question remains for the
-accountant: how reverse-charge B2B revenue gets declared alongside the OSS
-return. (The other one — whether tax-inclusive pricing is right for a mixed
-B2C/B2B book — was answered **inclusive** on 2026-08-07 and applied; see step 2.)
+### → On the OSS grant — do these four, in this order
+
+**This is the entire remaining backlog.** Items 2 and 3 must happen **in the same
+sitting**: a registration in Stripe with `automatic_tax` still off means Stripe
+calculates nothing while we are registered — liability for VAT never collected,
+with no error raised anywhere.
+
+1. **Get the *effective date* from the registration paperwork**, not just "it's
+   filed". Stripe's `active_from` accepts only `now` or a **future** timestamp —
+   **there is no backdating** (verified against the API reference 2026-08-07). If
+   the effective date has already passed, use `now`; the sales before it stay at
+   0% permanently and are settled under plan A (see below).
+2. **Create the Stripe tax registration:**
+   `country_options[<state of identification>][type]=oss_non_union`, `active_from`
+   as above. Live registrations are currently **0**.
+3. **Turn on `automatic_tax` in all four places** — and note the doc previously
+   listed only the first:
+   - both live Payment Links (`plink_1U0j3uGZN5xaIveHie2O8Gwc`,
+     `plink_1U0j4BGZN5xaIveHdpqNXGQf`) — this covers **new** checkouts only;
+   - **both existing live subscriptions** (`sub_1U2ZuSGZN5xaIveHh8CoEhLw`,
+     `sub_1U2wzVGZN5xaIveHGV2Dp783`), which carry `automatic_tax: false` and
+     **renew on 9 and 10 September**. A Payment Link setting does not reach a
+     subscription that already exists — miss this and the only two paying
+     customers renew at 0% VAT indefinitely, silently. Do the same for the two
+     test links so staging stays a faithful rehearsal.
+4. **Re-run the staging funnel.** A tax line appearing mid-checkout is a checkout
+   change, and the Cypress suite cannot see inside Stripe's hosted page — it
+   asserts hrefs only.
+
+**Then settle plan A**: the 2026-08-09 and 2026-08-10 Italian charges were
+invoiced with no VAT line, correctly, under plan A. The VAT (~€1.06 each at IT
+22%) is back-paid out of margin on the first OSS return. Nothing to reissue —
+every document already issued stays correct. That was the whole point of choosing
+plan A over plan B; do not re-derive it.
+
+**One question still open for the accountant:** how reverse-charge B2B revenue
+gets declared alongside the OSS return. (The other one — whether tax-inclusive
+pricing is right for a mixed B2C/B2B book — was answered **inclusive** on
+2026-08-07 and applied; see step 2.)
 
 **Ask the accountant for the *effective date*, not just "it's filed."** Stripe's
 `active_from` on a tax registration accepts only `now` or a **future**
 timestamp — **there is no backdating** (verified against the API reference
-2026-08-07). Any sale that settles before the registration is active gets zero
-tax calculated, permanently; correcting it means rebuilding those invoices by
-hand outside Stripe. That is the mechanical reason step 1 must land before step
-11, on top of the legal one. Once the effective date is known the registration
-can be created ahead of time with `active_from` set to it, and it switches itself
-on — that is the honest version of "set it up before OSS exists". Creating it
-*without* a registration is possible (Stripe verifies nothing) but pointless:
-`/abbonamento/` is not on `master`, so there is nothing to sell yet.
+2026-08-07). Any sale that settled before the registration is active gets zero
+tax calculated, permanently; correcting it would mean rebuilding those invoices
+by hand outside Stripe. Under plan A there is nothing to correct — see step 1's
+action list — but this is why the effective date has to be asked for explicitly.
 
-Registering directly with the authority is not the only route — Stripe can
-register on your behalf outside the US via Taxually. Named here as an option
-because it changes the lead time; the choice is the accountant's.
+### History — how the registration was reached (2026-08-07 → 2026-08-18)
 
-### Registration attempt 2026-08-07 — deferred until after the first sale
+Kept for the reasoning, not the state. **The registration is granted; none of
+this is a live decision any more.**
 
-**Decision: register immediately AFTER the first sale, not before.** Two things
-were tried and both pointed the same way:
+**Decision at the time: register immediately AFTER the first sale, not before.**
+Two things were tried and both pointed the same way:
 
 - **Austria — blocked.** FinanzOnline login fails despite an existing account.
   Unresolved; the non-EU OSS path (Austria calls it **Non-EU-OSS (eVAT)**) may
@@ -296,38 +341,25 @@ were tried and both pointed the same way:
   likely not Ireland-specific: the carve-out is worded around informing the state
   about a supply that *has occurred*, so any member state's form may ask the same.
 
-**Member state of identification is therefore still open** — Austria and Ireland
-both remain valid (a non-EU business may choose any). Ireland's form at least
-loads and is in English; Austria's blocker is a login problem, not a rule.
+**Member state of identification was still open at the time** — Austria and
+Ireland both valid (a non-EU business may choose any). Ireland's form at least
+loaded and is in English; Austria's blocker was a login problem, not a rule.
+**Which one was used is not recorded here — read it off the registration
+paperwork before creating the Stripe tax registration, since
+`country_options[<state>]` needs it.**
 
-**Accepted risk: process latency inside the deadline window.** Registering only
-after the first sale means the *entire* registration — credentials included — has
-to complete before the 10th of the month following that sale. A sale on the 30th
-leaves eleven days. The alternative (open the account early, notify the date
-later) was not available, because neither portal would take an application
-without a first-supply date. **So the deadline is the critical path and there is
-no slack in it — treat registration as the first action after the first sale,
-not a task for later that week.**
+**Accepted risk at the time: process latency inside the deadline window.**
+Registering only after the first sale meant the *entire* registration —
+credentials included — had to complete before the 10th of the month following
+that sale. **Outcome: it did.** First supply 2026-08-09, deadline 10 September,
+reported done 2026-08-18. The risk was real and it did not bite.
 
-**Bounded worst case.** If the deadline is missed, pre-registration supplies fall
-outside OSS and need direct VAT registration in each member state where a
-customer sat. The audience is Italian NCC operators, so realistically that is
-**one direct Italian registration**, not a pan-EU exercise — and since
-`billing_address_collection` is now `required` on all four links, the actual
-countries will be known rather than guessed.
-
-**On the first sale — do these in this order:**
-
-1. Record the date of the first `checkout.session.completed` (Stripe timestamps
-   it; this is the "first supply date" the form asks for).
-2. Register for non-Union OSS naming that date, before the 10th of the following
-   month.
-3. Once granted, create the Stripe tax registration with `active_from` set to the
-   effective date Austria/Ireland gives, **and** turn on `automatic_tax` on all
-   four Payment Links in the same sitting — see step 3 on why doing one without
-   the other fails silently.
-4. Re-run the staging funnel afterwards: a tax line mid-checkout is a checkout
-   change.
+**Bounded worst case — did not occur.** Had the deadline been missed,
+pre-registration supplies would have fallen outside OSS and needed direct VAT
+registration in each member state where a customer sat. Both paying customers are
+Italian (`billing_address_collection` is `required`, so this is known rather than
+guessed), so the exposure would have been **one direct Italian registration**.
+Moot now.
 
 **~~2. Live product + prices.~~ DONE 2026-08-07.** Already existed in live mode
 and needed no changes:
@@ -363,14 +395,14 @@ apart unless it is told to ask. Do all of this **before** step 4 locks the links
   2026-08-07: `/v1/tax/settings` → `status: active`, head office Oberglatt/CH).
   Decided 2026-08-06 in preference to computing VAT by hand — see "Stripe Tax vs.
   doing it by hand" below for the numbers behind that.
-- **Add the OSS registration to it** once step 1 lands — **and not before.**
+- **Add the OSS registration to it — NOW DUE (registration granted 2026-08-18).**
   `automatic_tax` then applies each member state's rate. **Live registrations are
-  currently zero** (`/v1/tax/registrations` → `count 0`), so Stripe Tax is
-  switched on but computing 0% everywhere. That is expected, not a fault — it is
-  also exactly the state plan A depends on, so **do not declare a registration
-  early to "start collecting"** (see "plan A, not plan B" above). Create it with
+  still zero** (`/v1/tax/registrations` → `count 0`, re-read 2026-08-18), so
+  Stripe Tax is switched on but computing 0% everywhere. That *was* expected and
+  exactly the state plan A depended on; since the grant it is no longer correct —
+  it is now uncollected liability. Create it with
   `country_options[<state of identification>][type]=oss_non_union` and
-  `active_from` set to the effective date — see step 1 on why the date matters.
+  `active_from` set to the effective date — see step 1's action list.
 - ~~**Turn on Tax ID collection**~~ **DONE 2026-08-07** — `tax_id_collection`
   is now `true` on all four links (both live, both test). Note the claim that a
   supplied VAT number is "zero-rated as reverse charge and the invoice carries the
@@ -393,15 +425,15 @@ apart unless it is told to ask. Do all of this **before** step 4 locks the links
   out what is owed to which member state later, and that is true even under the
   simplest "treat it all as B2C" treatment, since the rate is the customer's
   national rate.
-- **`automatic_tax` is still `false` on all four — deliberately deferred
-  2026-08-07.** With zero registrations it would compute 0% anyway, so it buys
-  nothing today. **Two things it defers rather than avoids, and both bite later:**
-  (a) turning it on becomes *mandatory* at OSS time — a registration added while
-  `automatic_tax` is off means Stripe calculates nothing while we are registered,
-  i.e. liability for VAT never collected, **with no error raised anywhere**;
-  (b) the staging funnel re-test moves to OSS time too, which is a worse moment
-  for it. A tax line appearing mid-checkout is exactly the kind of change that
-  makes an otherwise-passing Payment Link behave differently.
+- **`automatic_tax` is still `false` — and "later" has arrived.** Deferred
+  2026-08-07 on the grounds that with zero registrations it computed 0% anyway.
+  Both deferred costs are now due: (a) turning it on is **mandatory** at OSS time,
+  because a registration added while `automatic_tax` is off means Stripe
+  calculates nothing while we are registered — liability for VAT never collected,
+  **with no error raised anywhere**; (b) the staging funnel re-test lands now too,
+  which is the worse moment for it, exactly as predicted. Re-read 2026-08-18:
+  `false` on both live Payment Links **and on both live subscriptions** — see step
+  1, the subscription half is the part this bullet originally missed.
 - ~~**Owed now, not at OSS time:** one test checkout on staging to re-prove
   checkout → `/grazie/` → Worker → MailerLite.~~ **DONE 2026-08-07.** Required
   billing address plus a tax ID field *is* a checkout change, and the Cypress
@@ -526,11 +558,17 @@ Worker, so no deploy is owed after.
 present `whsec` is indistinguishable from a right one until a real signed event
 arrives. That is step 12's job.
 
-**8. Check the MailerLite side of production.** STATUS is ambiguous here — one
-line lists "live MailerLite webhook" as outstanding, another says webhook
-`194877758477698574` and its secret are already correct. Verify rather than
-assume: the webhook targets `…workers.dev/mailerlite`, and `MAILERLITE_GROUP_ID`
-in `[vars]` is the real subscriber group `193718534342181983`.
+**8. Check the MailerLite side of production.** STATUS was ambiguous here — one
+line listed "live MailerLite webhook" as outstanding, another said webhook
+`194877758477698574` and its secret were already correct. **Effectively settled
+by evidence rather than by a check:** the 2026-08-08 launch test exercised
+grant *and* revoke end to end against production, and the two live subscribers
+from 9–10 August were granted through the same path. The unsubscribe direction
+specifically requires the MailerLite webhook to be live and correctly signed.
+
+**Never explicitly verified, and cheap to close:** confirm the webhook targets
+`…workers.dev/mailerlite` and that `MAILERLITE_GROUP_ID` in `[vars]` is the real
+subscriber group `193718534342181983`. Do it next time the Dashboard is open.
 
 **~~9. Paste the three live URLs~~ DONE 2026-08-07** — all three `TODO_` markers
 in `locales/it.json` → `pages.abbonamento` are gone, `?locale=it` kept on each:
@@ -651,7 +689,9 @@ the customer's only confirmation of purchase.**
   (`dashboard.stripe.com/settings/emails`) → under *Payments* enable **Successful
   payments** and **Refunds**~~ — **DONE 2026-08-08.** The toggles are **per
   mode**; these were set in live.
-- **Support email on receipts — outstanding.** The receipt footer named
+- ~~**Support email on receipts**~~ **DONE 2026-08-08** (the "outstanding" label
+  here contradicted the step header and was stale — corrected 2026-08-18). The
+  receipt footer had named
   `canyil@gmail.com`, the personal address the Stripe account was opened with,
   because the public support email was blank and Stripe falls back to the account
   email. Fix at **Settings → Business → Business details**
@@ -665,7 +705,8 @@ the customer's only confirmation of purchase.**
 - **Default language** in the Customer emails settings → Italian. Covers the case
   where no locale data exists on the customer; `preferItalian()` wins whenever it
   does.
-- **Billing-side emails live on two other pages, both outstanding:**
+- ~~**Billing-side emails live on two other pages**~~ **DONE 2026-08-08** (also
+  labelled "outstanding" against its own step header — corrected 2026-08-18):
   - `dashboard.stripe.com/revenue_recovery/emails` → **Send emails when card
     payments fail.** The important one — without it an expired card churns a
     subscriber silently.
@@ -724,11 +765,12 @@ and a 5xx on `/mailerlite` is the expensive kind of wrong — MailerLite
 checkout in the *browser's* language, and a fair share of this audience runs an
 English-configured browser. The suite enforces it once the URLs are real.
 
-**OSS registration** — the blocker described above. Must exist before live
-payments. **Being handled by the owner directly, who will say when it is done.**
-It is **runbook step 1** and belongs in every status answer until then. (It spent
-2026-08-05 → 2026-08-06 suppressed from those answers on the owner's instruction;
-that instruction was revoked on 2026-08-06.)
+**OSS registration** — **DONE, owner-reported 2026-08-18.** Handled by the owner
+directly. It was runbook step 1 and was named in every status answer until the
+grant; it should no longer be listed as outstanding work. What replaced it is the
+Stripe-side wiring in step 1's action list. (It spent 2026-08-05 → 2026-08-06
+suppressed from status answers on the owner's instruction; that instruction was
+revoked on 2026-08-06 and is now moot either way.)
 
 ---
 
@@ -833,7 +875,7 @@ strip. `/grazie` also got a CSS-only confetti/balloon celebration. See
 **Deployed to staging (2026-08-04)** and verified there. `netlify-deploy.yml`
 runs the full Cypress suite before it publishes, so the whole batch — the two new
 pages, the ad slots, `subscription.cy.ts`, and the reworked hero — is green
-against the built export. Only the merge to `master` is left.
+against the built export. (That merge happened 2026-08-08.)
 
 **Unrelated, finished and live:** the newsletter chains off a successful deploy
 via `workflow_run` rather than the push, and diffs against the last commit
@@ -845,16 +887,33 @@ Nothing outstanding.
 
 ## Remaining
 
-**As of 2026-08-08 only step 1 is left, and it cannot start until a stranger
-buys.** The runbook in "→ Resume here" above ran to thirteen steps; 2 through 13
-are closed. OSS registration is step 1, done by the owner personally, and it gets
-named in every status answer until the owner says it is finished. One standing
-item:
+**As of 2026-08-18: steps 2–13 are closed and step 1's registration is granted.
+What is left is step 1's Stripe half, and it is time-sensitive.**
+
+In priority order:
+
+1. **Create the Stripe tax registration and turn on `automatic_tax`** — the four
+   actions under "→ On the OSS grant" in step 1. Registrations are still 0 and
+   `automatic_tax` is `false` on both live Payment Links **and both live
+   subscriptions** (read from live Stripe 2026-08-18). Until this is done we are
+   registered for VAT and collecting none, silently.
+   **The 9/10 September renewals are the deadline that matters** — after them,
+   every month adds two more zero-VAT invoices.
+2. **Re-run the staging funnel** once `automatic_tax` is on. A tax line
+   mid-checkout is a checkout change the Cypress suite cannot see.
+3. **Settle the plan-A back-payment** on the two Italian charges (~€1.06 each) on
+   the first OSS return. Nothing to reissue.
+4. **Low stakes:** explicitly verify the MailerLite production webhook + group id
+   (step 8), and align the test portal config with live if staging is ever going
+   to rehearse the portal (step 5).
+
+Closed standing items:
 
 - ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging. ~~Redeploy both
   Workers~~ — both shipped 2026-08-05 with the `resource_missing` fix.
 
-And the reasoning behind runbook step 11, which is worth not re-litigating:
+And the reasoning behind runbook step 11 — **the merge happened 2026-08-08**;
+kept only so it is not re-litigated:
 
 - **Merge to `master` — this is the launch, and it happens LAST** (decided
   2026-08-05). It was listed as independent of the rest because the placeholder
@@ -937,6 +996,14 @@ And the reasoning behind runbook step 11, which is worth not re-litigating:
 
 ## Gotchas that will bite
 
+- **`automatic_tax` on a Payment Link does not reach subscriptions that already
+  exist.** The link setting governs *new* checkouts. A subscription created while
+  the link had `automatic_tax: false` keeps `automatic_tax: false` on the
+  subscription object and renews with no tax computed — for ever, silently, no
+  matter what the link says later. Found 2026-08-18: both live subscriptions carry
+  `false`. **Whenever tax config changes, enumerate live subscriptions and update
+  each one**, don't assume the link covers them:
+  `stripe subscriptions list --live` then check `automatic_tax.enabled` per row.
 - **The Stripe CLI's live key on this machine is read-only.** `stripe login`
   stored a restricted key (`rk_live_…`, key `mk_1U06EgGZN5xaIveHwCWo4fR1`,
   expires **2026-10-31**) that can read products, prices, payment links and tax

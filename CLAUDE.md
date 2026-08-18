@@ -25,6 +25,23 @@ Domain: www.bandincc.it
 Edit files and run commands (`curl`, `grep`, `node`, `python3`, file reads, etc.) directly — do not stop to propose them and wait for approval. Just do the work and report what you found or changed.
 The exceptions below still hold: no git writes, no deploys, no running or building the app.
 
+## `bandincc-crawler/` is off-limits
+**Never create, edit, move or delete anything inside `bandincc-crawler/`.** It is
+a separate project with its own git repository and its own `CLAUDE.md`; work on
+it happens in its own checkout, not from here.
+
+Reading is fine — `grep`, `git log`, opening files for context is allowed and
+often useful. Writing is not, and that includes files that only *look* like they
+belong to this project. In particular `bandincc-crawler/coy123.github.io/` is a
+**stale nested copy of this website repo**: its `CLAUDE.md`, `todo.md` and source
+files are months out of date and must not be edited or used as a reference for
+how the site currently works. The live website repo is this root directory.
+
+The root `todo.md` supersedes `bandincc-crawler/coy123.github.io/todo.md`. That
+older file still holds three unresolved items (blog section, expanding the
+regional-laws page, testimonials) and is kept only as history — leave it where it
+is.
+
 # Git and Deployment
 Read-only git commands are fine (`git status`, `git log`, `git diff`, `git show`, `git branch`, `git blame`) — use them freely.
 Never run a git command that writes: no `commit`, `push`, `add`, `checkout`/`switch`, `merge`, `rebase`, `reset`, `stash`, `tag`, `cherry-pick`, `restore`, `rm`, or `config`. The user handles all of that.
