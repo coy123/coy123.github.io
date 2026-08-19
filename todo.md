@@ -1,6 +1,6 @@
 # BandiNCC — TODO
 
-Last updated: 2026-08-18
+Last updated: 2026-08-19
 
 Supersedes `bandincc-crawler/coy123.github.io/todo.md` (stale AdSense-era notes;
 left in place as history, do not edit — see `CLAUDE.md` → Autonomy).
@@ -127,6 +127,64 @@ free.
 - [ ] **Region at signup.** A driver in Sicilia does not care about Piemonte.
       Makes every email relevant and the price feel targeted rather than a
       national firehose.
+
+---
+
+## Sell the book as a PDF, direct from the site
+
+Amazon delisted the book as AI-generated after it had already sold copies.
+Decision: **stop renting a shopfront and sell the PDF ourselves.** No commission,
+no marketplace AI policy to be judged by, and it becomes a second product next
+to the newsletter for an audience that is already exactly the buyer.
+
+Worth one email to KDP first — their policy separates *AI-assisted* (allowed,
+disclosable) from *AI-generated* (not) — but the appeal is not the plan, this
+is. Re-listing on Kobo / Google Play / Apple would face the same policy, so
+those are out for the same reason.
+
+The infrastructure is nearly all in place: Stripe account, the
+`bandincc-stripe` Worker with a `checkout.session.completed` handler, and the
+OSS registration. What is missing is file hosting and the delivery branch.
+
+### Tasks
+
+- [ ] **Settle VAT before taking a single euro.** We are already registered and
+      collecting nothing (see the urgent section at the top) — a second product
+      makes that worse, not neutral. E-books get Italy's reduced rate, generally
+      conditional on an ISBN; the PDF has none today. Question for the
+      commercialista: reduced rate or standard 22%, and does selling direct
+      change the answer.
+- [ ] **One-time Stripe Payment Link** for the book, live + test, both URLs in
+      `locales/it.json` alongside the subscription links so `stripeHref()` and
+      the placeholder guard cover it the same way.
+- [ ] **R2 bucket, private**, holding the PDF. Bind it to the Worker. No public
+      URL — the Worker is the only thing that can hand out access.
+- [ ] **Delivery branch in the Worker.** Branch on the price ID: subscription →
+      existing MailerLite group; book → email a signed, time-limited download
+      link (24h). Both modes, so `bandincc-stripe-test` needs the binding and
+      the secrets too — named environments inherit nothing.
+- [ ] **Stamp the buyer's email into the PDF footer** on generation. Stops
+      casual resharing; nothing stronger is worth the effort.
+- [ ] **A page to sell it from.** Own route (`/libro/`?) plus a CTA on
+      `/how-to-become-driver/` — that page is the closest match to the book's
+      subject and already takes 373 visitors a month.
+- [ ] **`/grazie/` handles two purchase types.** It is the redirect target for
+      both Payment Links and currently only talks about the newsletter. Static
+      export cannot read the Stripe session, so either a second thank-you route
+      or copy that covers both cases.
+- [ ] **Cypress cover** for the new links, mirroring `subscription.cy.ts`:
+      placeholder state now, live contract the moment real URLs land.
+
+### Notes
+
+- **Payhip or Lemon Squeezy as a second shopfront** costs nothing and handles
+  VAT as merchant of record. Worth adding once the direct route works, not
+  instead of it.
+- **StreetLib / Youcanprint** (both Italian) would put it on laFeltrinelli, IBS
+  and Mondadori Store. Reach, not margin — revisit if direct sales are thin.
+- **The newsletter ad slots are the obvious cross-sell surface.** Three live
+  slots all carry `NewsletterAd` today; a book variant is a small change to a
+  component that already exists.
 
 ---
 
