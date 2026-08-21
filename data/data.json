@@ -853,5 +853,23 @@
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Treiso-Stemma.svg/960px-Treiso-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "latitude": "44.689222",
         "longitude": "8.0869"
+    },
+    {
+        "location": "Comune di Bitritto (BA)",
+        "deadline": "2026-10-19",
+        "url": "https://comune.bitritto.ba.it/novita/avviso-di-pubblicazione-bando-di-concorso-pubblico-per-assegnazione-n-5-autorizzazioni-n-c-c/",
+        "amount": 5,
+        "image": "https://upload.wikimedia.org/wikipedia/it/2/23/Bitritto-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "41.05",
+        "longitude": "16.833"
+    },
+    {
+        "location": "Comune di Martignano (LE)",
+        "deadline": "2026-9-18",
+        "url": "https://www.comune.martignano.le.it/vivere-il-comune/attivita/notizie/item/avviso-pubblico-selezione-per-n-2-licenze-di-noleggio-con-conducente.html",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/7/7a/Martignano-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "40.23821",
+        "longitude": "18.25602"
     }
 ]
