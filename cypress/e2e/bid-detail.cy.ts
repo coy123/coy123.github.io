@@ -28,9 +28,12 @@ const INTERNAL_LINKS = ['/', '/regional-laws', '/income-calculator', '/how-to-be
 
 describe('Bid detail pages', () => {
   describe('every generated slug resolves', () => {
-    it('serves a page for all bids in data.json', () => {
+    it('serves a page for every published bid', () => {
       // generateStaticParams() emits one route per entry; a slug regression
       // (diacritics, punctuation) would silently 404 in production.
+      //
+      // `bids` is the published set — the embargoed rows get their pages too,
+      // and embargo.cy.ts checks those (they are unlisted, not absent).
       bids.forEach((bid) => {
         cy.assertReachable(encodeURI(`${bidPath(bid)}/`))
       })

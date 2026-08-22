@@ -5,6 +5,7 @@ import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
 import { toSlug } from '@/lib/slug'
 import { CREST_EAGER_ROWS, CREST_SIZE_TABLE, crestUrl } from '@/lib/crest'
+import LockedRows from './LockedRows'
 
 interface TableRowProps {
   data: TableData
@@ -85,9 +86,17 @@ const TableRow: React.FC<TableRowProps> = ({ data, now, index }) => {
 
 interface TableProps {
   data: TableData[]
+  /**
+   * How many bandi are being held back by the release delay (lib/data.ts).
+   * Rendered as blurred placeholder rows above the real ones — only the
+   * number crosses over, never the rows themselves.
+   */
+  lockedCount?: number
+  /** Days until the first of those bandi goes public (lib/embargo.ts). */
+  lockedNextInDays?: number | null
 }
 
-const Table: React.FC<TableProps> = ({ data }) => {
+const Table: React.FC<TableProps> = ({ data, lockedCount = 0, lockedNextInDays = null }) => {
   const t = getTranslations()
   const [now, setNow] = useState<number | null>(null)
 
@@ -131,6 +140,10 @@ const Table: React.FC<TableProps> = ({ data }) => {
           <span className="hidden sm:inline text-gray-200">{t.table.headers.view}</span>
         </div>
       </div>
+
+      {/* Above the rows, because the withheld bandi are the newest ones and
+          this is where the descending-deadline sort would put them. */}
+      <LockedRows count={lockedCount} nextInDays={lockedNextInDays} />
 
       <div className="divide-y divide-gray-600">
         {sortedData.map((row, index) => (

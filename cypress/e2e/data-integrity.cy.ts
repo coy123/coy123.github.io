@@ -1,4 +1,17 @@
-import { bids, faqs, glossaryTerms, laws, rawBids, toSlug } from '../support/site'
+// `allBids`, not `bids`: these are source-hygiene checks and they have to cover
+// the rows the release delay is currently hiding too — a bad slug or a pasted
+// crest must fail now, not seven days from now when the row goes public.
+import {
+  RELEASE_DELAY_DAYS,
+  allBids as bids,
+  detectionDay,
+  faqs,
+  glossaryTerms,
+  laws,
+  rawBids,
+  releaseCutoff,
+  toSlug,
+} from '../support/site'
 import { CREST_SIZE_DETAIL, CREST_SIZE_TABLE, CREST_WIDTHS, crestUrl } from '../../lib/crest'
 
 /**
@@ -84,6 +97,36 @@ describe('data/data.json', () => {
       expect(parsed.toISOString().slice(0, 10), `${bid.location} deadline round-trips`).to.eq(
         bid.deadline
       )
+    })
+  })
+
+  it('dates every detection readably, no later than today', () => {
+    // `detectedat` drives the seven-day embargo (lib/embargo.ts). A row whose
+    // date is missing or unreadable is treated as published — the right
+    // fallback for a build, since the alternative is a table that silently
+    // empties, but for a paywall it fails *open*: a brand-new bando would skip
+    // its week and nothing on the page would look wrong. This is the guard,
+    // and it runs before both deploys.
+    //
+    // releaseCutoff() subtracts the delay, so adding it back gives today's
+    // Italian calendar day — the same arithmetic the app uses, not a second one.
+    const today = releaseCutoff(Date.now() + RELEASE_DELAY_DAYS * 24 * 60 * 60 * 1000)
+    bids.forEach((bid) => {
+      expect(bid.detectedat, `${bid.location} detectedat`).to.be.a('string').and.not.be.empty
+      // Readable is not the same as right. `new Date('01/08/2026')` parses
+      // happily — as the 8th of January, in whatever timezone the runner sits
+      // in — so a European d/m/Y typo would sail past `detectionDay` and
+      // mis-date the bando by seven months, holding it back or releasing it
+      // early with nothing to show for it. Only the two shapes the file
+      // actually uses are accepted: a bare "2026-08-01" and the ISO instant
+      // the curation step writes, "2026-07-31T22:00:00.000Z".
+      expect(
+        bid.detectedat,
+        `${bid.location} detectedat "${bid.detectedat}" is an ISO date`
+      ).to.match(/^\d{4}-\d{2}-\d{2}([T ][\d:.]+(Z|[+-]\d{2}:?\d{2})?)?$/)
+      const day = detectionDay(bid.detectedat)
+      expect(day, `${bid.location} detectedat "${bid.detectedat}" is readable`).to.be.a('string')
+      expect(day! <= today, `${bid.location} detectedat "${day}" is not in the future`).to.be.true
     })
   })
 

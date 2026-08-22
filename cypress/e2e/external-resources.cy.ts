@@ -1,4 +1,6 @@
-import { bids, laws } from '../support/site'
+// `allBids`: a dead source URL or a broken crest on an embargoed row is worth
+// catching while it is still only in the newsletter.
+import { allBids as bids, laws } from '../support/site'
 
 /**
  * Opt-in spec. The whole point is to hit the real internet — Wikimedia crests

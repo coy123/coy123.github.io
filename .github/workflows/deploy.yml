@@ -6,6 +6,17 @@ on:
   pull_request:
     branches: [ master ]
   workflow_dispatch:
+  # A bando is subscriber-only for its first seven days, and the cutoff is
+  # evaluated at build time (lib/data.ts — `output: 'export'` leaves no server
+  # to evaluate it per request). So a rebuild is what actually releases a
+  # bando: without this trigger, one detected eight days ago would stay hidden
+  # until somebody happened to push.
+  #
+  # GitHub cron is UTC only: 05:00 UTC is 07:00 in Italy on summer time, 06:00
+  # on winter time. It chains into newsletter.yml as usual, which finds no new
+  # rows and simply advances the `newsletter-sent` tag.
+  schedule:
+    - cron: '0 5 * * *'
 
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages

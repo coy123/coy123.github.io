@@ -27,9 +27,19 @@ export const sel = {
   anchorPills: 'a[href^="#section-"]',
 
   /* Tables (bids + laws share the same row shell) ----------------------- */
+  // `min-h-`, not `h-`: the locked placeholder rows are sized `h-[4.5rem]`
+  // precisely so this keeps meaning "a real bid row" and never counts them.
   tableRow: 'div[class*="min-h-[4.5rem]"]',
   bidLink: 'a[href^="/bandi/"]',
   crestImage: 'img[alt^="Comune "]',
+
+  /* Locked rows (bandi inside their subscriber-only window) ------------- */
+  /** The blurred skeleton. Contains no text and no links, by design. */
+  lockedRows: '.locked-rows',
+  /** One shimmering placeholder bar inside it. */
+  lockedBar: '.locked-bar',
+  /** The subscription card sitting over the skeleton. */
+  lockedOverlay: '.locked-rows + div a[href^="/abbonamento"]',
 
   /* Leaflet ------------------------------------------------------------ */
   map: '.leaflet-container',

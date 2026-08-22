@@ -162,11 +162,15 @@ describe('Abbonamento', () => {
 })
 
 describe('Abbonamento entry points', () => {
-  it('is reachable from the home page banner ad', () => {
+  it('carries no newsletter ad on the home page', () => {
+    // The locked rows in the table make the pitch there, with the context an
+    // ad cannot have. The banner slot above them and both desktop rails were
+    // removed rather than left to sell the same thing three times around one
+    // table; the entry points that remain are the locked rows and the footer.
     cy.useDesktop()
     cy.visitPage('/')
-    cy.get(sel.contentArea).contains(t.newsletterAd.heading).click()
-    cy.assertPath('/abbonamento')
+    cy.get(sel.contentArea).contains(t.newsletterAd.heading).should('not.exist')
+    cy.get(sel.sideAd).should('not.exist')
   })
 
   it('is reachable from the strip on a bid detail page', () => {
@@ -184,18 +188,20 @@ describe('Abbonamento entry points', () => {
   })
 
   it('shows the side rails on desktop but not on mobile', () => {
+    // Any page that still carries them — not '/', which now has none.
     cy.useDesktop()
-    cy.visitPage('/')
+    cy.visitPage('/faq')
     cy.get(sel.sideAd).should('have.length', 2).and('be.visible')
     cy.useMobile()
     cy.get(sel.sideAd).should('not.be.visible')
   })
 
-  it('drops the side rails on the pages they would advertise', () => {
+  it('drops the side rails where the pitch is already made', () => {
     // A "subscribe" pitch next to the checkout, or beside the thank-you page of
-    // someone who just paid, reads as broken.
+    // someone who just paid, reads as broken. On the home page the locked rows
+    // already say it, in context.
     cy.useDesktop()
-    ;['/abbonamento', '/grazie'].forEach((path) => {
+    ;['/', '/abbonamento', '/grazie'].forEach((path) => {
       cy.visitPage(path)
       cy.get(sel.sideAd).should('not.exist')
     })

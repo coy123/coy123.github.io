@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import Table from './Table'
 import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
@@ -17,14 +18,26 @@ const MapView = dynamic(() => import('./MapView'), {
 
 interface HomeContentProps {
   data: TableData[]
+  /**
+   * How many bandi the release delay is holding back (lib/data.ts). The rows
+   * themselves stay on the server; only this number is ever sent to a client.
+   */
+  lockedCount?: number
+  /** Days until the first of them is released (lib/embargo.ts). */
+  lockedNextInDays?: number | null
 }
 
-export default function HomeContent({ data }: HomeContentProps) {
+export default function HomeContent({
+  data,
+  lockedCount = 0,
+  lockedNextInDays = null,
+}: HomeContentProps) {
   const [activeTab, setActiveTab] = useState<'table' | 'map'>('table')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchExpanded, setSearchExpanded] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const t = getTranslations()
+  const locked = t.dashboard.locked
 
   useEffect(() => {
     if (searchExpanded) {
@@ -43,6 +56,11 @@ export default function HomeContent({ data }: HomeContentProps) {
       item.location.toLowerCase().includes(lowerQuery)
     )
   }, [data, searchQuery])
+
+  // Hidden while a search is running: sitting on top of filtered results, the
+  // block would read as "some of your matches are covered", which is a claim it
+  // cannot make — the withheld bandi are never matched against the query.
+  const visibleLockedCount = searchQuery.trim().length > 0 ? 0 : lockedCount
 
   return (
     <div className="bg-gray-700 rounded-lg shadow-sm p-2 sm:p-6">
@@ -123,7 +141,11 @@ export default function HomeContent({ data }: HomeContentProps) {
 
           {/* Table */}
           {filteredData.length > 0 ? (
-            <Table data={filteredData} />
+            <Table
+              data={filteredData}
+              lockedCount={visibleLockedCount}
+              lockedNextInDays={lockedNextInDays}
+            />
           ) : (
             <div className="text-center py-8 text-white">
               {t.dashboard.search.noResults}
@@ -132,7 +154,24 @@ export default function HomeContent({ data }: HomeContentProps) {
         </div>
       )}
 
-      {activeTab === 'map' && <MapView data={data} />}
+      {activeTab === 'map' && (
+        <div className="w-full">
+          <MapView data={data} />
+          {/* No blurred marker equivalent: a pin with no location is just a
+              pin in the sea. The map says it in one line instead. */}
+          {lockedCount > 0 && (
+            <p className="mt-3 text-xs sm:text-sm text-gray-300">
+              🔒{' '}
+              {lockedCount === 1
+                ? locked.mapNoteOne
+                : locked.mapNote.replace('{count}', String(lockedCount))}{' '}
+              <Link href="/abbonamento" className="text-blue-400 hover:text-blue-300 transition-colors">
+                {locked.mapCta}
+              </Link>
+            </p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

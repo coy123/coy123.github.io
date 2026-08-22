@@ -405,3 +405,47 @@
     display: none;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Locked rows (components/LockedRows.tsx)                             */
+/* ------------------------------------------------------------------ */
+
+/* The blurred stand-in for the bandi still inside their seven-day
+   subscriber window. Worth being precise about what this is and is not:
+   the bars underneath are empty elements, so the blur hides nothing — the
+   embargoed rows are filtered out on the server and never reach the HTML.
+   This is styling for an absence, which is why stripping the filter in
+   devtools reveals four blank divs and nothing else.
+
+   The mask fades the block downwards so it dissolves into the real rows
+   instead of ending on a hard edge. */
+.locked-rows {
+  filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 0.25) 100%);
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 0.25) 100%);
+  pointer-events: none;
+}
+
+.locked-bar {
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #4b5563 0%, #6b7280 45%, #4b5563 90%);
+  background-size: 200% 100%;
+  animation: lockedShimmer 2.6s linear infinite;
+}
+
+@keyframes lockedShimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* The shimmer only signals "there is something here"; the heading over it
+   says the same thing in words, so it can go without losing meaning. */
+@media (prefers-reduced-motion: reduce) {
+  .locked-bar {
+    animation: none;
+  }
+}

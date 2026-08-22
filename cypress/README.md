@@ -93,7 +93,8 @@ count has not been re-measured against a full local run.)
 | `links.cy.ts` | Crawls every `<a>` on every page: well-formed hrefs, internal targets requested for real, anchors resolve to existing ids, `target="_blank"` implies `rel=noopener` |
 | `accessibility.cy.ts` | Image alt text, button and form-control accessible names, heading sanity, `lang`, keyboard reachability |
 | `responsive.cy.ts` | Mobile / tablet / desktop: correct nav, no horizontal overflow, emoji headers, mobile search expansion |
-| `data-integrity.cy.ts` | `data.json` / `laws.json` / `faq.json` shape: required fields, ISO dates, positive integer amounts, absolute URLs, coordinates inside Italy, unique slugs, slugs ASCII-only and comma-free, locations trimmed, no duplicates |
+| `data-integrity.cy.ts` | `data.json` / `laws.json` / `faq.json` shape: required fields, ISO dates, a readable non-future `detectedat` on every row, positive integer amounts, absolute URLs, coordinates inside Italy, unique slugs, slugs ASCII-only and comma-free, locations trimmed, no duplicates |
+| `embargo.cy.ts` | The seven-day release delay: no embargoed location, URL, slug or crest anywhere in the exported HTML or the sitemap; the locked rows (count, countdown, empty skeleton, CTA, hidden during search); the map note; a detail page for every bando, `noindex` while embargoed |
 | `not-found.cy.ts` | 404 page content, status code, return-home link, nav and footer (unknown bid slug is export only) |
 | `external-resources.cy.ts` | Opt-in: really fetches every Wikimedia crest and every municipal source URL |
 
@@ -141,6 +142,25 @@ Two behaviours differ, and the suite is written to pass in both modes:
 The suite has been verified end-to-end against `next dev`. **It has not yet
 been run against the built export** — do that once with
 `npm run test:e2e:static` before wiring it into CI.
+
+### The release delay makes some tests conditional
+
+`cypress/support/site.ts` splits `data.json` the way `lib/data.ts` does:
+`bids` is what the site renders, `allBids` is every row, `embargoedBids` is
+what the seven-day delay is currently holding back. Most specs need no
+knowledge of this — they assert against `bids` and keep working.
+
+Two things to know when reading `embargo.cy.ts`:
+
+- **Its interesting tests skip when nothing is embargoed.** On a dataset where
+  every row is older than a week there is no locked block to assert on, and a
+  test that passed vacuously would be worse than a pending one. They come back
+  the moment a fresh bando lands.
+- **The cutoff is resolved twice**, once by `next build` and once by the spec
+  run — both as Italian calendar days, so they agree unless the two straddled
+  midnight in Rome. `nearCutoff` names the rows that could differ, and the
+  count assertion widens by exactly that many rather than asserting a number
+  that is only usually right.
 
 ### Data inconsistencies left alone
 

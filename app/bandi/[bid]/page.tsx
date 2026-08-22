@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import laws from '@/data/laws.json'
-import { bids } from '@/lib/data'
+import { bids, isPublished } from '@/lib/data'
 import { getTranslations } from '@/lib/translations'
 import AuthorBox from '@/components/AuthorBox'
 import { toSlug } from '@/lib/slug'
@@ -20,6 +20,11 @@ function findLaw(location: string) {
   return laws.find((law) => location.toLowerCase().includes(law.location.toLowerCase()))
 }
 
+// Every bando gets a page, embargoed ones included. The seven-day delay
+// (lib/data.ts) hides a bando from the table, the map and the sitemap — not
+// from the newsletter, which mails it on day 0 and links straight here. A
+// missing page would turn every subscriber's "Visualizza" button into a 404
+// during exactly the week they are paying for.
 export async function generateStaticParams() {
   return bids.map((item) => ({
     bid: toSlug(item.location),
@@ -38,6 +43,12 @@ export async function generateMetadata({ params }: { params: Promise<{ bid: stri
       .replace('{location}', bid.location)
       .replace('{amount}', String(bid.amount))
       .replace('{deadline}', bid.deadline),
+    // An embargoed bando is unlisted, not published: nothing on the site links
+    // to it and it is not in the sitemap, so `noindex` is what stops a crawler
+    // that followed a forwarded newsletter link from putting it in the index
+    // (and the site from competing with itself once the page goes public a
+    // week later). The next build after the release date drops this.
+    ...(isPublished(bid) ? {} : { robots: { index: false, follow: false } }),
   }
 }
 

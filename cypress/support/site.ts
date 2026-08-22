@@ -9,6 +9,7 @@ import faqJson from '../../data/faq.json'
 import translations from '../../locales/it.json'
 import { toSlug } from '../../lib/slug'
 import { trimStrings } from '../../lib/trim'
+import { RELEASE_DELAY_DAYS, detectionDay, isPublished, releaseCutoff } from '../../lib/embargo'
 import {
   CREST_EAGER_ROWS,
   CREST_SIZE_DETAIL,
@@ -23,6 +24,10 @@ export interface RawBid {
   url: string
   amount: number
   image: string
+  /** As the file spells it: lowercase, and an ISO instant rather than a day. */
+  detectedat?: string
+  /** The Italian calendar day that instant belongs to, as `lib/data.ts` derives it. */
+  detectedAt?: string
   latitude?: string
   longitude?: string
 }
@@ -45,8 +50,53 @@ export interface FaqEntry {
  */
 export const rawBids: RawBid[] = bidsJson as RawBid[]
 
-/** What the app renders: the same rows with their strings trimmed (lib/trim.ts). */
-export const bids: RawBid[] = rawBids.map(trimStrings)
+/**
+ * Every row, trimmed (lib/trim.ts) — embargoed ones included, and with the
+ * same `detectedat` → `detectedAt` normalisation `lib/data.ts` applies on
+ * read. Without it every row would look undated here and the suite would
+ * happily assert that nothing is ever held back.
+ */
+export const allBids: RawBid[] = rawBids.map((bid) => {
+  const trimmed = trimStrings(bid)
+  return { ...trimmed, detectedAt: detectionDay(trimmed.detectedat) }
+})
+
+/* ------------------------------------------------------------------ */
+/* The release delay                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A bando detected less than `RELEASE_DELAY_DAYS` ago is subscriber-only: the
+ * newsletter has it, the site does not. `lib/data.ts` applies the split on the
+ * server at build time, so the embargoed rows are not in the exported HTML at
+ * all — see cypress/e2e/embargo.cy.ts, which is the spec that proves it.
+ *
+ * The helpers are imported from the app rather than reimplemented, so the
+ * suite cannot drift from the rule it is checking.
+ *
+ * One nuance worth stating: the site resolves the cutoff when `next build`
+ * runs, this file when the spec runs. Both are Italian calendar days, so they
+ * agree unless a run straddles midnight in Rome — which would take a build and
+ * a test on either side of it. `nearCutoff` names the rows in that band so a
+ * count assertion can allow for them instead of flaking.
+ */
+export { RELEASE_DELAY_DAYS, detectionDay, isPublished, releaseCutoff }
+
+/** What the public site renders: everything past its seven-day window. */
+export const bids: RawBid[] = allBids.filter((bid) => isPublished(bid))
+
+/** Held back for subscribers. Must appear nowhere in the exported HTML. */
+export const embargoedBids: RawBid[] = allBids.filter((bid) => !isPublished(bid))
+
+/**
+ * Rows whose release lands on today's or yesterday's cutoff, i.e. the only
+ * ones a build/test pair either side of UTC midnight could disagree about.
+ */
+export const nearCutoff: RawBid[] = allBids.filter(
+  (bid) =>
+    bid.detectedAt === releaseCutoff() ||
+    bid.detectedAt === releaseCutoff(Date.now() - 24 * 60 * 60 * 1000)
+)
 export const laws: RawLaw[] = lawsJson as RawLaw[]
 export const faqs: FaqEntry[] = faqJson as FaqEntry[]
 export const t = translations

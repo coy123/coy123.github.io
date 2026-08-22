@@ -76,29 +76,50 @@ free.
 
 ### Tasks
 
-- [ ] **Add `detectedAt` (ISO date) to `data/data.json`.** Set by the colleague
-      at review time, alongside the existing fields.
-- [ ] **Backfill `detectedAt` for the existing 95 rows** from git history (each
-      row's first-seen commit date — script already written, see conversation).
-- [ ] **`lib/embargo.ts`** — one shared helper holding the rule (age in days →
-      locked/unlocked). Single source of truth.
-- [ ] **Filter at build time in `lib/data.ts`.** Locked rows must ship **only**
-      region, licence count and unlock date. Comune name, deadline and URL must
-      not be in the HTML at all.
-- [ ] **Locked row UI in `components/Table.tsx`** — countdown + CTA to
-      `/abbonamento`. Decide map behaviour too (`components/MapView.tsx`).
-- [ ] **Nightly rebuild.** `output: 'export'` means the embargo only advances on
-      a build. Without a scheduled rebuild a locked row stays locked forever
-      until someone pushes. Add `schedule:` to `deploy.yml`.
-- [ ] **Check the `newsletter.yml` interaction.** It chains off `deploy.yml` via
-      `workflow_run`, so a nightly build will fire it with nothing new and move
-      the `newsletter-sent` tag on days nobody touched the data. Harmless in
-      principle, but guard it — CLAUDE.md warns against casual tag movement.
-- [ ] **Mirror the embargo in `cypress/support/site.ts`.** It imports the real
-      `data.json`, so table/map/home specs go red the moment rows change shape.
-      Use a strict inequality on the boundary so a row sitting exactly on 7 days
-      cannot flip between the build step and the test step.
-- [ ] **Copy for the locked state** in `locales/it.json`.
+- [x] **Add `detectedat` (ISO instant) to `data/data.json`.** Done — lowercase
+      key, Rome midnight serialised as UTC (`2026-07-31T22:00:00.000Z`).
+- [x] **Backfill `detectedat` for the existing rows.** Done: 95 rows on
+      2026-08-01, the two newest on 2026-08-22.
+- [x] **`lib/embargo.ts`** — the shared rule: `RELEASE_DELAY_DAYS`,
+      `releaseCutoff()`, `isPublished()`, `detectionDay()`,
+      `daysUntilRelease()`. Imports nothing, so the Cypress specs use the real
+      thing rather than a copy. Days are **Italian calendar days**, not UTC —
+      slicing the stored instant would release everything a day early.
+- [x] **Filter at build time in `lib/data.ts`** — `publishedBids`,
+      `embargoedBids`, `embargoedCount`, `nextReleaseInDays`. Locked rows ship
+      **nothing at all** about the bando: not the comune, not the region, not
+      the licence count. Only the count of held rows and the days until the
+      next release cross over.
+- [x] **Locked row UI** — `components/LockedRows.tsx`, blurred empty skeleton
+      at the top of the table, one CTA card over it (count + countdown +
+      `/abbonamento`). Hidden while a search is running. The map gets a
+      one-line note instead: a pin with no location is just a pin in the sea.
+- [x] **Nightly rebuild** — `schedule: '0 5 * * *'` on `deploy.yml` (07:00
+      Italian summer time).
+- [x] **Checked the `newsletter.yml` interaction.** Harmless: a nightly build
+      with no data change makes `send-newsletter.mjs` exit on "No new bandi",
+      which is exactly the path that is allowed to advance `newsletter-sent`.
+      It only ever moves to a commit whose rows are all accounted for.
+- [x] **Mirror the embargo in `cypress/support/site.ts`** — `bids` is now the
+      published set, `allBids` everything, `embargoedBids` what is held. Rather
+      than a strict inequality on the boundary, `nearCutoff` names the rows a
+      build/test pair either side of Rome midnight could disagree about, and
+      the count assertion widens by exactly that many.
+- [x] **Copy for the locked state** in `locales/it.json` (`dashboard.locked`),
+      plus every claim that contradicted the delay: the home h1 and meta
+      descriptions ("Aggiornati Ogni Giorno"), the Dataset JSON-LD ("raccolta
+      completa"), the home description and "Come Usare Questa Piattaforma",
+      Chi Siamo, `newsletterAd`, `/abbonamento`, `/grazie`, and a new FAQ entry
+      ("Perché alcuni bandi nella tabella sono coperti?").
+- [x] **`cypress/e2e/embargo.cy.ts`** — proves the leak-proofing: no embargoed
+      location, URL, slug or crest in the exported HTML or in `sitemap.xml`.
+
+**One decision below was reversed in the build:** detail pages for embargoed
+bandi are built and reachable (the newsletter links to them on day 0) but carry
+`robots: noindex, nofollow` until release, and are kept out of `sitemap.xml`.
+Indexing them would let Google surface exactly what the embargo is holding
+back. Flip it by deleting one line in `app/bandi/[bid]/page.tsx` if the SEO
+argument wins.
 
 ### Notes / decisions made
 

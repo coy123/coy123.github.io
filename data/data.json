@@ -6,7 +6,8 @@
         "amount": 18,
         "image": "https://upload.wikimedia.org/wikipedia/en/thumb/a/ad/Casoria-Stemma.png/250px-Casoria-Stemma.png",
         "latitude": "40.918",
-        "longitude": "14.293"
+        "longitude": "14.293",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Candelo (BI)",
@@ -15,7 +16,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/en/thumb/7/73/Candelo.gif/250px-Candelo.gif",
         "latitude": "45.563",
-        "longitude": "8.098"
+        "longitude": "8.098",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Cavriglia (AR)",
@@ -24,7 +26,8 @@
         "amount": 8,
         "image": "https://upload.wikimedia.org/wikipedia/en/thumb/5/52/Cavriglia-Stemma.png/250px-Cavriglia-Stemma.png",
         "latitude": "43.525",
-        "longitude": "11.468"
+        "longitude": "11.468",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Forlì (FC)",
@@ -33,7 +36,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Forl%C3%AC-Stemma.svg/250px-Forl%C3%AC-Stemma.svg.png",
         "latitude": "44.222",
-        "longitude": "12.041"
+        "longitude": "12.041",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Orta San Giulio (NO)",
@@ -42,7 +46,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/en/b/bb/Orta_San_Giulio-Stemma.png",
         "latitude": "45.801",
-        "longitude": "8.401"
+        "longitude": "8.401",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Provincia di Latina (LT)",
@@ -51,7 +56,8 @@
         "amount": 7,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Latina-Stemma.svg/960px-Latina-Stemma.svg.png",
         "latitude": "41.467",
-        "longitude": "12.903"
+        "longitude": "12.903",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Impruneta (FI)",
@@ -60,7 +66,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/en/3/39/Impruneta-Stemma.gif",
         "latitude": "43.684",
-        "longitude": "11.251"
+        "longitude": "11.251",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Lecco (LC)",
@@ -69,7 +76,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Lecco-Stemma.svg/60px-Lecco-Stemma.svg.png",
         "latitude": "45.856",
-        "longitude": "9.397"
+        "longitude": "9.397",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di San Mauro Forte (MT)",
@@ -78,7 +86,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/c/c9/San_Mauro_Forte-Stemma.png",
         "latitude": "40.471",
-        "longitude": "16.177"
+        "longitude": "16.177",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Sondrio (SO)",
@@ -87,7 +96,8 @@
         "amount": 12,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Sondrio-Stemma.svg/250px-Sondrio-Stemma.svg.png",
         "latitude": "46.172",
-        "longitude": "9.871"
+        "longitude": "9.871",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Francavilla Fontana (BR)",
@@ -96,7 +106,8 @@
         "amount": 9,
         "image": "https://upload.wikimedia.org/wikipedia/it/a/ab/Francavilla_Fontana-Stemma.png",
         "latitude": "40.531",
-        "longitude": "17.585"
+        "longitude": "17.585",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comunne di Reggio Emilia (RE)",
@@ -105,7 +116,8 @@
         "amount": 4,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Reggio_Emilia-Stemma.svg/960px-Reggio_Emilia-Stemma.svg.png",
         "latitude": "44.698",
-        "longitude": "10.631"
+        "longitude": "10.631",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Calto (RO, Veneto)",
@@ -114,7 +126,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/b/bf/Calto-Stemma.png",
         "latitude": "44.977",
-        "longitude": "11.368"
+        "longitude": "11.368",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Milano (MI)",
@@ -123,7 +136,8 @@
         "amount": 450,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/CoA_Citt%C3%A0_di_Milano.svg/250px-CoA_Citt%C3%A0_di_Milano.svg.png",
         "latitude": "45.464",
-        "longitude": "9.19"
+        "longitude": "9.19",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Bologna (BO)",
@@ -132,7 +146,8 @@
         "amount": 72,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bologna-Stemma.svg/250px-Bologna-Stemma.svg.png",
         "latitude": "44.494",
-        "longitude": "11.342"
+        "longitude": "11.342",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Como (CO)",
@@ -141,7 +156,8 @@
         "amount": 23,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Como-Stemma.svg/250px-Como-Stemma.svg.png",
         "latitude": "45.808",
-        "longitude": "9.085"
+        "longitude": "9.085",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Gardone Riviera (BS)",
@@ -150,7 +166,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Gardone_Riviera-Stemma.svg/250px-Gardone_Riviera-Stemma.svg.png",
         "latitude": "45.623",
-        "longitude": "10.579"
+        "longitude": "10.579",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Desenzano del garda",
@@ -159,7 +176,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Desenzano_del_Garda-Stemma.svg/250px-Desenzano_del_Garda-Stemma.svg.png",
         "latitude": "45.472",
-        "longitude": "10.537"
+        "longitude": "10.537",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Foggia (Puglia)",
@@ -168,7 +186,8 @@
         "amount": 7,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Foggia-Stemma.svg/250px-Foggia-Stemma.svg.png",
         "latitude": "41.462",
-        "longitude": "15.544"
+        "longitude": "15.544",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Comacchio (FE)",
@@ -177,7 +196,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Comacchio-Stemma.svg/250px-Comacchio-Stemma.svg.png",
         "latitude": "44.639",
-        "longitude": "12.183"
+        "longitude": "12.183",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Colle di Val d’Elsa (Toscana)",
@@ -186,7 +206,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Colle_di_Val_d%27Elsa-Stemma.svg/250px-Colle_di_Val_d%27Elsa-Stemma.svg.png",
         "latitude": "43.421",
-        "longitude": "11.125"
+        "longitude": "11.125",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Ottana",
@@ -195,7 +216,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/c/c2/Ottana-Stemma.png",
         "latitude": "40.1403",
-        "longitude": "9.0233"
+        "longitude": "9.0233",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Ariccia (RM)",
@@ -204,7 +226,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/c/c6/Ariccia-Stemma.png",
         "latitude": "41.738299",
-        "longitude": "12.660515"
+        "longitude": "12.660515",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Trasacco (AQ)",
@@ -213,7 +236,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/5/58/Trasacco-Stemma.png",
         "latitude": "41.5728",
-        "longitude": "13.3207"
+        "longitude": "13.3207",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Minturno (LT)",
@@ -222,7 +246,8 @@
         "amount": 7,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Minturno-Stemma.svg/250px-Minturno-Stemma.svg.png",
         "latitude": "41.245676",
-        "longitude": "13.729960"
+        "longitude": "13.729960",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Gazoldo Degli Ippoliti (MN)",
@@ -231,7 +256,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/b/b8/Gazoldo_degli_Ippoliti-Stemma.png",
         "latitude": "45.198952",
-        "longitude": "10.577219"
+        "longitude": "10.577219",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Borgo Virgilio (MN)",
@@ -240,7 +266,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/d/d2/Borgo_Virgilio-Stemma.png",
         "latitude": "45.102857",
-        "longitude": "10.784445"
+        "longitude": "10.784445",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Monteverdi Marittimo (PI)",
@@ -249,7 +276,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/b/bd/Monteverdi_Marittimo-Stemma.png",
         "latitude": "43.151122",
-        "longitude": "10.711041"
+        "longitude": "10.711041",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Voghiera (FE)",
@@ -258,7 +286,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Voghiera-Stemma.svg",
         "latitude": "44.759779",
-        "longitude": "11.753123"
+        "longitude": "11.753123",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Carlino (UD)",
@@ -267,7 +296,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/b/be/Carlino_%28Italia%29-Stemma.png",
         "latitude": "45.798450",
-        "longitude": "13.186903"
+        "longitude": "13.186903",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Rapolla (PZ)",
@@ -276,7 +306,8 @@
         "amount": 4,
         "image": "https://upload.wikimedia.org/wikipedia/it/6/6f/Rapolla-Stemma1.png",
         "latitude": "40.978634",
-        "longitude": "15.669772"
+        "longitude": "15.669772",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Roccaraso (AQ)",
@@ -285,7 +316,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/f/f6/Roccaraso-Stemma.png",
         "latitude": "41.84466",
-        "longitude": "14.079786"
+        "longitude": "14.079786",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Lugo (RA)",
@@ -294,7 +326,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Lugo_%28Italia%29-Stemma.svg/960px-Lugo_%28Italia%29-Stemma.svg.png",
         "latitude": "44.4875",
-        "longitude": "11.9138"
+        "longitude": "11.9138",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Catania (CA)",
@@ -303,7 +336,8 @@
         "amount": 17,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Catania-Stemma.svg/500px-Catania-Stemma.svg.png",
         "latitude": "37.50800",
-        "longitude": "15.06362"
+        "longitude": "15.06362",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Castiglione della Pescaia (GR)",
@@ -312,7 +346,8 @@
         "amount": 5,
         "image": "https://upload.wikimedia.org/wikipedia/it/8/83/Castiglione_della_Pescaia-Stemma.png",
         "latitude": "42.773004",
-        "longitude": "10.889780"
+        "longitude": "10.889780",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Regione Calabria",
@@ -321,7 +356,8 @@
         "amount": 67,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Coat_of_arms_of_Calabria.svg/960px-Coat_of_arms_of_Calabria.svg.png",
         "latitude": "39.107793",
-        "longitude": "16.444898"
+        "longitude": "16.444898",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Moretta (CN)",
@@ -330,7 +366,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Moretta_%28Italia%29-Stemma.svg/960px-Moretta_%28Italia%29-Stemma.svg.png",
         "latitude": "44.760622",
-        "longitude": "7.521695"
+        "longitude": "7.521695",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Sannazzaro de Burgondi (PV)",
@@ -339,7 +376,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Sannazzaro_de%27_Burgondi-Stemma.svg/960px-Sannazzaro_de%27_Burgondi-Stemma.svg.png",
         "latitude": "45.109657",
-        "longitude": "8.912213"
+        "longitude": "8.912213",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Marannello (MO)",
@@ -348,7 +386,8 @@
         "amount": 4,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Maranello-Stemma.svg/960px-Maranello-Stemma.svg.png",
         "latitude": "44.533689",
-        "longitude": "10.871816"
+        "longitude": "10.871816",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Mandello del Lario (LC)",
@@ -357,7 +396,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/0/00/Mandello_del_Lario-Stemma.png",
         "latitude": "45.925353",
-        "longitude": "9.317513"
+        "longitude": "9.317513",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Barberino Tavarnelle (FI)",
@@ -366,7 +406,8 @@
         "amount": 4,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Barberino_Tavarnelle-Stemma.svg/250px-Barberino_Tavarnelle-Stemma.svg.png",
         "latitude": "43.508466",
-        "longitude": "11.214106"
+        "longitude": "11.214106",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Nova Milanese (MB)",
@@ -375,7 +416,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Nova_Milanese-Stemma.svg/250px-Nova_Milanese-Stemma.svg.png",
         "latitude": "45.589760",
-        "longitude": "9.190071"
+        "longitude": "9.190071",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Stornarella (FG)",
@@ -384,7 +426,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/thumb/8/8f/Stornarella-Stemma.png/250px-Stornarella-Stemma.png",
         "latitude": "41.255665",
-        "longitude": "15.729419"
+        "longitude": "15.729419",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Cassano dAdda (MI)",
@@ -393,7 +436,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Cassano_d%27Adda-Stemma.svg/250px-Cassano_d%27Adda-Stemma.svg.png",
         "latitude": "45.526371",
-        "longitude": "9.519962"
+        "longitude": "9.519962",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Badalucco (IM)",
@@ -402,7 +446,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Badalucco-Stemma.svg/960px-Badalucco-Stemma.svg.png",
         "latitude": "43.915240",
-        "longitude": "7.846273"
+        "longitude": "7.846273",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Santa Luce (PI)",
@@ -411,7 +456,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/thumb/6/62/Santa_Luce-Stemma.png/250px-Santa_Luce-Stemma.png",
         "latitude": "43.472911",
-        "longitude": "10.564299"
+        "longitude": "10.564299",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Giovinazzo (BA)",
@@ -420,7 +466,8 @@
         "amount": 9,
         "image": "https://upload.wikimedia.org/wikipedia/it/2/2c/Giovinazzo-Stemma.png",
         "latitude": "41.188244",
-        "longitude": "16.671041"
+        "longitude": "16.671041",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Nettuno (RM)",
@@ -429,7 +476,8 @@
         "amount": 15,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Nettuno_%28Italia%29-Stemma.svg/960px-Nettuno_%28Italia%29-Stemma.svg.png",
         "latitude": "41.457982",
-        "longitude": "12.660422"
+        "longitude": "12.660422",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Perano (CH)",
@@ -438,7 +486,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/a/a6/Perano-Stemma.png",
         "latitude": "42.108284",
-        "longitude": "14.395465"
+        "longitude": "14.395465",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Monopoli (BA)",
@@ -447,7 +496,8 @@
         "amount": 43,
         "image": "https://upload.wikimedia.org/wikipedia/commons/4/47/Monopoli_%28Italia%29-Stemma.svg",
         "latitude": "40.950657",
-        "longitude": "17.301098"
+        "longitude": "17.301098",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Manerba del Garda (BS)",
@@ -456,7 +506,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/6/68/Manerba_del_Garda-Stemma.png",
         "latitude": "45.555583",
-        "longitude": "10.557130"
+        "longitude": "10.557130",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Moniga del Garda (BS)",
@@ -465,7 +516,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/5/55/Moniga_del_Garda-Stemma.png",
         "latitude": "45.526557",
-        "longitude": "10.538990"
+        "longitude": "10.538990",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Padenghe sul Garda (BS)",
@@ -474,7 +526,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/thumb/2/24/Padenghe_sul_Garda-Stemma.png/250px-Padenghe_sul_Garda-Stemma.png",
         "latitude": "45.497766",
-        "longitude": "10.504824"
+        "longitude": "10.504824",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Soiano del Lago (BS)",
@@ -483,7 +536,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/a/a7/Soiano_del_Lago-Stemma.png",
         "latitude": "45.536673",
-        "longitude": "10.512822"
+        "longitude": "10.512822",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Azzano San Paolo (BG)",
@@ -492,7 +546,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Azzano_San_Paolo-Stemma.svg/960px-Azzano_San_Paolo-Stemma.svg.png",
         "latitude": "45.660373",
-        "longitude": "9.672912"
+        "longitude": "9.672912",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Turania (RI)",
@@ -501,7 +556,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/e/eb/Turania-Stemma.png",
         "latitude": "42.137886",
-        "longitude": "13.009932"
+        "longitude": "13.009932",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Fiorenzuola (PC)",
@@ -510,7 +566,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Fiorenzuola_d%27Arda-Stemma.svg/960px-Fiorenzuola_d%27Arda-Stemma.svg.png",
         "latitude": "44.934636",
-        "longitude": "9.928439"
+        "longitude": "9.928439",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Gambassi Terme (FI)",
@@ -519,7 +576,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/9/9c/Gambassi_Terme-Stemma.png",
         "latitude": "43.537088",
-        "longitude": "10.954536"
+        "longitude": "10.954536",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Pieve di Teco (IM)",
@@ -528,7 +586,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Pieve_di_Teco-Stemma.svg/960px-Pieve_di_Teco-Stemma.svg.png",
         "latitude": "44.047449",
-        "longitude": "7.920145"
+        "longitude": "7.920145",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Guarene (CN)",
@@ -537,7 +596,8 @@
         "amount": 4,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Guarene-Stemma.svg/960px-Guarene-Stemma.svg.png",
         "latitude": "44.737633",
-        "longitude": "8.031355"
+        "longitude": "8.031355",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Capoterra (CA)",
@@ -546,7 +606,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Capoterra-Stemma_(2026-).svg/60px-Capoterra-Stemma_(2026-).svg.png",
         "latitude": "39.173348",
-        "longitude": "8.974207"
+        "longitude": "8.974207",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Gambasca (CN)",
@@ -555,7 +616,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Gambasca-Stemma.svg/960px-Gambasca-Stemma.svg.png",
         "latitude": "44.625125",
-        "longitude": "7.341359"
+        "longitude": "7.341359",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Spolet (PG)",
@@ -564,7 +626,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Spoleto-Stemma_2.svg/250px-Spoleto-Stemma_2.svg.png",
         "latitude": "42.757989",
-        "longitude": "12.723579"
+        "longitude": "12.723579",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di San Ferdinando (RC)",
@@ -573,7 +636,8 @@
         "amount": 5,
         "image": "https://upload.wikimedia.org/wikipedia/it/4/4e/San_Ferdinando_%28Italia%29-Stemma.png",
         "latitude": "38.483293",
-        "longitude": "15.913047"
+        "longitude": "15.913047",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Prossedi (LT)",
@@ -582,7 +646,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/thumb/3/32/Prossedi-Stemma.png/960px-Prossedi-Stemma.png",
         "latitude": "41.516509",
-        "longitude": "13.260222"
+        "longitude": "13.260222",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Città di Bagheria (PA)",
@@ -591,7 +656,8 @@
         "amount": 10,
         "image": "https://upload.wikimedia.org/wikipedia/it/f/f5/Bagheria-Stemma.png",
         "latitude": "38.075026",
-        "longitude": "13.509943"
+        "longitude": "13.509943",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Pomigliano Arco (NA)",
@@ -600,7 +666,8 @@
         "amount": 5,
         "image": "https://upload.wikimedia.org/wikipedia/it/f/ff/Pomigliano_d%27Arco-Stemma.png",
         "latitude": "40.904526",
-        "longitude": "14.393911"
+        "longitude": "14.393911",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Nova Ponente (BZ)",
@@ -609,7 +676,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/9/99/Nova_Ponente-Stemma.png",
         "latitude": "46.412964",
-        "longitude": "11.425718"
+        "longitude": "11.425718",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Granozzo Con Monticello (NO)",
@@ -618,7 +686,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/0/0e/Granozzo_con_Monticello-Stemma.png",
         "latitude": "45.359250",
-        "longitude": "8.573591"
+        "longitude": "8.573591",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Gioiosa Marea (ME)",
@@ -627,7 +696,8 @@
         "amount": 12,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Gioiosa_Marea-Stemma.svg/960px-Gioiosa_Marea-Stemma.svg.png",
         "latitude": "38.176560",
-        "longitude": "14.897858"
+        "longitude": "14.897858",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Pescopennataro (IS)",
@@ -636,7 +706,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Pescopennataro-Stemma.svg/960px-Pescopennataro-Stemma.svg.png",
         "latitude": "41.878042",
-        "longitude": "14.293415"
+        "longitude": "14.293415",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Cesa (CE)",
@@ -645,7 +716,8 @@
         "amount": 24,
         "image": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Cesa-Stemma.png",
         "latitude": "40.965384",
-        "longitude": "14.228846"
+        "longitude": "14.228846",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Matelica (MC)",
@@ -654,7 +726,8 @@
         "amount": 10,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matelica-Stemma.svg/960px-Matelica-Stemma.svg.png",
         "latitude": "43.247901",
-        "longitude": "13.006326"
+        "longitude": "13.006326",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Edolo (BS)",
@@ -663,7 +736,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Edolo-Stemma.svg/250px-Edolo-Stemma.svg.png",
         "latitude": "46.1788",
-        "longitude": "10.33"
+        "longitude": "10.33",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Fiesco (CR)",
@@ -672,7 +746,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/2/23/Fiesco-Stemma.png",
         "latitude": "45.333",
-        "longitude": "9.783"
+        "longitude": "9.783",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Asola (MN)",
@@ -681,7 +756,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Asola-Stemma.svg/960px-Asola-Stemma.svg.png",
         "latitude": "45.216",
-        "longitude": "10.4166"
+        "longitude": "10.4166",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Rivello (PZ)",
@@ -690,7 +766,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/b/b6/Rivello-Stemma.png",
         "latitude": "40.07",
-        "longitude": "15.7"
+        "longitude": "15.7",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Cardeto (RC)",
@@ -699,7 +776,8 @@
         "amount": 10,
         "image": "https://upload.wikimedia.org/wikipedia/it/2/20/Cardeto-Stemma.png",
         "latitude": "38.083",
-        "longitude": "15.76"
+        "longitude": "15.76",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Pavone Canavese (TO)",
@@ -708,7 +786,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Pavone_Canavese-Stemma.svg/960px-Pavone_Canavese-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "latitude": "45.437559",
-        "longitude": "7.851715"
+        "longitude": "7.851715",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Villachiara (BS)",
@@ -717,7 +796,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/a/a1/Villachiara-Stemma.png",
         "latitude": "45.35",
-        "longitude": "9.9333"
+        "longitude": "9.9333",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di San Marcello Piteglio (PT)",
@@ -726,7 +806,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/c/c0/San_Marcello_Piteglio-Stemma.png",
         "latitude": "44.055",
-        "longitude": "10.790833"
+        "longitude": "10.790833",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Siderno (RC)",
@@ -735,7 +816,8 @@
         "amount": 10,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Siderno-Stemma.svg/960px-Siderno-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "latitude": "38.2666",
-        "longitude": "16.3"
+        "longitude": "16.3",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Casciana Terme Lari (PI)",
@@ -744,7 +826,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/2/2a/Casciana_Terme_Lari-Stemma.png",
         "latitude": "43.569568",
-        "longitude": "10.587256"
+        "longitude": "10.587256",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Ciconio (TO)",
@@ -753,7 +836,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/b/b2/Ciconio-Stemma.png",
         "latitude": "45.329915",
-        "longitude": "7.759493"
+        "longitude": "7.759493",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Castelforte (LT)",
@@ -762,7 +846,8 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Castelforte-Stemma.svg/960px-Castelforte-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "latitude": "41.3",
-        "longitude": "13.8333"
+        "longitude": "13.8333",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Sacco (SA)",
@@ -771,7 +856,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/7/76/Sacco-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
         "latitude": "40.3788",
-        "longitude": "15.37833"
+        "longitude": "15.37833",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Palazzo San Gervasio (PZ)",
@@ -780,7 +866,8 @@
         "amount": 6,
         "image": "https://upload.wikimedia.org/wikipedia/it/c/c1/Palazzo_San_Gervasio-Stemma.png",
         "latitude": "40.932",
-        "longitude": "15.98138"
+        "longitude": "15.98138",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Veglie (LE)",
@@ -789,7 +876,8 @@
         "amount": 7,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Veglie-Stemma.svg/1920px-Veglie-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "latitude": "40.3333",
-        "longitude": "17.966"
+        "longitude": "17.966",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Castropignano (CB)",
@@ -798,7 +886,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/6/63/Castropignano-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "latitude": "41.61",
-        "longitude": "14.56"
+        "longitude": "14.56",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Anfo (BS)",
@@ -807,7 +896,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/2/2b/Anfo-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "latitude": "45.7666",
-        "longitude": "10.5"
+        "longitude": "10.5",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Cossogno (VB)",
@@ -816,7 +906,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/it/e/e0/Cossogno-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "latitude": "45.96361",
-        "longitude": "8.5091666"
+        "longitude": "8.5091666",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Taranto (TA)",
@@ -825,7 +916,8 @@
         "amount": 4,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Taranto-Stemma.svg/960px-Taranto-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=index&utm_content=thumbnail",
         "latitude": "40.43302",
-        "longitude": "17.273"
+        "longitude": "17.273",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Città di Locri (RC)",
@@ -834,7 +926,8 @@
         "amount": 6,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Locri-Stemma.svg/960px-Locri-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "latitude": "38.233",
-        "longitude": "16.26"
+        "longitude": "16.26",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Valdina (ME)",
@@ -843,7 +936,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Valdina-Stemma.svg/960px-Valdina-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "latitude": "38.1936",
-        "longitude": "15.3688"
+        "longitude": "15.3688",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Treiso (CN)",
@@ -852,7 +946,8 @@
         "amount": 1,
         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Treiso-Stemma.svg/960px-Treiso-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "latitude": "44.689222",
-        "longitude": "8.0869"
+        "longitude": "8.0869",
+        "detectedat": "2026-07-31T22:00:00.000Z"
     },
     {
         "location": "Comune di Bitritto (BA)",
@@ -861,7 +956,8 @@
         "amount": 5,
         "image": "https://upload.wikimedia.org/wikipedia/it/2/23/Bitritto-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "latitude": "41.05",
-        "longitude": "16.833"
+        "longitude": "16.833",
+        "detectedat": "2026-08-21T22:00:00.000Z"
     },
     {
         "location": "Comune di Martignano (LE)",
@@ -870,6 +966,7 @@
         "amount": 2,
         "image": "https://upload.wikimedia.org/wikipedia/it/7/7a/Martignano-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "latitude": "40.23821",
-        "longitude": "18.25602"
+        "longitude": "18.25602",
+        "detectedat": "2026-08-21T22:00:00.000Z"
     }
 ]

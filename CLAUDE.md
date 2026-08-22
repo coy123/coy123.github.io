@@ -58,7 +58,7 @@ there.
 
 ## CI/CD Pipelines (`.github/workflows/`)
 - **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
-- **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
+- **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch` + a daily `schedule:` at 05:00 UTC. The cron is load-bearing, not housekeeping: the seven-day release delay is evaluated at build time, so a rebuild is what actually makes a bando public. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
 - **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `npx netlify-cli@27 deploy --dir=out --prod --no-build` in a plain `run:` step. **`--no-build` is load-bearing**: since netlify-cli v20 `deploy` builds by default, so without it the CLI reads the site's build settings from the Netlify UI and runs `npm run build` in a job that has no checkout. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets, and fails fast with a named error if either is empty. **Do not go back to `netlify/actions/cli@master`** — its `entrypoint.sh` captures the CLI in a command substitution and ends on an `::set-output` echo (removed by GitHub in 2023), so the step exits 0 no matter what the CLI did and prints none of its output. That is why staging deploys looked green for months while the site never updated.
 - **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it.
 - **Deploy gating**: every deploy job carries `if: github.event_name != 'pull_request'`, so a PR runs the suite only. Merging produces a `push`, which runs the suite again and then deploys. A failing suite fails `test`, and the dependent jobs never run.
@@ -195,6 +195,11 @@ interface TableData {
   longitude?: number
 }
 ```
+Plus `detectedat` in the JSON (lowercase, an ISO instant — Rome midnight
+serialised as UTC, e.g. `"2026-07-31T22:00:00.000Z"`), normalised on read into
+`detectedAt`, an Italian calendar day. It drives the seven-day release delay —
+see "The seven-day release delay" below.
+
 Data source: `data/data.json` — manually curated, loaded via `lib/data.ts`.
 
 ## LawData (types.ts) — Regional law entries
@@ -222,7 +227,7 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
   - **Search bar** — filters bids by location name (case-insensitive substring match)
   - **Table view** (`Table` component): rows sorted by deadline descending, green background for future deadlines, gray for past. Columns: crest image, location (links to `/bandi/{slug}`), license count, deadline date, view button
   - **Map view** (`MapView` component): Leaflet map centered on Italy (41.87°N, 12.57°E), circle markers (green = active, red = expired), popups with bid info and link to detail page
-- `NewsletterAd` banner between the description and the table, in the slot the disabled Amazon affiliate banner used to occupy (that banner is still there, commented out, because its tracking URL is not reproducible from anywhere else)
+- No newsletter ad: the banner slot between the description and the table is empty, and `SideAdSlot` renders nothing here — the locked rows carry the pitch instead (see "Ad Slots"). The disabled Amazon affiliate banner is still in that slot, commented out, because its tracking URL is not reproducible from anywhere else
 - SEO content sections rendered from `t.pages.home.sections` with internal links to related pages
 - JSON-LD Dataset schema
 
@@ -505,16 +510,23 @@ strip on the right. Below xl the h1 wraps and its background block fills the
 row. It goes immediately after the hero's opening tag, before the `<h1>`.
 
 ## Ad Slots
-Three slots exist in the markup, all live, all carrying `NewsletterAd` — the
-house ad for the paid newsletter:
+Three slots exist in the markup, carrying `NewsletterAd` — the house ad for the
+paid newsletter:
 
 - **Home banner** (`app/page.tsx`) — `variant="banner"`, above the table.
+  **Currently empty.** The locked rows in the table make the same pitch with the
+  context an ad cannot have (the reader is looking at bandi they cannot see
+  yet), so the banner sold the subscription twice within one screen and pushed
+  the table below the fold. The slot and its comment stay in place; the Amazon
+  affiliate banner is still commented out underneath.
 - **Desktop side rails** (`app/layout.tsx`) — `<SideAdSlot/>` either side of the
   content column, `hidden xl:flex`, sticky at `calc(50vh - 300px)` for a
   600px-tall creative. `SideAdSlot` is a **client** component only so it can
-  read `usePathname()` and render nothing on `/abbonamento` and `/grazie` —
-  advertising the subscription next to the checkout reads as broken, and the
-  layout is a server component that cannot branch on the route.
+  read `usePathname()` and render nothing on `/`, `/abbonamento` and `/grazie`
+  — advertising the subscription next to the checkout reads as broken, and on
+  the home page the locked rows already say it; the layout is a server
+  component that cannot branch on the route. **The home page therefore carries
+  no newsletter ad at all**; every other page keeps its rails.
 - **Bid detail strip** (`app/bandi/[bid]/page.tsx`) — `variant="strip"`, between
   the hero and the bid card, in the 90px slot that used to hold an empty "EGAF"
   placeholder. Fixed height from sm up only; at 390px the row would clip.
@@ -584,6 +596,60 @@ Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `M
 - `"Comune di Colle di Val d’Elsa (Toscana)"` → `"Comune-di-Colle-di-Val-d'Elsa-(Toscana)"`
 
 Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `cypress/e2e/data-integrity.cy.ts` enforces this.
+
+## The seven-day release delay
+
+A newly detected bando is **subscriber-only for its first week**: the newsletter
+mails it the day it lands in `data/data.json`, the site shows it seven days
+later. That head start is what `/abbonamento` sells, so the site has to keep it
+properly.
+
+- **`lib/embargo.ts`** holds the rule and imports nothing, so
+  `cypress/support/site.ts` can pull it in directly (its bundler resolves no
+  `@/` aliases). `RELEASE_DELAY_DAYS`, `releaseCutoff()`, `isPublished()`,
+  `detectionDay()`, `daysUntilRelease()`.
+- **Days are Italian calendar days, not UTC.** `data.json` stores detections as
+  midnight-in-Rome instants, so `"2026-07-31T22:00:00.000Z"` is the 1st of
+  August. Slicing the ISO string would date it the 31st of July and release it a
+  day early. `detectionDay()` folds either shape (instant or bare `YYYY-MM-DD`)
+  through `Europe/Rome`.
+- **`lib/data.ts` splits the dataset at build time**: `publishedBids` (what the
+  public site renders), `embargoedBids`, `embargoedCount`, `nextReleaseInDays`.
+  `bids` is still the whole set and belongs to the detail pages only.
+- **The split must stay on the server.** `output: 'export'` means the HTML is
+  the whole delivery, so filtering in the browser — the way `Table.tsx` defers
+  `now` for deadline colours — would ship every embargoed location, URL and
+  crest in the page source. `app/page.tsx` passes `publishedBids` down and
+  never `bids`.
+- **A row with no readable `detectedat` counts as published.** That fallback is
+  right for a build (the table can never silently empty) but fails *open* for a
+  paywall, so `data-integrity.cy.ts` fails the suite on any row whose date is
+  missing, unreadable or in the future — including a d/m/Y typo, which `Date`
+  would otherwise parse as a different month.
+- **`components/LockedRows.tsx`** renders the withheld rows as a blurred
+  skeleton at the top of the table, with the count, a countdown and a CTA to
+  `/abbonamento` over it. The bars are **empty elements** — there is nothing
+  under the blur to recover, which is the point. Hidden while a search is
+  running (over filtered results it would read as "some of your matches are
+  covered"). The map gets a one-line note instead of a blurred pin.
+- **Detail pages are built for embargoed bandi too**, because the newsletter
+  links to `/bandi/<slug>/` on day 0. They are unlisted, not absent: no link
+  from the site, not in `public/sitemap.xml` (**do not add an embargoed slug by
+  hand**), and `robots: noindex, nofollow` until the release date.
+- **The build is what releases a bando**, so `deploy.yml` carries a daily
+  `schedule:` at 05:00 UTC (07:00 Italian summer time). Without it a row
+  detected eight days ago stays hidden until somebody pushes. It chains into
+  `newsletter.yml` as usual and, finding no new rows, just advances the
+  `newsletter-sent` tag.
+- **Copy is bound to the rule.** Anything claiming the site is "aggiornato ogni
+  giorno" or carries "tutti i bandi" is now false for the free view; the home
+  title, meta descriptions, Dataset JSON-LD, Chi Siamo, the newsletter ad,
+  `/abbonamento`, `/grazie` and a dedicated FAQ entry were rewritten to say
+  "sette giorni" plainly. Keep it that way when editing `locales/it.json`.
+- **`cypress/e2e/embargo.cy.ts`** is the guard: no embargoed location, URL, slug
+  or crest anywhere in the exported HTML or the sitemap, plus the locked-row
+  behaviour. `cypress/support/site.ts` mirrors the split — `bids` is published,
+  `allBids` is everything, `embargoedBids` is what is held back.
 
 ## Law ↔ Bid Matching
 On bid detail pages, `findLaw()` matches a bid's location against law entries using `location.toLowerCase().includes(law.location.toLowerCase())`. So a law with `location: "Milano"` matches a bid with `location: "Comune di Milano (MI)"`.

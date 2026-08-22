@@ -14,10 +14,15 @@ import NewsletterAd from './NewsletterAd'
  * the thank-you page of someone who just paid. The layout is a server
  * component and cannot branch on the route itself.
  *
+ * The home page is on that list for a different reason: the locked rows in the
+ * table make the same pitch, in the one place where it is not an ad but an
+ * explanation of what the reader is looking at. Three copies of it around one
+ * table is noise, and the rails are the copies that carry the least context.
+ *
  * Sticky top is `calc(50vh - 300px)`, i.e. a 600px-tall creative centred in the
  * viewport; a different height needs that number changed with it.
  */
-const HIDDEN_ON = ['/abbonamento', '/grazie']
+const HIDDEN_ON = ['/', '/abbonamento', '/grazie']
 
 export default function SideAdSlot() {
   const pathname = usePathname()

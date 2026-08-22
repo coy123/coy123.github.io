@@ -1,10 +1,9 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { getTableData } from '@/lib/data'
+import { embargoedCount, getTableData, nextReleaseInDays } from '@/lib/data'
 import { getTranslations } from '@/lib/translations'
 import HomeContent from '@/components/HomeContent'
 import CurrentDate from '@/components/CurrentDate'
-import NewsletterAd from '@/components/NewsletterAd'
 import HeroCrest from '@/components/HeroCrest'
 import ReactMarkdown from 'react-markdown'
 
@@ -15,10 +14,17 @@ export const revalidate = 3600 // ISR: rivalidazione ogni ora
 // literal tab label "Home". Omitting it falls through to `title.default`:
 // "Bandi NCC Italia | Licenze Noleggio Con Conducente".
 export const metadata: Metadata = {
-  description: 'Consulta tutti i bandi NCC attivi in Italia: licenze disponibili, scadenze e link ufficiali aggiornati ogni giorno, comune per comune.',
+  // No "aggiornati ogni giorno" and no "tutti": a bando is subscriber-only for
+  // its first week (lib/data.ts → RELEASE_DELAY_DAYS), so the free table is
+  // deliberately a few days behind the newsletter and the copy must not
+  // promise otherwise.
+  description: 'Consulta i bandi NCC pubblicati dai comuni italiani: licenze disponibili, scadenze e link ufficiali, comune per comune. I bandi appena verificati arrivano prima agli abbonati.',
 }
 
 export default async function HomePage() {
+  // Published rows only — `getTableData()` applies the release delay. The
+  // embargoed ones never leave the server; all that crosses over is how many
+  // there are, which is what the blurred rows announce.
   const tableData = await getTableData()
   const t = getTranslations()
 
@@ -32,7 +38,7 @@ export default async function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'Dataset',
             name: 'Database Bandi e Licenze NCC in Italia',
-            description: 'Raccolta completa di tutti i bandi NCC pubblicati dai comuni italiani',
+            description: 'Raccolta dei bandi NCC pubblicati dai comuni italiani',
             license: 'https://creativecommons.org/publicdomain/zero/1.0/',
             spatialCoverage: {
               '@type': 'Place',
@@ -74,10 +80,16 @@ export default async function HomePage() {
           <span className="hidden sm:inline">{t.pages.home.description}</span>
         </p>
 
-        {/* Banner ad slot. Now a house ad for the newsletter; the Amazon
-            affiliate banner that used to sit here is kept commented out below
-            because its tracking URL is not reproducible from anywhere else. */}
-        <NewsletterAd variant="banner" />
+        {/* Banner ad slot — deliberately empty on this page. The locked rows
+            in the table already carry the subscription pitch, at the moment it
+            actually lands: the reader is looking at bandi they cannot see yet.
+            A second ad a few hundred pixels above it sold the same thing twice
+            and pushed the table itself below the fold. The other two slots
+            (the desktop rails, the bid-detail strip) are untouched.
+
+            The Amazon affiliate banner that used to sit here is kept commented
+            out because its tracking URL is not reproducible from anywhere
+            else. */}
         {/* <a href="https://www.amazon.it/dp/B0GZBHCG5P?crid=3MKXJETSG2ODT&dib=eyJ2IjoiMSJ9.lCgzAblVwfMrdsdr61C0Qg.I8dkvYsEYc_sm7XVDqZQYw3nABhmbt25CxiwguT00r4&dib_tag=se&keywords=NCC%3A+DA+CONDUCENTE+A+IMPRENDITORE%2C&qid=1777721531&sprefix=ncc+da+conducente+a+imprenditore%2C%2Caps%2C555&sr=8-1" target="_blank" rel="noopener noreferrer" className="block mb-3 w-full sm:w-4/5 sm:mx-auto h-[170px] sm:h-[240px] rounded-lg overflow-hidden">
           <img src="/images/bookBannerSmall.avif" alt="NCC: Da Conducente a Imprenditore" className="sm:hidden w-full h-full object-cover rounded-lg" />
           <img src="/images/bookBanner.avif" alt="NCC: Da Conducente a Imprenditore" className="hidden sm:block w-full h-full object-cover rounded-lg" />
@@ -101,7 +113,11 @@ export default async function HomePage() {
         <CurrentDate label={t.table.lastUpdated} />
 
         {/* Client Component per tabs interattivi */}
-        <HomeContent data={tableData} />
+        <HomeContent
+          data={tableData}
+          lockedCount={embargoedCount}
+          lockedNextInDays={nextReleaseInDays}
+        />
 
         {/* Descriptive content sections */}
         <div className="mt-8 sm:mt-12 space-y-6">
