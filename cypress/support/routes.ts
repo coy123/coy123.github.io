@@ -26,7 +26,7 @@ export const ROUTES: RouteSpec[] = [
     // not apply to it; it falls through to the layout's `title.default`.
     title: `${TITLE_SUFFIX} | Licenze Noleggio Con Conducente`,
     description:
-      'Consulta tutti i bandi NCC attivi in Italia: licenze disponibili, scadenze e link ufficiali aggiornati ogni giorno, comune per comune.',
+      'Consulta i bandi NCC pubblicati dai comuni italiani: licenze disponibili, scadenze e link ufficiali, comune per comune. I bandi appena verificati arrivano prima agli abbonati.',
     h1: t.pages.home.title,
     h2: t.pages.home.subtitle,
     schemas: ['Dataset'],

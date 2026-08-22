@@ -158,7 +158,10 @@ describe('release delay', () => {
       if (!embargoedBids.length) this.skip()
       cy.useDesktop()
       cy.visitPage('/')
-      cy.contains(t.dashboard.tabs.map).click()
+      // Scoped to the desktop bar: the mobile tab bar carries the same label
+      // and is only `sm:hidden`, so a bare `cy.contains` grabs that one and
+      // fails on an invisible element.
+      cy.get(sel.desktopTabBar).contains('button', t.dashboard.tabs.map).click()
       cy.contains(locked.mapCta).should('have.attr', 'href').and('match', /^\/abbonamento/)
     })
   })
