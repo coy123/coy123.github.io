@@ -17,7 +17,12 @@
 
 import Stripe from 'stripe'
 
-export interface Env {
+import { sendWelcomeEmail, type WelcomeEnv } from './welcome'
+
+// WelcomeEnv is what the welcome email reads. Every field is optional there —
+// the key it actually sends with is MAILERLITE_API_KEY, already required below,
+// so the email needs no configuration of its own.
+export interface Env extends WelcomeEnv {
   STRIPE_SECRET_KEY: string
   STRIPE_WEBHOOK_SECRET: string
   MAILERLITE_API_KEY: string
@@ -421,8 +426,17 @@ const handle = async (event: Stripe.Event, stripe: Stripe, env: Env): Promise<vo
 
       await grant(env, email)
 
-      // After the grant, never before: the entitlement is the job, this is
-      // decoration. Idempotent, so Stripe's redelivery just sets it again.
+      // After the grant, never before: the entitlement is the job, these are
+      // delivery and decoration.
+      //
+      // The welcome email hands over the bandi still inside their seven-day
+      // window — the ones this person just paid to see and cannot find on the
+      // site. It never throws (see src/welcome.ts): a mail failure must not
+      // 500 this handler, because Stripe would retry the whole event and
+      // re-send. Its own `welcome_sent_at` guard covers redelivery.
+      await sendWelcomeEmail(stripe, env, email, session.customer)
+
+      // Idempotent, so Stripe's redelivery just sets it again.
       await preferItalian(stripe, session.customer)
 
       console.log(`Granted ${email} (checkout ${session.id})`)

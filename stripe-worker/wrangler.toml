@@ -7,6 +7,19 @@ compatibility_date = "2026-08-02"
 # actual work.
 compatibility_flags = ["nodejs_compat"]
 
+# The welcome email's templates are imported as strings. A Worker has no
+# filesystem, so they are bundled in at build time; src/html.d.ts is the
+# TypeScript half of the same statement. The globs are relative to this file,
+# hence the ../ — the templates live at the repo root, not inside stripe-worker/.
+#
+# Listed one by one rather than as newsletter/*.html: a glob also uploads
+# email_template.html, the DAILY CAMPAIGN's shell, which this Worker does not
+# import and MailerLite renders instead. Only these two belong here.
+[[rules]]
+type = "Text"
+globs = ["../newsletter/welcome_template.html", "../newsletter/email_table.html"]
+fallthrough = true
+
 # Free, and the only way to see why a webhook 500'd after the fact. `npm run
 # tail` streams the same logs live while testing.
 [observability]
@@ -19,6 +32,23 @@ enabled = true
 # The top level is PRODUCTION: live Stripe keys, the real subscriber group.
 [vars]
 MAILERLITE_GROUP_ID = "193718534342181983"
+
+# --- Welcome email (src/welcome.ts) -----------------------------------------
+# No binding of its own. The welcome email is a MailerLite campaign aimed at a
+# group of one (newsletter/mailerlite.mjs), so it reuses MAILERLITE_API_KEY —
+# already a required secret — and the sender MailerLite has already verified.
+# Nothing to configure, no second provider, no extra DNS.
+
+# Linked in the welcome email's footer, beside the {$unsubscribe} link, as the
+# calmer way to manage or end the subscription. Mirrors
+# pages.abbonamento.manage.href in locales/it.json; the test environment below
+# uses the test-mode portal.
+STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/cNi14namu0kOaTH4fXfEk00?locale=it"
+
+# One MailerLite account serves both Workers, so a staging welcome email is a
+# real campaign in the real dashboard. "test" prefixes the subject and the
+# campaign name with [test]; that prefix is the only way to tell them apart.
+DEPLOY_MODE = "live"
 
 # ---------------------------------------------------------------------------
 # Staging / test mode  —  `npm run deploy:test`, `npm run tail:test`
@@ -59,3 +89,11 @@ enabled = true
 # Not a secret, same as above. A wrong id here is silent: the grant succeeds and
 # the address lands in the wrong group.
 MAILERLITE_GROUP_ID = "194986214311330839"
+
+# Repeated, not inherited — named environments take nothing from the top level.
+# There is only one MailerLite account and it has no test mode, so a staging
+# welcome email is a real campaign in the real dashboard: DEPLOY_MODE prefixes
+# its subject and its campaign name with [test]. Only that and the portal link
+# differ from production.
+STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_cNi14namu0kOaTH4fXfEk00?locale=it"
+DEPLOY_MODE = "test"

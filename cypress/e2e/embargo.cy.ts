@@ -178,7 +178,7 @@ describe('release delay', () => {
     it('marks an embargoed page noindex', function () {
       if (!embargoedBids.length) this.skip()
       cy.visitPage(bidPath(embargoedBids[0]))
-      cy.get('head meta[name="robots"]')
+      cy.get('meta[name="robots"]')
         .should('have.attr', 'content')
         .and('match', /noindex/)
     })
@@ -186,7 +186,7 @@ describe('release delay', () => {
     it('leaves a published page indexable', function () {
       if (!bids.length) this.skip()
       cy.visitPage(bidPath(bids[0]))
-      cy.get('head meta[name="robots"][content*="noindex"]').should('not.exist')
+      cy.get('meta[name="robots"][content*="noindex"]').should('not.exist')
     })
   })
 })

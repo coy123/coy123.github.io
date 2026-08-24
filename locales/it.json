@@ -261,7 +261,7 @@
         },
         {
           "heading": "6. Newsletter in Abbonamento – Stripe e MailerLite",
-          "content": "L'abbonamento a pagamento si appoggia a due fornitori esterni, che trattano i dati per nostro conto in qualità di responsabili del trattamento ai sensi dell'art. 28 del GDPR. Stripe Payments Europe, Ltd. (Irlanda) gestisce il pagamento, il rinnovo e la fatturazione: riceve l'indirizzo email, i dati della carta e i dati di fatturazione, che noi non vediamo mai per esteso. MailerLite (UAB MailerLite, Lituania) gestisce la lista degli abbonati e l'invio delle email: riceve il solo indirizzo email e lo stato di iscrizione. Nessuno dei due utilizza questi dati per finalità proprie di marketing e non cediamo né vendiamo l'indirizzo email a terzi. L'appartenenza alla lista coincide con l'abbonamento attivo: alla cessazione dell'abbonamento l'indirizzo viene rimosso dalla lista, e la disiscrizione dalla newsletter comporta la disdetta immediata dell'abbonamento."
+          "content": "L'abbonamento a pagamento si appoggia a due fornitori esterni, che trattano i dati per nostro conto in qualità di responsabili del trattamento ai sensi dell'art. 28 del GDPR. Stripe Payments Europe, Ltd. (Irlanda) gestisce il pagamento, il rinnovo e la fatturazione: riceve l'indirizzo email, i dati della carta e i dati di fatturazione, che noi non vediamo mai per esteso. MailerLite (UAB MailerLite, Lituania) gestisce la lista degli abbonati e l'invio delle email, dalla newsletter quotidiana all'email di benvenuto: riceve il solo indirizzo email e lo stato di iscrizione. Nessuno dei due utilizza questi dati per finalità proprie di marketing e non cediamo né vendiamo l'indirizzo email a terzi. L'appartenenza alla lista coincide con l'abbonamento attivo: alla cessazione dell'abbonamento l'indirizzo viene rimosso dalla lista, e la disiscrizione dalla newsletter comporta la disdetta immediata dell'abbonamento."
         },
         {
           "heading": "7. Base Giuridica del Trattamento",
@@ -288,7 +288,7 @@
           "content": "Per qualsiasi domanda o richiesta relativa alla presente informativa sulla privacy, è possibile contattarci all'indirizzo email: info@bandincc.it."
         }
       ],
-      "lastUpdated": "Ultimo aggiornamento: 4 agosto 2026"
+      "lastUpdated": "Ultimo aggiornamento: 24 agosto 2026"
     },
     "cookiePolicy": {
       "title": "Informativa sui Cookie",

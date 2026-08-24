@@ -3,11 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- The daily campaign, sent through MailerLite by scripts/send-newsletter.mjs.
-     The welcome email has its own shell (welcome_template.html); the two share
-     only the bandi table (email_table.html) and the renderer.
-     Comments in here are delivered to the recipient — keep them short and free
-     of anything internal. -->
+<!-- The welcome email, sent once by stripe-worker/src/welcome.ts when a
+     checkout completes — a MailerLite campaign aimed at a group of one, since
+     MailerLite has no transactional endpoint (newsletter/mailerlite.mjs).
+     Slots are filled by newsletter/render.mjs.
+     Comments in here are delivered to the recipient, so keep them short and
+     free of anything internal.
+
+     It shares the bandi table (email_table.html) with the daily campaign but
+     not this shell: this one leads with prose. The chrome below is a deliberate
+     copy of email_template.html — keep the two looking alike by hand. -->
 <style>
 @media only screen and (max-width:600px) {
   .lbl { display:none !important; }
@@ -24,9 +29,10 @@
 <tr><td style="padding:22px 24px;background:#111827;border-bottom:2px solid #16a34a;">
 <div style="font:700 22px Arial,Helvetica,sans-serif;color:#e5e7eb;"><span style="color:#4ade80;">Bandi</span>NCC</div>
 <div style="font:400 14px Arial,Helvetica,sans-serif;color:#9ca3af;padding-top:4px;">{{SUMMARY}} — {{DATE}}</div>
-<!-- The head start is the product, so the email says so. -->
-<div style="font:400 12px Arial,Helvetica,sans-serif;color:#4ade80;padding-top:6px;">In anteprima per te: sul sito compaiono fra sette giorni.</div>
+<div style="font:400 12px Arial,Helvetica,sans-serif;color:#4ade80;padding-top:6px;">{{NOTE}}</div>
 </td></tr>
+
+{{INTRO}}
 
 {{TABLE}}
 
@@ -34,9 +40,9 @@
 Rilevamento automatico — verifica umana richiesta prima di ogni azione.
 <div style="padding-top:10px;font:400 10px Arial,Helvetica,sans-serif;color:#4b5563;">BandiNCC</div>
 <div style="padding-top:2px;font:400 10px Arial,Helvetica,sans-serif;color:#4b5563;">Via Stresa 6, 20100, Milano, Italia</div>
-<div style="padding-top:2px;font:400 10px Arial,Helvetica,sans-serif;color:#4b5563;">Ricevi questa email perché ti sei iscritto alla newsletter di BandiNCC.</div>
+<div style="padding-top:2px;font:400 10px Arial,Helvetica,sans-serif;color:#4b5563;">Ricevi questa email perché ti sei appena abbonato a BandiNCC.</div>
 <div style="padding-top:10px;font:400 10px Arial,Helvetica,sans-serif;color:#4b5563;">
-<a href="{$unsubscribe}" style="color:#4b5563;text-decoration:underline;font:400 10px Arial,Helvetica,sans-serif;">Disiscriviti</a>
+{{FOOTER_LINKS}}
 </div>
 </td></tr>
 

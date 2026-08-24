@@ -1,4 +1,4 @@
-# Payments — status and TODOs (last updated 2026-08-18)
+# Payments — status and TODOs (last updated 2026-08-24)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
@@ -903,7 +903,17 @@ In priority order:
    mid-checkout is a checkout change the Cypress suite cannot see.
 3. **Settle the plan-A back-payment** on the two Italian charges (~€1.06 each) on
    the first OSS return. Nothing to reissue.
-4. **Low stakes:** explicitly verify the MailerLite production webhook + group id
+4. **Deploy both Workers so the welcome email starts sending** (added
+   2026-08-24). On `checkout.session.completed` the Worker now mails the new
+   subscriber the bandi still inside their seven-day window — the ones they just
+   paid to see and cannot find on the site. It needs **no new configuration**:
+   it is a MailerLite campaign aimed at a throwaway group of one
+   (`newsletter/mailerlite.mjs`), so it reuses `MAILERLITE_API_KEY` and the
+   already-verified sender. A deploy is all it takes. Afterwards: rehearse with
+   `node scripts/preview-welcome.mjs --send <your address>`, then backfill the
+   two existing subscribers the same way — they predate this email and never got
+   one.
+5. **Low stakes:** explicitly verify the MailerLite production webhook + group id
    (step 8), and align the test portal config with live if staging is ever going
    to rehearse the portal (step 5).
 

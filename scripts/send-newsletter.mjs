@@ -11,14 +11,20 @@
 import { appendFileSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 
+// Row markup, slugs, date formatting and the placeholder fill are shared with
+// the welcome email the Stripe Worker sends (stripe-worker/src/welcome.ts), so
+// the two cannot drift apart.
+import { renderEmail, renderTable, itDate, trimStrings } from '../newsletter/render.mjs'
+// The sender identity is shared with the welcome email — one place to change
+// it, and it must stay an address MailerLite has verified.
+import { FROM, FROM_NAME } from '../newsletter/mailerlite.mjs'
+
 const API = 'https://connect.mailerlite.com/api'
 const KEY = process.env.MAILERLITE_API_KEY
 const GROUP = process.env.MAILERLITE_GROUP_ID
 const BEFORE = process.env.BEFORE_SHA
 const DRY = process.env.DRY_RUN === 'true'
 
-const FROM = 'info@bandincc.it'
-const FROM_NAME = 'BandiNCC'
 
 // Tells the workflow that every row in this commit's data.json is accounted for
 // — either mailed just now, or already mailed earlier — so it may advance the
@@ -40,17 +46,10 @@ const markAccountedFor = () => {
   appendFileSync(process.env.GITHUB_OUTPUT, 'up_to_date=true\n')
 }
 
-// Mirrors lib/trim.ts — this script is plain JS run by node, so it cannot
-// import the TS module. data.json values regularly carry a copy-pasted leading
-// or trailing space, and here that costs twice: a padded location or deadline
-// makes an already-mailed row look brand new (re-sending it to every
-// subscriber), and the space would be rendered into the email body and the
-// bando URL. Both sides of the diff are trimmed so the comparison is fair.
-const trimStrings = (entry) =>
-  Object.fromEntries(
-    Object.entries(entry).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])
-  )
-
+// `trimStrings` (newsletter/render.mjs, mirroring lib/trim.ts) is applied to
+// BOTH sides of the diff below, not just the rendered rows: a padded location
+// or deadline would make an already-mailed row look brand new and re-send it to
+// every subscriber.
 const key = (b) => `${b.location}|${b.deadline}`
 
 // A manual dispatch has no github.event.before. A dry run then previews the most
@@ -89,42 +88,23 @@ if (!fresh.length) {
   process.exit(0)
 }
 
-// Must stay identical to lib/slug.ts — the static export writes ASCII paths, so
-// "Comune di Forlì (FC)" is served at /bandi/Comune-di-Forli-(FC)/.
-const slug = (location) =>
-  location
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/\s+/g, '-')
-const itDate = (d) =>
-  new Date(d).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })
-
-// Same order as the home page table (components/Table.tsx): deadline descending,
-// latest scadenza first.
-const rows = [...fresh]
-  .sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime())
-  .map((b) => {
-    // Site row colours flattened to opaque hex — email clients are unreliable with rgba.
-    const background = new Date(b.deadline) >= new Date() ? '#294843' : '#2F3949'
-    const url = `https://www.bandincc.it/bandi/${slug(b.location)}/`
-    return `<tr style="background:${background};border-bottom:1px solid #4B5563;">
-<td style="padding:10px 12px;text-align:center;"><img src="${b.image}" width="28" height="28" style="border-radius:50%;" alt=""></td>
-<td style="padding:10px 12px;font:400 14px Arial,Helvetica,sans-serif;color:#E5E7EB;">${b.location}</td>
-<td style="padding:10px 12px;text-align:right;font:600 14px Arial,Helvetica,sans-serif;color:#4ADE80;">${b.amount}</td>
-<td style="padding:10px 12px;text-align:center;font:400 12px Arial,Helvetica,sans-serif;color:#D1D5DB;">${itDate(b.deadline)}</td>
-<td style="padding:10px 12px;text-align:center;"><a href="${url}" style="display:inline-block;background:#2563EB;color:#FFFFFF;padding:6px 12px;border-radius:4px;font:500 14px Arial,Helvetica,sans-serif;text-decoration:none;"><span class="emo" style="display:none;">🔍</span><span class="lbl">Visualizza</span></a></td>
-</tr>`
-  })
-  .join('\n')
-
 const summary = fresh.length === 1 ? '1 nuovo bando NCC' : `${fresh.length} nuovi bandi NCC`
 
-// replaceAll, not replace: a placeholder must never be filled at only its first
-// occurrence.
-const html = readFileSync('newsletter/email_template.html', 'utf8')
-  .replaceAll('{{ROWS}}', rows)
-  .replaceAll('{{SUMMARY}}', summary)
-  .replaceAll('{{DATE}}', itDate(new Date()))
+// Resolved against this file, not the working directory: the workflow runs
+// `node scripts/send-newsletter.mjs` from the repo root today, and a future
+// `cd` should not silently break the send.
+const template = (name) =>
+  readFileSync(new URL(`../newsletter/${name}`, import.meta.url), 'utf8')
+
+// The campaign has its own shell: the header note, the footer prose and the
+// {$unsubscribe} link are fixed for this sender and live in the template. Only
+// the summary, the date and the table vary from send to send. The welcome email
+// is welcome_template.html and shares nothing but the table.
+const html = renderEmail(template('email_template.html'), {
+  summary,
+  date: itDate(new Date()),
+  table: renderTable(template('email_table.html'), fresh),
+})
 
 if (DRY) {
   console.log(`[dry run] ${summary}:`)

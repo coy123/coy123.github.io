@@ -3,6 +3,11 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    // newsletter/render.mjs is shared with scripts/send-newsletter.mjs, which is
+    // run by bare `node` in Actions and so cannot be TypeScript. Types are
+    // inferred from the JS; it is not type-checked itself.
+    "allowJs": true,
+    "checkJs": false,
     "lib": ["ES2022"],
     "types": ["@cloudflare/workers-types"],
     "strict": true,
@@ -11,5 +16,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts"]
+  // The shared email code lives outside src/ (and outside this directory): the
+  // templates and the row renderer are the same ones the daily campaign uses.
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "../lib/embargo.ts", "../newsletter/render.mjs"]
 }

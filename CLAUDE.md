@@ -46,7 +46,11 @@ is.
 Read-only git commands are fine (`git status`, `git log`, `git diff`, `git show`, `git branch`, `git blame`) — use them freely.
 Never run a git command that writes: no `commit`, `push`, `add`, `checkout`/`switch`, `merge`, `rebase`, `reset`, `stash`, `tag`, `cherry-pick`, `restore`, `rm`, or `config`. The user handles all of that.
 Do not ever try to deploy. You can only run on dev mode locally.
-Do not ever run or build the application (no `npm run dev`, `npm run build`, `next build`, etc.). The user runs it themselves and reports back.
+Do not run or build the application for its own sake (no `npm run dev`, `npm run build`, `next build` as an end in themselves). The user runs it and reports back.
+**Running the Cypress suite is allowed and encouraged** — `npm run test:e2e`, or
+`npm run test:e2e:static` after a `npm run build`. The build and the dev server
+those commands start are part of running the tests, so they are fine; what stays
+off-limits is starting the app to poke at it by hand, and deploying.
 There are two branches: staging and master. Development is done on staging. Staging is connected to Netlify for deployment and master is connected to GitHub Pages for deployment. The domain is www.bandincc.it
 
 **Planned (not in place yet): the colleague gets push access to `staging` only,
@@ -174,8 +178,16 @@ Key conventions:
 ├── public/
 │   ├── images/driver.png       # Hero background image used across all pages
 │   └── service-worker.js       # Cache-first SW for static assets (CSS, JS, images)
+├── newsletter/                 # Email markup — one shell per email, one shared table
+│   ├── email_template.html     # Daily campaign shell (MailerLite; owns {$unsubscribe})
+│   ├── welcome_template.html   # Welcome email shell (prose, then table)
+│   ├── email_table.html        # The bandi table — shared, and omittable when empty
+│   ├── mailerlite.mjs          # One-off send: a campaign to a throwaway group of one
+│   └── render.mjs              # Rows, slug, dates, placeholder fill, welcome copy
 ├── scripts/
-│   └── prerender.js            # Legacy prerender script (generates static HTML from dist/)
+│   ├── prerender.js            # Legacy prerender script (generates static HTML from dist/)
+│   ├── preview-welcome.mjs     # Renders/sends the welcome email by hand (see below)
+│   └── send-newsletter.mjs     # The daily campaign (run by .github/workflows/newsletter.yml)
 ├── types.ts                    # TypeScript interfaces (TableData, LawData)
 ├── tsconfig.json               # TS config (strict, bundler module resolution)
 └── package.json                # Dependencies and scripts
@@ -650,6 +662,56 @@ properly.
   or crest anywhere in the exported HTML or the sitemap, plus the locked-row
   behaviour. `cypress/support/site.ts` mirrors the split — `bids` is published,
   `allBids` is everything, `embargoedBids` is what is held back.
+
+## The welcome email (`stripe-worker/src/welcome.ts`)
+
+A new subscriber used to get nothing from us: Stripe's receipt, then silence.
+The daily campaign only mails bandi detected **that day**, and the seven-day
+delay hides the rest — so they had paid for a head start they could not see.
+The Worker now sends a welcome email the moment `checkout.session.completed`
+arrives, carrying exactly the currently-embargoed set.
+
+- **Data source: `raw.githubusercontent.com`**, because the website repo is
+  public. That is an accepted trade-off (the embargoed rows are therefore
+  already readable by anyone who looks at GitHub; the audience is not
+  technical). **If the repo is ever made private, that fetch 404s and the email
+  silently loses its table** — the send is best-effort and swallows errors by
+  design. Replace it with a read-only PAT, or better a KV namespace written by
+  `deploy.yml`. The comment above `DATA_URL` repeats this warning in place.
+- **Each email owns its shell; only the table is shared.** The two are
+  different documents — the campaign is a table under a one-line header and
+  carries MailerLite's `{$unsubscribe}`, the welcome email is prose first and
+  links to the Stripe portal instead — so they are separate files in
+  `newsletter/` and the header bar is duplicated between them on purpose. What
+  must not drift is the bandi table (`email_table.html`) and the row markup,
+  slug and date format in `render.mjs`; those are shared. The table is its own
+  file so the (rare) no-bandi welcome email can drop it entirely rather than
+  render a header row over nothing.
+- **The rule is not duplicated**: the Worker imports `lib/embargo.ts` directly,
+  so the site, the Cypress suite and the email agree on what "hidden" means.
+- **Sent once**, guarded by `welcome_sent_at` on the Stripe customer — Stripe
+  redelivers checkout events freely.
+- **It can never fail the webhook.** A mail failure is logged and the handler
+  still answers 200; a 500 would make Stripe retry, re-granting and re-sending.
+- **It goes through MailerLite, with no transactional provider and no new
+  configuration.** MailerLite's API sends campaigns to groups, never to a
+  person, so `newsletter/mailerlite.mjs` makes a group of one: create
+  `welcome-<ts>-<rand>`, add the subscriber, schedule an instant campaign at it,
+  and delete stale groups on the *next* run (deleting straight after scheduling
+  races the send). The group is never reused — a campaign resolves recipients
+  when the send starts, so a shared one would mail the previous subscriber's
+  email to whoever arrived meanwhile. Costs: campaign-speed delivery (minutes)
+  and one `Benvenuto — …` campaign per subscriber in the dashboard. MailerSend
+  was the alternative and was dropped: a second account, three DNS records and a
+  third art. 28 processor to send the same email.
+- **The footer keeps `{$unsubscribe}`** — it is a MailerLite campaign like any
+  other, MailerLite injects an unsubscribe link if one is missing, and clicking
+  it cancels the subscription through the Worker's `/mailerlite` route. The
+  Stripe portal link sits beside it.
+- `scripts/preview-welcome.mjs` renders the same email locally (`--empty` for
+  the no-bandi variant) and `--send` is the manual backfill tool.
+- Setup, DNS records and the secret upload: `stripe-worker/README.md` → "The
+  welcome email".
 
 ## Law ↔ Bid Matching
 On bid detail pages, `findLaw()` matches a bid's location against law entries using `location.toLowerCase().includes(law.location.toLowerCase())`. So a law with `location: "Milano"` matches a bid with `location: "Comune di Milano (MI)"`.

@@ -157,7 +157,7 @@ Two routes, opposite directions:
 
 | Stripe event | Action |
 |---|---|
-| `checkout.session.completed` (mode `subscription`) | add to group, `status: 'active'`, set `preferred_locales: ['it']` |
+| `checkout.session.completed` (mode `subscription`) | add to group, `status: 'active'`, **send the welcome email**, set `preferred_locales: ['it']` |
 | `customer.subscription.updated` → `active`/`trialing` | add to group |
 | `customer.subscription.updated` → anything else | remove from group |
 | `customer.subscription.deleted` | remove from group |
@@ -222,6 +222,101 @@ Until the secret is set the route answers `500` and refuses to process
 anything, while the Stripe route keeps working: `MAILERLITE_WEBHOOK_SECRET` is
 deliberately excluded from the startup binding check so a deploy that predates it
 cannot take the entitlement path down.
+
+## The welcome email
+
+`src/welcome.ts`, sent once on `checkout.session.completed`.
+
+Without it a new subscriber got **nothing** from us — Stripe's receipt and then
+silence, since the daily campaign only mails bandi detected *that day* and the
+site hides everything from the last seven days (`lib/embargo.ts`). They had paid
+for a head start they could not see. This email thanks them and hands over
+exactly the currently-embargoed set.
+
+**Where the data comes from.** The Worker fetches `data/data.json` from
+`raw.githubusercontent.com`, which works because the website repo is public —
+an accepted trade-off, not an oversight. **If that repo is ever made private
+this fetch 404s and the email silently loses its table**, because a failure in
+here is caught and swallowed by design. The replacement is a read-only PAT, or
+better a KV namespace that `deploy.yml` writes the embargoed set into. The
+comment above `DATA_URL` says the same thing where someone will actually see it.
+
+**What it shares with the daily campaign.** Everything visual:
+`newsletter/email_template.html` (the shell), `newsletter/email_table.html` (the
+table, a separate file so an email with no bandi can drop it entirely) and
+`newsletter/render.mjs` (rows, slugs, dates, copy). The templates are bundled
+into the Worker as text modules — see the `[[rules]]` block in `wrangler.toml`
+and `src/html.d.ts`. The seven-day rule itself is imported straight from
+`lib/embargo.ts`, so the site, the Cypress suite and this email can never
+disagree about what "hidden" means.
+
+**Sent twice?** No: `welcome_sent_at` in the Stripe customer's metadata is
+checked first and written after a successful send. Stripe redelivers
+`checkout.session.completed` freely, and any 500 later in the handler replays
+it, so the guard matters. It is written *after* the send on purpose — a failure
+between the two duplicates an email, which is the harmless direction.
+
+**It can never fail a webhook.** Every path in `sendWelcomeEmail` is caught and
+logged; the handler still answers 200. A 500 would make Stripe retry the whole
+event, re-granting and re-sending. So a mail problem is visible only in
+`wrangler tail` — grep for `Welcome email`.
+
+**The footer carries `{$unsubscribe}`**, like the daily campaign, because this
+email *is* a MailerLite campaign — MailerLite substitutes the token as it sends,
+and injects an unsubscribe link of its own if one is missing. Clicking it
+reaches this Worker's `/mailerlite` route and cancels the Stripe subscription;
+the customer-portal link beside it is the gentler door to the same room.
+
+### How a one-off send works without a transactional provider
+
+MailerLite's API sends **campaigns**, to groups or segments — there is no
+transactional endpoint. (Their transactional product is MailerSend: a separate
+account, separate domain verification, three more DNS records at IONOS and a
+third processor in the privacy policy.) So `newsletter/mailerlite.mjs` builds a
+one-off out of what the campaign API does have:
+
+1. create a throwaway group `welcome-<timestamp>-<random>`
+2. add the one subscriber to it
+3. create a campaign targeting that group, schedule it `instant`
+4. leave the group; the **next** send deletes the stale ones
+
+Two details are load-bearing. The group is **per send, never reused**: a
+campaign resolves its recipients when the send starts, so a shared "outbox"
+group would mail the first subscriber's email to whoever arrived in the window.
+And the cleanup happens on the **next** run rather than straight after
+scheduling, because deleting a group out from under a send that is still
+resolving it is a race with no callback to wait for.
+
+Costs, which are real but small: delivery is campaign-speed (minutes, not
+seconds) and the dashboard collects one `Benvenuto — …` campaign per
+subscriber. Benefits: no second provider, no new DNS, no new secret, and the
+sender is the address MailerLite has already verified.
+
+There is **nothing to set up**. `MAILERLITE_API_KEY` is already required for the
+entitlement grant, so the welcome email works as soon as the Worker is deployed.
+
+### Previewing and backfilling
+
+`scripts/preview-welcome.mjs` (repo root) renders the exact same email locally,
+no checkout and no deploy involved:
+
+```sh
+node scripts/preview-welcome.mjs --out /tmp/welcome.html   # from local data.json
+node scripts/preview-welcome.mjs --remote                  # from master, i.e. what a real send builds
+node scripts/preview-welcome.mjs --empty                   # the no-bandi variant
+MAILERLITE_API_KEY=… node scripts/preview-welcome.mjs --send someone@example.com
+```
+
+`--remote` reads the same URL the Worker does, so it answers "what will a
+checkout produce right now?" whatever branch is checked out.
+
+`--send` goes through the same throwaway-group campaign the Worker uses, so the
+recipient must already be a MailerLite subscriber — for a backfill they are.
+
+`--send` is the backfill tool for subscribers who paid before this existed. It
+reads the **local** `data/data.json`, so pull first, and it sets no
+`welcome_sent_at` — mark the customer by hand in Stripe if you want to be sure
+the Worker never mails them too.
 
 ## Known limitation
 
