@@ -22,7 +22,6 @@
     "ariaLabel": "Abbonati alla newsletter BandiNCC"
   },
   "dashboard": {
-    "title": "Bandi NCC – Bandi di Concorso per Licenze NCC in Italia",
     "subtitle": "Trova rapidamente gli ultimi bandi per licenze NCC, città per città",
     "description": "Questa piattaforma raccoglie e organizza i bandi NCC pubblicati in Italia, inclusi quelli attivi, scaduti e futuri. Ogni bando è indicizzato con data, numero di licenze, link ufficiale e fonte, così puoi capire subito cosa è aperto, cosa è scaduto e cosa potrebbe riaprirsi. I bandi appena verificati restano riservati agli abbonati per sette giorni, poi diventano pubblici come tutti gli altri. Troviamo insieme il bando giusto.",
     "tabs": {
@@ -51,12 +50,12 @@
   },
   "pages": {
     "home": {
-      "title": "Bandi NCC – Bandi di Concorso per Licenze NCC in Italia",
+      "title": "Bandi NCC – Bandi di Concorso NCC Aggiornati Ogni Giorno",
       "subtitle": "Trova rapidamente gli ultimi bandi per licenze NCC, città per città",
       "description": "Questa piattaforma raccoglie e organizza i bandi NCC pubblicati in Italia, inclusi quelli attivi, scaduti e futuri. Ogni bando è indicizzato con data, numero di licenze, link ufficiale e fonte, così puoi capire subito cosa è aperto, cosa è scaduto e cosa potrebbe riaprirsi. I bandi appena verificati restano riservati agli abbonati per sette giorni, poi diventano pubblici come tutti gli altri. Troviamo insieme il bando giusto.",
       "descriptionShort": "Questa piattaforma raccoglie e organizza i bandi NCC pubblicati in Italia, inclusi quelli attivi, scaduti e futuri. I più recenti restano riservati agli abbonati per sette giorni.",
       "metaTitle": "Bandi NCC Italia",
-      "metaDescription": "I bandi di concorso NCC pubblicati dai comuni italiani: licenze disponibili, scadenze e link ufficiali, comune per comune. I bandi appena verificati arrivano prima agli abbonati.",
+      "metaDescription": "Bandi di Concorso NCC Aggiornati Ogni Giorno. Licenze disponibili, scadenze e informazioni aggiornate per ogni città.",
       "sections": [
         {
           "heading": "Cosa sono i Bandi NCC?",
