@@ -968,5 +968,25 @@
         "latitude": "40.23821",
         "longitude": "18.25602",
         "detectedat": "2026-08-22"
+    },
+    {
+        "location": "Comune di Montefredane (AV)",
+        "deadline": "2026-07-22",
+        "url": "https://www.comune.montefredane.av.it/sito/notizia/275980-bando-di-concorso-ncc",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/7/78/Montefredane-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "40.96666",
+        "longitude": "14.816",
+        "detectedat": "2026-06-27"
+    },
+    {
+        "location": "San Giorgio a Cremano (NA)",
+        "deadline": "2025-03-23",
+        "url": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://burc.regione.campania.it/eBurcWeb/directServlet%3FDOCUMENT_ID%3D00142757%26ATTACH_ID%3D216029&ved=2ahUKEwj0kd7H38GWAxW-IhAIHc6zCUkQFnoECB8QAQ&usg=AOvVaw3qNt6rxwY0uygkE-vZZUpx",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/7/75/San_Giorgio_a_Cremano-Stemma.gif?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "40.833",
+        "longitude": "14.33333",
+        "detectedat": "2026-02-20"
     }
 ]
