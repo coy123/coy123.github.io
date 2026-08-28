@@ -5,11 +5,17 @@ import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
 import { toSlug } from '@/lib/slug'
 import { CREST_EAGER_ROWS, CREST_SIZE_TABLE, crestUrl } from '@/lib/crest'
+import { currentDay, hasExpired } from '@/lib/embargo'
 import LockedRows from './LockedRows'
 
 interface TableRowProps {
   data: TableData
-  now: number | null
+  /**
+   * Today as an Italian calendar day, or null until the mount effect below
+   * has one. A day rather than a timestamp because that is what decides open
+   * or closed everywhere else — see `hasExpired` in lib/embargo.ts.
+   */
+  today: string | null
   /** Position in the sorted list, used to decide crest loading priority. */
   index: number
 }
@@ -27,11 +33,11 @@ const formatAmount = (amount: number) => {
   return new Intl.NumberFormat('de-DE').format(amount)
 }
 
-const TableRow: React.FC<TableRowProps> = ({ data, now, index }) => {
+const TableRow: React.FC<TableRowProps> = ({ data, today, index }) => {
   const t = getTranslations()
   const locale = 'it-IT'
   const isAboveTheFold = index < CREST_EAGER_ROWS
-  const isDeadlineUpcoming = now !== null ? new Date(data.deadline).getTime() >= now : null
+  const isDeadlineUpcoming = today !== null ? !hasExpired(data.deadline, today) : null
   const backgroundClass = isDeadlineUpcoming === null ? 'bg-gray-900/20' : isDeadlineUpcoming ? 'bg-green-900/40' : 'bg-gray-900/20'
   const hoverBackgroundClass = isDeadlineUpcoming ? 'hover:bg-green-800' : 'hover:bg-gray-600'
 
@@ -98,10 +104,13 @@ interface TableProps {
 
 const Table: React.FC<TableProps> = ({ data, lockedCount = 0, lockedNextInDays = null }) => {
   const t = getTranslations()
-  const [now, setNow] = useState<number | null>(null)
+  // Deferred to the client for the usual reason (an SSR/CSR date mismatch),
+  // and held as a calendar day so a bando expiring *today* still reads as
+  // open — the same boundary the embargo and the newsletter use.
+  const [today, setToday] = useState<string | null>(null)
 
   useEffect(() => {
-    setNow(Date.now())
+    setToday(currentDay())
   }, [])
 
   const sortedData = React.useMemo(() => {
@@ -147,7 +156,7 @@ const Table: React.FC<TableProps> = ({ data, lockedCount = 0, lockedNextInDays =
 
       <div className="divide-y divide-gray-600">
         {sortedData.map((row, index) => (
-          <TableRow key={index} data={row} now={now} index={index} />
+          <TableRow key={index} data={row} today={today} index={index} />
         ))}
       </div>
     </div>

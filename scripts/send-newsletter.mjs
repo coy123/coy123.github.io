@@ -7,6 +7,12 @@
 // A bando's identity here is location + deadline: the same comune re-posting with
 // a new scadenza is a new bando, while a correction to url/amount/image on an
 // already-sent row is not and will not re-send.
+//
+// New to the diff is not the same as worth mailing. The archive is filled in
+// backwards — old bandi are added so the history is exhaustive — and a bando
+// whose scadenza has already passed is nothing a subscriber can act on. Those
+// rows are dropped before the campaign is built, and if they were the only new
+// ones, no campaign is sent at all.
 
 import { appendFileSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
@@ -14,7 +20,7 @@ import { execFileSync } from 'node:child_process'
 // Row markup, slugs, date formatting and the placeholder fill are shared with
 // the welcome email the Stripe Worker sends (stripe-worker/src/welcome.ts), so
 // the two cannot drift apart.
-import { renderEmail, renderTable, itDate, trimStrings } from '../newsletter/render.mjs'
+import { hasExpired, renderEmail, renderTable, itDate, trimStrings } from '../newsletter/render.mjs'
 // The sender identity is shared with the welcome email — one place to change
 // it, and it must stay an address MailerLite has verified.
 import { FROM, FROM_NAME } from '../newsletter/mailerlite.mjs'
@@ -77,13 +83,32 @@ try {
 }
 
 const seen = new Set(previous.map(key))
-const fresh = JSON.parse(readFileSync('data/data.json', 'utf8'))
+const added = JSON.parse(readFileSync('data/data.json', 'utf8'))
   .map(trimStrings)
   .filter((b) => !seen.has(key(b)))
 
-// Nothing new, but the diff itself succeeded — the marker may move up to here.
+// One instant for the whole run, so a send that straddles midnight in Rome
+// cannot call the same bando expired in one place and current in another.
+const now = Date.now()
+
+// Backfill: new to the diff, but its scadenza is behind us. Nobody can enter
+// it, so mailing it would be noise sent to paying subscribers — and it is
+// already on the public site, since `lib/embargo.ts` publishes an expired
+// bando whatever its detection date says.
+const expired = added.filter((b) => hasExpired(b.deadline, now))
+const fresh = added.filter((b) => !hasExpired(b.deadline, now))
+
+if (expired.length) {
+  console.log(`Skipping ${expired.length} bando/i already scaduti:`)
+  for (const b of expired) console.log(`  - ${b.location} — scadenza ${b.deadline}`)
+}
+
+// Nothing to mail, but the diff itself succeeded — the marker may move up to
+// here. That includes the case where every new row was expired: those are
+// accounted for by the deliberate decision not to mail them, and leaving the
+// marker behind would re-examine them on every later run.
 if (!fresh.length) {
-  console.log('No new bandi.')
+  console.log(added.length ? 'No new bandi still open.' : 'No new bandi.')
   markAccountedFor()
   process.exit(0)
 }

@@ -5,6 +5,7 @@ import L from 'leaflet'
 import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
 import { toSlug } from '@/lib/slug'
+import { currentDay, hasExpired } from '@/lib/embargo'
 import 'leaflet/dist/leaflet.css'
 
 interface MapViewProps {
@@ -23,20 +24,22 @@ export default function MapView({ data }: MapViewProps) {
 
   const markers = useMemo(
     () =>
-      data
-        .filter((item): item is WithCoordinates => typeof item.latitude === 'number' && typeof item.longitude === 'number')
-        .map((item) => ({
-          ...item,
-          deadlineTime: new Date(item.deadline).getTime(),
-        })),
+      data.filter(
+        (item): item is WithCoordinates =>
+          typeof item.latitude === 'number' && typeof item.longitude === 'number'
+      ),
     [data]
   )
 
   const positions = useMemo(() => markers.map((item) => L.latLng(item.latitude, item.longitude)), [markers])
-  const [now, setNow] = useState<number | null>(null)
+  // Today as an Italian calendar day, resolved on the client to avoid an
+  // SSR/CSR mismatch. A day rather than a timestamp so a bando keeps its green
+  // marker for the whole of its scadenza — the same boundary the table, the
+  // detail page, the newsletter and the embargo all use (lib/embargo.ts).
+  const [today, setToday] = useState<string | null>(null)
 
   useEffect(() => {
-    setNow(Date.now())
+    setToday(currentDay())
   }, [])
   const center = useMemo(() => L.latLng(41.8719, 12.5674), [])
 
@@ -81,12 +84,12 @@ export default function MapView({ data }: MapViewProps) {
   }, [positions, center])
 
   useEffect(() => {
-    // `now` is null until the mount effect above sets it. Painting during that
-    // first pass would draw every marker as expired and then throw all of them
-    // away on the next commit — a visible flash of red, and a window where a
-    // click lands on a node that is about to be detached, so Leaflet never
-    // opens its popup. Wait for the real timestamp and paint once.
-    if (!mapInstanceRef.current || !markersLayerRef.current || now === null) {
+    // `today` is null until the mount effect above sets it. Painting during
+    // that first pass would draw every marker as expired and then throw all of
+    // them away on the next commit — a visible flash of red, and a window where
+    // a click lands on a node that is about to be detached, so Leaflet never
+    // opens its popup. Wait for the real date and paint once.
+    if (!mapInstanceRef.current || !markersLayerRef.current || today === null) {
       return
     }
 
@@ -94,7 +97,7 @@ export default function MapView({ data }: MapViewProps) {
     layer.clearLayers()
 
     markers.forEach((item) => {
-      const isFutureDeadline = item.deadlineTime >= now
+      const isFutureDeadline = !hasExpired(item.deadline, today)
       const marker = L.circleMarker([item.latitude, item.longitude], {
         radius: 8,
         color: isFutureDeadline ? '#22c55e' : '#f87171',
@@ -118,7 +121,7 @@ export default function MapView({ data }: MapViewProps) {
       marker.bindPopup(popupContent, { minWidth: 220 })
       marker.addTo(layer)
     })
-  }, [markers, numberFormatter, locale, t, now])
+  }, [markers, numberFormatter, locale, t, today])
 
   return (
     <div className="w-full rounded-lg overflow-hidden border border-gray-600">

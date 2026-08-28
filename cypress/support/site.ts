@@ -9,7 +9,14 @@ import faqJson from '../../data/faq.json'
 import translations from '../../locales/it.json'
 import { toSlug } from '../../lib/slug'
 import { trimStrings } from '../../lib/trim'
-import { RELEASE_DELAY_DAYS, detectionDay, isPublished, releaseCutoff } from '../../lib/embargo'
+import {
+  RELEASE_DELAY_DAYS,
+  currentDay,
+  detectionDay,
+  hasExpired,
+  isPublished,
+  releaseCutoff,
+} from '../../lib/embargo'
 import {
   CREST_EAGER_ROWS,
   CREST_SIZE_DETAIL,
@@ -74,28 +81,39 @@ export const allBids: RawBid[] = rawBids.map((bid) => {
  * The helpers are imported from the app rather than reimplemented, so the
  * suite cannot drift from the rule it is checking.
  *
+ * The one exception is a bando whose scadenza has already passed: it is
+ * published whatever its detection date says, because the archive is
+ * backfilled with old bandi and there is no head start left to sell on one.
+ *
  * One nuance worth stating: the site resolves the cutoff when `next build`
  * runs, this file when the spec runs. Both are Italian calendar days, so they
  * agree unless a run straddles midnight in Rome — which would take a build and
  * a test on either side of it. `nearCutoff` names the rows in that band so a
  * count assertion can allow for them instead of flaking.
  */
-export { RELEASE_DELAY_DAYS, detectionDay, isPublished, releaseCutoff }
+export { RELEASE_DELAY_DAYS, currentDay, detectionDay, hasExpired, isPublished, releaseCutoff }
 
-/** What the public site renders: everything past its seven-day window. */
+/** What the public site renders: everything past its seven-day window, or scaduto. */
 export const bids: RawBid[] = allBids.filter((bid) => isPublished(bid))
 
 /** Held back for subscribers. Must appear nowhere in the exported HTML. */
 export const embargoedBids: RawBid[] = allBids.filter((bid) => !isPublished(bid))
 
+const DAY_MS = 24 * 60 * 60 * 1000
+
 /**
- * Rows whose release lands on today's or yesterday's cutoff, i.e. the only
- * ones a build/test pair either side of UTC midnight could disagree about.
+ * Rows a build and a test either side of midnight in Rome could disagree
+ * about: their release lands on today's or yesterday's cutoff, or — since an
+ * expired bando is published regardless — their scadenza is today or
+ * yesterday. Both boundaries move at the same instant, and a count assertion
+ * allows for the rows sitting on either.
  */
 export const nearCutoff: RawBid[] = allBids.filter(
   (bid) =>
     bid.detectedAt === releaseCutoff() ||
-    bid.detectedAt === releaseCutoff(Date.now() - 24 * 60 * 60 * 1000)
+    bid.detectedAt === releaseCutoff(Date.now() - DAY_MS) ||
+    detectionDay(bid.deadline) === currentDay() ||
+    detectionDay(bid.deadline) === currentDay(Date.now() - DAY_MS)
 )
 export const laws: RawLaw[] = lawsJson as RawLaw[]
 export const faqs: FaqEntry[] = faqJson as FaqEntry[]
@@ -175,8 +193,14 @@ export const normalize = (value: string) =>
 
 export const bidPath = (bid: RawBid) => `/bandi/${toSlug(bid.location)}`
 
+/**
+ * Open or closed, as the app decides it: Italian calendar days, so a bando is
+ * active for the whole of its scadenza. `Table.tsx`, `MapView.tsx`,
+ * `BidStatus.tsx` and the newsletter all go through `hasExpired`, and so does
+ * this — the specs must not carry a second opinion about the boundary.
+ */
 export const isActive = (bid: RawBid, at: number = Date.now()) =>
-  new Date(bid.deadline).getTime() >= at
+  !hasExpired(bid.deadline, currentDay(at))
 
 export const bidsWithCoordinates = bids.filter(
   (bid) => Boolean(bid.latitude) && Boolean(bid.longitude)

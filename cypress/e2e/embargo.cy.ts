@@ -5,6 +5,7 @@ import {
   bidPath,
   bids,
   embargoedBids,
+  hasExpired,
   nearCutoff,
   t,
   toSlug,
@@ -24,9 +25,13 @@ import {
  * than the rendered DOM.
  *
  * These specs stay green on a dataset where nothing is embargoed — every row
- * older than the window, or (before the field existed) undated, counts as
- * published. The ones that need a held-back bando skip themselves rather than
- * pass vacuously.
+ * older than the window, already scaduto, or (before the field existed)
+ * undated, counts as published. The ones that need a held-back bando skip
+ * themselves rather than pass vacuously.
+ *
+ * "Already scaduto" is the one clause that is not about time since detection:
+ * the archive is backfilled with bandi that closed months ago, and those are
+ * published on sight. The two tests below the leak check are what hold that.
  */
 
 const locked = t.dashboard.locked
@@ -49,6 +54,30 @@ describe('release delay', () => {
     expect(
       stale.map((bid) => `${bid.location} (${bid.detectedAt})`),
       'bandi held back past their release date'
+    ).to.be.empty
+  })
+
+  it('holds back nothing whose scadenza has already passed', () => {
+    // The archive is filled in backwards: old bandi are added long after they
+    // closed so the history is exhaustive, and the convention is to date those
+    // rows with their own deadline, which puts them outside the window anyway.
+    // The expiry clause in `isPublished` is what makes the outcome right when
+    // that is forgotten — a closed bando has no head start left to sell, and
+    // hiding one for a week only makes the free site look incomplete.
+    const scaduti = embargoedBids.filter((bid) => hasExpired(bid.deadline))
+    expect(
+      scaduti.map((bid) => `${bid.location} (scadenza ${bid.deadline})`),
+      'expired bandi held back from the public site'
+    ).to.be.empty
+  })
+
+  it('shows every expired bando, however recently it was detected', () => {
+    // The complement, stated over the whole dataset rather than the held-back
+    // slice: an expired row is in the published set whatever `detectedat` says.
+    const missing = allBids.filter((bid) => hasExpired(bid.deadline) && !bids.includes(bid))
+    expect(
+      missing.map((bid) => `${bid.location} (scadenza ${bid.deadline})`),
+      'expired bandi missing from the published set'
     ).to.be.empty
   })
 

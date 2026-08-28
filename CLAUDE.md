@@ -64,7 +64,7 @@ there.
 - **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
 - **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch` + a daily `schedule:` at 05:00 UTC. The cron is load-bearing, not housekeeping: the seven-day release delay is evaluated at build time, so a rebuild is what actually makes a bando public. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
 - **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `npx netlify-cli@27 deploy --dir=out --prod --no-build` in a plain `run:` step. **`--no-build` is load-bearing**: since netlify-cli v20 `deploy` builds by default, so without it the CLI reads the site's build settings from the Netlify UI and runs `npm run build` in a job that has no checkout. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets, and fails fast with a named error if either is empty. **Do not go back to `netlify/actions/cli@master`** — its `entrypoint.sh` captures the CLI in a command substitution and ends on an `::set-output` echo (removed by GitHub in 2023), so the step exits 0 no matter what the CLI did and prints none of its output. That is why staging deploys looked green for months while the site never updated.
-- **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it.
+- **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it. New to the diff is not the same as mailable: a row whose deadline has already passed (an archive backfill) is logged and dropped, and if every new row was expired no campaign is sent at all — but the marker still advances, because those rows are accounted for by the deliberate decision not to mail them.
 - **Deploy gating**: every deploy job carries `if: github.event_name != 'pull_request'`, so a PR runs the suite only. Merging produces a `push`, which runs the suite again and then deploys. A failing suite fails `test`, and the dependent jobs never run.
 - **Concurrency**: both workflows key their group on the event (`pages-…` / `netlify-staging-…`), so PR test runs get a lane per branch and can never cancel or evict a production deploy.
 - **`netlify.toml`**: Only read if the Netlify site is linked to the repo and builds it itself — the CI deploy ignores it and uploads the tested `out/` via `--dir=out`. Publishes `out` (not `.next`) with no `@netlify/plugin-nextjs`: `next.config.mjs` sets `output: 'export'`, and the plugin fails on a publish dir with no SSR build output.
@@ -357,9 +357,9 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - **The bar is full.** Those six labels plus the crest already run wider than the container at `lg` — that is why the wordmark is hidden below `xl`. A seventh label needs a layout rethink, which is why `/abbonamento` is reached from the home-page CTA and the footer instead
 
 ## Table (`components/Table.tsx`)
-- **Client component** — uses `useEffect` + `useState` for `now` (avoids SSR date mismatch)
+- **Client component** — uses `useEffect` + `useState` for `today` (avoids SSR date mismatch)
 - Sorts data by deadline descending (newest first)
-- Row coloring: green background (`bg-green-900/40`) if deadline >= now, gray if expired
+- Row coloring: green background (`bg-green-900/40`) while the bando is open, gray once it is scaduto — `hasExpired()` from `lib/embargo.ts`, so a bando stays green for the whole of its scadenza (see "One rule for scaduto" below)
 - Mobile: uses emoji icons for column headers, full text on desktop
 - Location links go to `/bandi/{location-slug}`
 - Amount formatted with German locale (`de-DE`) for thousand separators (e.g., 1.000)
@@ -368,7 +368,7 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - **Client component**, dynamically imported with `ssr: false`
 - Uses raw Leaflet API (not react-leaflet JSX) via `useRef` for map instance
 - OpenStreetMap tiles
-- Circle markers: green (#22c55e) for active deadlines, red (#f87171) for expired
+- Circle markers: green (#22c55e) for active deadlines, red (#f87171) for expired — same `hasExpired()` call the table uses
 - Popups show location, amount, deadline, and link to detail page
 - Auto-fits bounds to show all markers (max zoom 8)
 
@@ -488,9 +488,10 @@ Add to `locales/it.json` at `pages.glossario.terms`:
 
 ## SSR Hydration Mismatch Avoidance
 Several components use `useEffect` + `useState` to defer date/time calculations to the client. This prevents mismatches between server-rendered HTML and client-rendered HTML (since `Date.now()` differs). Used in:
-- `Table.tsx` — `now` state for deadline coloring
-- `MapView.tsx` — `now` state for marker colors
+- `Table.tsx` — `today` state for deadline coloring
+- `MapView.tsx` — `today` state for marker colors
 - `BidStatus.tsx` — `isActive` state
+(The first three hold an Italian calendar day, not a timestamp — see "One rule for scaduto".)
 - `CurrentDate.tsx` — formatted date string
 
 ## Leaflet Dynamic Import Pattern
@@ -609,6 +610,46 @@ Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `M
 
 Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `cypress/e2e/data-integrity.cy.ts` enforces this.
 
+## One rule for scaduto (`hasExpired`)
+
+**Every deadline comparison in the codebase goes through `hasExpired()` in
+`lib/embargo.ts`.** There is no second opinion about when a bando closes:
+`Table.tsx` row colours, `MapView.tsx` marker colours, `BidStatus.tsx`, the
+newsletter's row colours in `newsletter/render.mjs`, the campaign's send guard
+and the release delay itself all call it, and `cypress/support/site.ts` →
+`isActive()` calls it too so the specs cannot drift.
+
+- **Italian calendar days, strictly before today.** A bando expiring *today* is
+  open: it is painted green, it is still mailed, and it is still embargoed if
+  it is new. It goes grey at midnight in Rome.
+- **Why it is not an instant comparison.** These all used to do
+  `new Date(deadline).getTime() >= Date.now()`, and `new Date("2026-08-28")` is
+  midnight *UTC* — so a bando turned grey at 02:00 Rome on its own scadenza,
+  hours before it actually closed, and the newsletter could mail a row that
+  already looked dead.
+- **An unreadable deadline is not expired.** That direction is deliberate:
+  expiry is what publishes a row early and what suppresses a send, so an
+  unparseable value must fall through to the ordinary rules rather than trigger
+  either. It is also not supposed to be reachable — see the two guards below.
+- **A bad deadline fails the build, loudly.** `lib/data.ts` →
+  `assertReadableDeadline()` throws while `next build` reads `data/data.json`,
+  naming the row and what is wrong with it. Four checks — present, `YYYY-MM-DD`
+  shape, parses, and **round-trips** (`"2026-02-31"` matches the shape and
+  parses happily, to the 3rd of March; only the round-trip catches it). They
+  mirror `data-integrity.cy.ts` → "uses ISO deadlines that parse to real dates"
+  one for one, so the build and the suite cannot disagree about what readable
+  means. The value checked is the trimmed one: a stray trailing space is a
+  hygiene matter for the suite, not a reason to stop a deploy.
+- **`detectedat` is deliberately NOT build-checked**, only suite-checked. The
+  failure mode of a build has to stay "an old bando keeps showing", never "the
+  site will not build".
+- **The deploy is gated either way.** `data-integrity.cy.ts` covers `allBids`,
+  embargoed rows included, and runs in the `test` job that `package`/`deploy`
+  both `needs:`. `newsletter.yml` only fires on a successful deploy, so a bad
+  row cannot be mailed either.
+- The three client components hold `today` as a `"YYYY-MM-DD"` string in state,
+  set in a mount effect — the same SSR-mismatch dance they did with `now`.
+
 ## The seven-day release delay
 
 A newly detected bando is **subscriber-only for its first week**: the newsletter
@@ -618,8 +659,18 @@ properly.
 
 - **`lib/embargo.ts`** holds the rule and imports nothing, so
   `cypress/support/site.ts` can pull it in directly (its bundler resolves no
-  `@/` aliases). `RELEASE_DELAY_DAYS`, `releaseCutoff()`, `isPublished()`,
-  `detectionDay()`, `daysUntilRelease()`.
+  `@/` aliases). `RELEASE_DELAY_DAYS`, `releaseCutoff()`, `currentDay()`,
+  `isPublished()`, `hasExpired()`, `detectionDay()`, `daysUntilRelease()`.
+- **An expired bando is exempt from all of it.** `isPublished()` returns true
+  for any row whose `deadline` is strictly before today in Rome, whatever
+  `detectedat` says, and the daily campaign never mails one. The archive is
+  filled in backwards — old bandi are added long after they closed so the
+  history is exhaustive — and holding one of those back would be absurd twice
+  over: it is public record already, and there is nothing left to get a head
+  start on. The convention when adding one is to set `detectedat` to its own
+  deadline, which puts it outside the window anyway; the `hasExpired()` clause
+  is what makes the outcome right when that is forgotten. It costs nothing,
+  because a row it releases early is one no subscriber could have used.
 - **Days are Italian calendar days, not UTC.** `data.json` stores detections as
   midnight-in-Rome instants, so `"2026-07-31T22:00:00.000Z"` is the 1st of
   August. Slicing the ISO string would date it the 31st of July and release it a
@@ -660,8 +711,9 @@ properly.
   "sette giorni" plainly. Keep it that way when editing `locales/it.json`.
 - **`cypress/e2e/embargo.cy.ts`** is the guard: no embargoed location, URL, slug
   or crest anywhere in the exported HTML or the sitemap, plus the locked-row
-  behaviour. `cypress/support/site.ts` mirrors the split — `bids` is published,
-  `allBids` is everything, `embargoedBids` is what is held back.
+  behaviour, plus two tests holding the expiry exemption in both directions.
+  `cypress/support/site.ts` mirrors the split — `bids` is published, `allBids`
+  is everything, `embargoedBids` is what is held back.
 
 ## The welcome email (`stripe-worker/src/welcome.ts`)
 
@@ -688,7 +740,12 @@ arrives, carrying exactly the currently-embargoed set.
   file so the (rare) no-bandi welcome email can drop it entirely rather than
   render a header row over nothing.
 - **The rule is not duplicated**: the Worker imports `lib/embargo.ts` directly,
-  so the site, the Cypress suite and the email agree on what "hidden" means.
+  so the site, the Cypress suite and the email agree on what "hidden" means —
+  including the expiry exemption, so an archive backfill never appears in the
+  welcome table. The one exception is the daily campaign, which runs under bare
+  `node` in Actions and cannot import TypeScript: `newsletter/render.mjs`
+  carries a `hasExpired` mirror of the real one, alongside its `trimStrings`
+  and `slug` mirrors. Keep the four in step.
 - **Sent once**, guarded by `welcome_sent_at` on the Stripe customer — Stripe
   redelivers checkout events freely.
 - **It can never fail the webhook.** A mail failure is logged and the handler

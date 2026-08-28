@@ -20,11 +20,19 @@
 //      binding, and visible in the dashboard when something looks wrong.
 //   3. It must show what is CURRENTLY embargoed, not what was new today. That
 //      is `isPublished` from lib/embargo.ts, the same function the site and the
-//      Cypress suite use, applied to data.json at send time.
+//      Cypress suite use, applied to data.json at send time. Expired bandi are
+//      not in that set: they are published on the site whatever their detection
+//      date says, and a closed bando is not what the subscription bought.
 
 import type Stripe from 'stripe'
 
-import { RELEASE_DELAY_DAYS, detectionDay, isPublished, releaseCutoff } from '../../lib/embargo'
+import {
+  RELEASE_DELAY_DAYS,
+  currentDay,
+  detectionDay,
+  isPublished,
+  releaseCutoff,
+} from '../../lib/embargo'
 import { composeWelcome, renderEmail, trimStrings } from '../../newsletter/render.mjs'
 // One email to one person, built out of MailerLite's campaign API — it has no
 // transactional endpoint. See newsletter/mailerlite.mjs for why it looks like
@@ -92,13 +100,20 @@ interface Bid extends RawBid {
  * same fallback `lib/data.ts` applies — so it is simply left out of the email.
  * That is the right direction for a send: the site is already showing it, so
  * it is not part of what the subscription bought.
+ *
+ * So is a bando whose scadenza has already passed, for the same reason plus a
+ * better one: an archive row backfilled last week is on the site and cannot be
+ * entered anyway, and "here is what you paid for" is a poor thing to say over
+ * a list of closed bandi. `isPublished` makes that call — see `hasExpired` in
+ * lib/embargo.ts.
  */
 export const embargoedBandi = (rows: RawBid[], at: number = Date.now()): Bid[] => {
   const cutoff = releaseCutoff(at)
+  const today = currentDay(at)
   return rows
     .map((row) => trimStrings(row) as RawBid)
     .map((row): Bid => ({ ...row, detectedAt: detectionDay(row.detectedat) }))
-    .filter((row) => !isPublished(row, cutoff))
+    .filter((row) => !isPublished(row, cutoff, today))
 }
 
 const fetchBandi = async (): Promise<RawBid[]> => {

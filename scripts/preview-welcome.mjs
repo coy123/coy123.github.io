@@ -36,7 +36,13 @@ import {
 // The one definition of "hidden", shared with the site and the Cypress suite.
 // Node >= 22.18 strips the types on the fly; this script is never run in CI, so
 // that local-only capability is fine here and nowhere else.
-import { RELEASE_DELAY_DAYS, detectionDay, isPublished, releaseCutoff } from '../lib/embargo.ts'
+import {
+  RELEASE_DELAY_DAYS,
+  currentDay,
+  detectionDay,
+  isPublished,
+  releaseCutoff,
+} from '../lib/embargo.ts'
 
 const args = process.argv.slice(2)
 const flag = (name) => args.includes(name)
@@ -62,11 +68,14 @@ const rows = async () => {
   return res.json()
 }
 
+// Same split the Worker applies (stripe-worker/src/welcome.ts): inside its
+// seven-day window and not already scaduto.
 const cutoff = releaseCutoff()
+const today = currentDay()
 const bandi = (await rows())
   .map(trimStrings)
   .map((row) => ({ ...row, detectedAt: detectionDay(row.detectedat) }))
-  .filter((row) => !isPublished(row, cutoff))
+  .filter((row) => !isPublished(row, cutoff, today))
 
 const composed = composeWelcome(bandi, {
   portalUrl: PORTAL_URL,

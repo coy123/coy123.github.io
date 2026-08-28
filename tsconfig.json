@@ -44,6 +44,7 @@
     "scripts",
     "cypress",
     "cypress.config.ts",
-    "stripe-worker"
+    "stripe-worker",
+    "bandincc-crawler"
   ]
 }

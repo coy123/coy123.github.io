@@ -94,7 +94,7 @@ count has not been re-measured against a full local run.)
 | `accessibility.cy.ts` | Image alt text, button and form-control accessible names, heading sanity, `lang`, keyboard reachability |
 | `responsive.cy.ts` | Mobile / tablet / desktop: correct nav, no horizontal overflow, emoji headers, mobile search expansion |
 | `data-integrity.cy.ts` | `data.json` / `laws.json` / `faq.json` shape: required fields, ISO dates, a readable non-future `detectedat` on every row, positive integer amounts, absolute URLs, coordinates inside Italy, unique slugs, slugs ASCII-only and comma-free, locations trimmed, no duplicates |
-| `embargo.cy.ts` | The seven-day release delay: no embargoed location, URL, slug or crest anywhere in the exported HTML or the sitemap; the locked rows (count, countdown, empty skeleton, CTA, hidden during search); the map note; a detail page for every bando, `noindex` while embargoed |
+| `embargo.cy.ts` | The seven-day release delay: no embargoed location, URL, slug or crest anywhere in the exported HTML or the sitemap; nothing held back past its release date or past its own scadenza; the locked rows (count, countdown, empty skeleton, CTA, hidden during search); the map note; a detail page for every bando, `noindex` while embargoed |
 | `not-found.cy.ts` | 404 page content, status code, return-home link, nav and footer (unknown bid slug is export only) |
 | `external-resources.cy.ts` | Opt-in: really fetches every Wikimedia crest and every municipal source URL |
 
@@ -150,7 +150,13 @@ been run against the built export** — do that once with
 what the seven-day delay is currently holding back. Most specs need no
 knowledge of this — they assert against `bids` and keep working.
 
-Two things to know when reading `embargo.cy.ts`:
+Three things to know when reading `embargo.cy.ts`:
+
+- **An expired bando is never held back.** `isPublished` publishes any row
+  whose scadenza is behind us whatever its `detectedat` says, because the
+  archive is backfilled with bandi that closed months ago. Two tests state that
+  in both directions, and neither of them skips — they are assertions about the
+  whole dataset, not about a held-back slice.
 
 - **Its interesting tests skip when nothing is embargoed.** On a dataset where
   every row is older than a week there is no locked block to assert on, and a
@@ -158,9 +164,10 @@ Two things to know when reading `embargo.cy.ts`:
   the moment a fresh bando lands.
 - **The cutoff is resolved twice**, once by `next build` and once by the spec
   run — both as Italian calendar days, so they agree unless the two straddled
-  midnight in Rome. `nearCutoff` names the rows that could differ, and the
-  count assertion widens by exactly that many rather than asserting a number
-  that is only usually right.
+  midnight in Rome. `nearCutoff` names the rows that could differ — on the
+  release boundary or on the scadenza one, which move at the same instant —
+  and the count assertion widens by exactly that many rather than asserting a
+  number that is only usually right.
 
 ### Data inconsistencies left alone
 

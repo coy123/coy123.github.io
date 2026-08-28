@@ -15,7 +15,9 @@
 //
 // What is NOT here: the seven-day rule itself. That is `lib/embargo.ts`, which
 // the Worker imports directly — one definition of "hidden" shared by the site,
-// the Cypress suite and the email.
+// the Cypress suite and the email. The one piece of it this file does carry is
+// `hasExpired`, mirrored rather than imported because the daily campaign runs
+// under bare `node`; see the comment on it.
 
 /**
  * Mirrors lib/trim.ts. data.json values regularly carry a copy-pasted leading
@@ -27,6 +29,27 @@ export const trimStrings = (entry) =>
   Object.fromEntries(
     Object.entries(entry).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])
   )
+
+/**
+ * Mirrors `hasExpired` in lib/embargo.ts, and must keep mirroring it — the
+ * same relationship `trimStrings` and `slug` have with their `lib/` originals,
+ * and for the same reason: `scripts/send-newsletter.mjs` is run by bare `node`
+ * in Actions, which cannot import TypeScript. The Worker, whose bundler can,
+ * imports the real one instead of this copy.
+ *
+ * Days are Italian calendar days, and strictly before today: a bando expiring
+ * today has not expired. `en-CA` is the ISO-ordered locale, so two of these
+ * compare as plain strings and still compare as dates.
+ *
+ * An unreadable deadline is not expired — the campaign would rather mail a
+ * questionable row than silently drop one.
+ */
+export const hasExpired = (deadline, at = Date.now()) => {
+  const day = new Date(deadline).getTime()
+  if (Number.isNaN(day)) return false
+  const rome = (ms) => new Date(ms).toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' })
+  return rome(day) < rome(at)
+}
 
 /**
  * Mirrors lib/slug.ts, and must keep mirroring it: the static export serves
@@ -61,12 +84,18 @@ const byDeadlineDesc = (a, b) => new Date(b.deadline).getTime() - new Date(a.dea
 /**
  * The `<tr>`s for a set of bandi. Row colours match the site's, flattened to
  * opaque hex because email clients are unreliable with rgba.
+ *
+ * Open or closed is `hasExpired` — the same Italian-calendar-day comparison
+ * the site and the embargo use, so a bando whose scadenza is *today* is
+ * mailed and painted as open on the same day. Comparing instants would call it
+ * closed from 01:00 Rome onwards, which is how the campaign used to send a row
+ * that looked already dead.
  */
-export const bandoRows = (bids, now = new Date()) =>
+export const bandoRows = (bids, at = Date.now()) =>
   [...bids]
     .sort(byDeadlineDesc)
     .map((b) => {
-      const background = new Date(b.deadline) >= now ? '#294843' : '#2F3949'
+      const background = hasExpired(b.deadline, at) ? '#2F3949' : '#294843'
       return `<tr style="background:${background};border-bottom:1px solid #4B5563;">
 <td style="padding:10px 12px;text-align:center;"><img src="${b.image}" width="28" height="28" style="border-radius:50%;" alt=""></td>
 <td style="padding:10px 12px;font:400 14px Arial,Helvetica,sans-serif;color:#E5E7EB;">${b.location}</td>
@@ -118,8 +147,8 @@ export const fill = (template, values) => {
  * with headers and no rows is worse than no table, and no amount of
  * placeholder-filling can remove markup that is baked into the shell.
  */
-export const renderTable = (tableTemplate, bids, now = new Date()) =>
-  bids.length ? fill(tableTemplate, { ROWS: bandoRows(bids, now) }) : ''
+export const renderTable = (tableTemplate, bids, at = Date.now()) =>
+  bids.length ? fill(tableTemplate, { ROWS: bandoRows(bids, at) }) : ''
 
 /**
  * Every slot a shell may declare, as `option name -> {{PLACEHOLDER}}`.

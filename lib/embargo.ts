@@ -6,6 +6,10 @@
  * mails it the day it lands in `data/data.json`, the site shows it seven days
  * later. That head start is what the subscription sells.
  *
+ * A bando whose scadenza has already passed is outside all of that — see
+ * `hasExpired`. It is published immediately and the newsletter never mails it,
+ * because backfilling the archive with an old bando is not news to anybody.
+ *
  * Two things follow from how the site is built:
  *
  * 1. **The split happens on the server, at build time.** `output: 'export'`
@@ -48,8 +52,13 @@ const romeDay = (at: number): string =>
   new Date(at).toLocaleDateString('en-CA', { timeZone: ROME })
 
 /**
- * The day a raw `detectedat` value belongs to, or `undefined` when the field
- * is absent or holds something no `Date` can read.
+ * The Italian calendar day a stored date belongs to, or `undefined` when the
+ * value is absent or holds something no `Date` can read.
+ *
+ * Named for `detectedat`, which is what it was written for, but it is the one
+ * parser for every date `data/data.json` stores — `hasExpired` folds
+ * `deadline` through it too, so the two fields can be compared as day strings
+ * without one of them quietly being a UTC day and the other a Roman one.
  *
  * Both shapes the file may carry are accepted: the full ISO instant it holds
  * today ("2026-07-31T22:00:00.000Z") and a bare "2026-08-01". A bare date
@@ -62,9 +71,38 @@ export const detectionDay = (value?: string): string | undefined => {
   return Number.isNaN(parsed) ? undefined : romeDay(parsed)
 }
 
+/** Today, as an Italian calendar day. The other half of every comparison here. */
+export const currentDay = (at: number = Date.now()): string => romeDay(at)
+
 /** The most recent detection day that is already public, as "YYYY-MM-DD". */
 export const releaseCutoff = (at: number = Date.now()): string =>
   romeDay(at - RELEASE_DELAY_DAYS * DAY_MS)
+
+/**
+ * Whether a bando's scadenza is already behind us, in Italian calendar days.
+ *
+ * Strictly before today: a bando expiring *today* has not expired yet, so it
+ * is still mailed, still embargoed, and still painted as open.
+ *
+ * This is the *only* deadline comparison in the codebase. The table, the map,
+ * the detail page's status line and the newsletter's row colours all come
+ * through here, so "scaduto" means one thing everywhere. They each used to
+ * compare instants against `new Date(deadline)`, which is midnight UTC of that
+ * day — so a bando went grey at 02:00 Rome on its own scadenza, hours before
+ * it actually closed, and the newsletter could mail a row that already looked
+ * dead.
+ *
+ * An unreadable deadline is NOT expired. Every branch that consumes this
+ * treats expiry as a reason to publish or to stay quiet, so the unreadable
+ * case has to fall through to the ordinary seven-day rule rather than release
+ * a row early. It should never get this far in any case: `lib/data.ts` throws
+ * on such a row while `next build` reads the file, and `data-integrity.cy.ts`
+ * fails the suite on one too.
+ */
+export const hasExpired = (deadline?: string, today: string = currentDay()): boolean => {
+  const day = detectionDay(deadline)
+  return day !== undefined && day < today
+}
 
 /**
  * A row with no usable `detectedAt` counts as published — the field is absent,
@@ -76,11 +114,22 @@ export const releaseCutoff = (at: number = Date.now()): string =>
  * about the page would look wrong. So it is not left to run silently —
  * `data-integrity.cy.ts` fails the suite on any row whose date is missing or
  * unreadable, and the suite gates both deploys.
+ *
+ * An expired bando is published whatever its detection date says. The archive
+ * is filled in backwards — old bandi are added long after their scadenza so
+ * the history is complete — and holding one of those back for a week would be
+ * absurd twice over: it is public record already, and there is nothing left to
+ * get a head start on. The convention is to date those rows with their own
+ * deadline, which lands them outside the window anyway; this clause is what
+ * makes the outcome right even when that is forgotten, and it costs nothing,
+ * because a row this releases early is one no subscriber could have used.
  */
 export const isPublished = (
-  bid: { detectedAt?: string },
-  cutoff: string = releaseCutoff()
-): boolean => !bid.detectedAt || bid.detectedAt <= cutoff
+  bid: { detectedAt?: string; deadline?: string },
+  cutoff: string = releaseCutoff(),
+  today: string = currentDay()
+): boolean =>
+  !bid.detectedAt || bid.detectedAt <= cutoff || hasExpired(bid.deadline, today)
 
 /** A "YYYY-MM-DD" day as a whole number of days, for exact date arithmetic. */
 const dayNumber = (day: string): number => Math.round(Date.parse(`${day}T00:00:00Z`) / DAY_MS)
