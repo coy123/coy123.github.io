@@ -988,5 +988,15 @@
         "latitude": "40.833",
         "longitude": "14.33333",
         "detectedat": "2026-02-20"
+    },
+    {
+        "location": "Comune di Bellante (TE)",
+        "deadline": "2026-02-26",
+        "url": "https://www.comune.bellante.te.it/backend/media/news/files/133/Bando_di_pubblico_concorso_n_2_autorizzazioni_NCC_Comune_di_Bellante.pdf",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/b/b7/Bellante-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "42.75",
+        "longitude": "13.8",
+        "detectedat": "2026-02-26"
     }
 ]
