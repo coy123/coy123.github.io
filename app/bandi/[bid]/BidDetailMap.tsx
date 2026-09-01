@@ -37,7 +37,14 @@ export default function BidDetailMap({ latitude, longitude, location }: BidDetai
       fillColor: '#2563eb',
       fillOpacity: 0.9,
     })
-      .bindPopup(`<strong>${location}</strong>`)
+      // Same content shell as the home map's popups (components/MapView.tsx)
+      // so the two read as one component; the dark chrome around them lives in
+      // app/globals.css. `font-sans` overrides the family Leaflet puts on
+      // `.leaflet-container`.
+      .bindPopup(
+        `<div class="font-sans text-gray-200"><div class="font-semibold text-white pr-3">${location}</div></div>`,
+        { minWidth: 180, maxWidth: 280 }
+      )
       .addTo(map)
 
     mapInstanceRef.current = map

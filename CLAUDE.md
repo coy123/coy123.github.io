@@ -3,6 +3,31 @@ This is a project for showing the latest Italian NCC (Noleggio Con Conducente / 
 
 Domain: www.bandincc.it
 
+# ⚠️ Open code-review backlog — read `CODE-REVIEW.md`
+
+**`CODE-REVIEW.md` (2026-09-01) is an unfinished backlog, not a historical
+record. Surface it to me at the start of a session whenever the work touches
+the embargo, the sitemap, the newsletter diff, CI, or site-wide metadata.**
+
+It holds a full review of the repo (everything but `bandincc-crawler/`), ranked
+by consequence, each item marked *verified* (reproduced by hand) or *reported*
+(one agent's reading — check it before acting). Finding 1 is fixed; **everything
+else is still open.** The ones most likely to bite:
+
+- The **sitemap** has two hard 404s and lists 39 of 99 bandi (finding 3).
+- `app/layout.tsx:15`/`:79` and `site.webmanifest` still promise "aggiornati
+  ogni giorno" on all ~110 pages, which the seven-day delay made false (4).
+- **`npm run lint` hangs** — no ESLint config exists, so `next lint` waits on an
+  interactive prompt. It is listed under "Bash Commands" below anyway (5).
+- `scripts/send-newsletter.mjs` keys its diff on `location|deadline`, so fixing
+  a typo in a comune name **re-mails that bando to the paid list** (6).
+- The dataset-driven half of `embargo.cy.ts` **skips entirely whenever nothing
+  is embargoed**, which is most weeks — a green run is not evidence there (2).
+
+Do not restate its findings as done. Verify one before claiming it is fixed, and
+strike an item from the file when it genuinely is.
+
+
 # Tech Stack
 - **Framework**: Next.js 15 (App Router) with Turbopack for dev
 - **Language**: TypeScript (strict mode, ES2020 target)
@@ -457,6 +482,13 @@ Add an entry to `data/data.json`. Required fields:
 - `latitude`/`longitude`: Stored as **strings** in JSON, converted to numbers by `lib/data.ts`. Optional but needed for map display.
 - `image`: URL to the municipality's coat of arms (usually from Wikimedia).
 - A new bid detail page at `/bandi/{slug}` is automatically generated at build time via `generateStaticParams()`.
+
+**`data/README.md` is the colleague-facing version of this section** — how to add
+a row, what the embargo does to it, and the two ways to reach its (unlisted)
+detail page before release: the link list `netlify-deploy.yml` writes into the
+staging run summary, or `node scripts/preview-embargoed.mjs` locally. That script
+imports the real `lib/embargo.ts`, `lib/slug.ts` and `lib/trim.ts` rather than
+mirroring them; keep it that way.
 
 ## Adding a new regional law
 Add to `data/laws.json`:

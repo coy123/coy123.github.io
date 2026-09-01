@@ -71,12 +71,39 @@ export const detectionDay = (value?: string): string | undefined => {
   return Number.isNaN(parsed) ? undefined : romeDay(parsed)
 }
 
+/** A "YYYY-MM-DD" day as a whole number of days, for exact date arithmetic. */
+const dayNumber = (day: string): number => Math.round(Date.parse(`${day}T00:00:00Z`) / DAY_MS)
+
+/** The inverse of `dayNumber`: a day count back to "YYYY-MM-DD". */
+const dayString = (days: number): string => new Date(days * DAY_MS).toISOString().slice(0, 10)
+
 /** Today, as an Italian calendar day. The other half of every comparison here. */
 export const currentDay = (at: number = Date.now()): string => romeDay(at)
 
-/** The most recent detection day that is already public, as "YYYY-MM-DD". */
+/**
+ * The most recent detection day that is already public, as "YYYY-MM-DD".
+ *
+ * Counted in calendar days, like every other comparison in this file — NOT by
+ * subtracting `RELEASE_DELAY_DAYS * DAY_MS` from the instant and reading the
+ * day off the result. That is what this did until it was found to leak.
+ *
+ * The week containing an Italian DST change is 169 hours long (October) or 167
+ * (March), so 7 x 24h does not span seven calendar days across one. Worked
+ * example of the direction that matters, a build at 23:30 Rome on 2026-10-30:
+ * Rome is UTC+1 by then, so that is 22:30 UTC; minus 168h is 22:30 UTC on the
+ * 23rd, which is still CEST and therefore 00:30 Rome on the *24th*. The cutoff
+ * came back "2026-10-24" where the calendar says "2026-10-23", and a bando
+ * detected on the 24th satisfied `detectedAt <= cutoff` on day six — its
+ * comune, URL, crest and deadline baked into the public export a day before
+ * subscribers stopped having it to themselves. Roughly seven hours a year, all
+ * of them late evening in the week after the October change, and invisible to
+ * the suite because `embargo.cy.ts` skips whenever nothing is held back.
+ *
+ * The March transition failed the safe way but drove `daysUntilRelease` to 0,
+ * against the ">= 1" promise below.
+ */
 export const releaseCutoff = (at: number = Date.now()): string =>
-  romeDay(at - RELEASE_DELAY_DAYS * DAY_MS)
+  dayString(dayNumber(currentDay(at)) - RELEASE_DELAY_DAYS)
 
 /**
  * Whether a bando's scadenza is already behind us, in Italian calendar days.
@@ -130,9 +157,6 @@ export const isPublished = (
   today: string = currentDay()
 ): boolean =>
   !bid.detectedAt || bid.detectedAt <= cutoff || hasExpired(bid.deadline, today)
-
-/** A "YYYY-MM-DD" day as a whole number of days, for exact date arithmetic. */
-const dayNumber = (day: string): number => Math.round(Date.parse(`${day}T00:00:00Z`) / DAY_MS)
 
 /**
  * How many days until a detection day becomes public. Always >= 1 for a row

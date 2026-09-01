@@ -83,3 +83,71 @@ jobs:
           --prod \
           --no-build \
           --message "${{ github.sha }} — ${{ github.workflow }} #${{ github.run_number }}"
+
+  # Writes the bandi still inside their seven-day window into the run summary,
+  # each linking to the detail page that is now live on staging. Those pages are
+  # built from day 0 (app/bandi/[bid]/page.tsx builds every row) but unlinked,
+  # kept out of the sitemap and marked `noindex`, so without this list there is
+  # no way to reach one without working the slug out by hand.
+  #
+  # Staging only, deliberately. `deploy.yml` gets no equivalent: production is
+  # where these rows are *released*, so a list of them there is noise.
+  #
+  # THE RUN SUMMARY IS PUBLIC, and this prints embargoed comune names into it.
+  # That leaks nothing new — the repo is public, so data/data.json is already
+  # world-readable at raw.githubusercontent.com, and stripe-worker/src/welcome.ts
+  # depends on it being so — but it is a choice, not an oversight. If the repo is
+  # ever made private, this step joins that Worker fetch on the list of things
+  # that have to change.
+  #
+  # A separate job rather than a step on `deploy`, because `deploy` has no
+  # checkout and must keep it: that absence is the belt to `--no-build`'s
+  # braces above. This job gets its own sparse checkout instead.
+  preview-urls:
+    name: List embargoed preview URLs
+    needs: deploy
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # Purely informational, and it runs after the site is already live. A crash
+    # here must never turn a successful staging deploy red.
+    continue-on-error: true
+
+    steps:
+    # Only what the script imports: it reads data/, and pulls the real
+    # `isPublished`/`toSlug`/`trimStrings` out of lib/ rather than copying them.
+    - name: Checkout data and helpers
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          scripts
+          data
+          lib
+          .nvmrc
+          package.json
+        sparse-checkout-cone-mode: false
+
+    # `node-version-file` resolves to the newest 22.x, which matters here:
+    # scripts/preview-embargoed.mjs imports lib/*.ts directly and relies on the
+    # type stripping Node has had unflagged since 22.18.
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+
+    # Never fails: on any error it still writes a summary saying so, rather than
+    # leaving a blank panel that looks like "no bandi held back".
+    - name: Write preview URLs to the run summary
+      run: |
+        if node scripts/preview-embargoed.mjs --markdown > preview.md 2>preview.err; then
+          cat preview.md >> "$GITHUB_STEP_SUMMARY"
+        else
+          {
+            echo "### Bandi preview unavailable"
+            echo
+            echo 'The staging deploy succeeded; only this listing failed.'
+            echo
+            echo '```'
+            cat preview.err
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi

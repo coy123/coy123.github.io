@@ -449,3 +449,77 @@
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Leaflet popups (components/MapView.tsx, app/bandi/[bid]/BidDetailMap) */
+/* ------------------------------------------------------------------ */
+
+/* Leaflet ships a white popup with a white tip and a #757575 close glyph.
+   On this site that lands as a foreign object — a light card floating over a
+   dark page — and the close button is the worst of it: a dark glyph that
+   simply disappears the moment the surface behind it goes dark. These rules
+   re-skin the chrome with the tokens the cards already use (gray-900
+   surface, gray-600 border, rounded-lg, gray-300 text). The popup *content*
+   stays Tailwind utilities in the two components that build the HTML string;
+   only the wrapper, the tip and the close button are Leaflet's DOM and so
+   have to be reached from here.
+
+   Leaflet's stylesheet is imported per-component
+   (`import 'leaflet/dist/leaflet.css'`), so where it lands relative to this
+   file is a bundler detail, not something to lean on. Every rule below
+   therefore out-specifies its Leaflet counterpart rather than merely
+   following it: `.leaflet-container .leaflet-popup-…` (0,2,0) beats
+   `.leaflet-popup-…` (0,1,0), and the close button carries one class more
+   than Leaflet's `.leaflet-container a.leaflet-popup-close-button`. */
+
+.leaflet-container .leaflet-popup-content-wrapper,
+.leaflet-container .leaflet-popup-tip {
+  background: #111827; /* gray-900 */
+  color: #d1d5db; /* gray-300 */
+}
+
+.leaflet-container .leaflet-popup-content-wrapper {
+  padding: 0;
+  border: 1px solid #4b5563; /* gray-600, as on every bordered card */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow:
+    0 10px 25px -5px rgb(0 0 0 / 0.6),
+    0 4px 10px -6px rgb(0 0 0 / 0.5);
+}
+
+/* Right margin is wider than the rest: it is the gutter the close button
+   sits in, and text running under the glyph is what the default does. */
+.leaflet-container .leaflet-popup-content {
+  margin: 0.75rem 1.875rem 0.75rem 0.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* The tip is a square rotated 45°, so the edges facing the viewer are the
+   original right and bottom ones — bordering all four would draw a line
+   across the half the tip container clips away. The shadow is dropped for
+   the same reason: it would cast off edges that are not visible. */
+.leaflet-container .leaflet-popup-tip {
+  border-right: 1px solid #4b5563;
+  border-bottom: 1px solid #4b5563;
+  box-shadow: none;
+}
+
+.leaflet-container .leaflet-popup a.leaflet-popup-close-button {
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 0.375rem;
+  color: #9ca3af; /* gray-400 */
+  font: 1rem/1.375rem ui-sans-serif, system-ui, sans-serif;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.leaflet-container .leaflet-popup a.leaflet-popup-close-button:hover,
+.leaflet-container .leaflet-popup a.leaflet-popup-close-button:focus {
+  color: #fff;
+  background: #374151; /* gray-700 */
+}

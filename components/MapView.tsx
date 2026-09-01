@@ -106,19 +106,39 @@ export default function MapView({ data }: MapViewProps) {
         fillOpacity: 0.9,
         className: 'shadow-sm',
       })
+      // The marker colour already says open or closed; the popup now says it
+      // in words, from the same `hasExpired()` answer that painted the marker.
+      // There is exactly one deadline comparison per marker — see CLAUDE.md,
+      // "One rule for scaduto".
+      const statusLabel = isFutureDeadline
+        ? t.pages.bidDetail.labels.active
+        : t.pages.bidDetail.labels.expired
+      // Written out twice in full rather than assembled from parts: Tailwind's
+      // JIT only emits a class it can see as a complete literal in the source.
+      const statusClass = isFutureDeadline
+        ? 'inline-flex items-center rounded-full border border-green-500/40 bg-green-900/50 px-2 py-0.5 text-xs font-semibold text-green-300'
+        : 'inline-flex items-center rounded-full border border-red-500/40 bg-red-900/40 px-2 py-0.5 text-xs font-semibold text-red-300'
+
+      // The popup chrome (surface, border, tip, close button) is styled in
+      // app/globals.css; these utilities only dress the content. `font-sans`
+      // is load-bearing: Leaflet sets its own family on `.leaflet-container`,
+      // which the popup would otherwise inherit. No `<p>` here either —
+      // `.leaflet-popup-content p` carries a 1.3em margin that out-specifies
+      // any utility on the same element.
       const popupContent = `
-        <div class="text-sm text-gray-900">
-          <p class="font-semibold mb-1">${item.location}</p>
-          <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-700">
-            <span><strong>${t.table.headers.amount}:</strong> ${numberFormatter.format(item.amount)}</span>
-            <span><strong>${t.table.headers.deadline}:</strong> ${new Date(item.deadline).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-            <a href="/bandi/${toSlug(item.location)}" class="inline-flex items-center gap-1 text-blue-600 hover:underline">
-              ${t.table.headers.view} →
-            </a>
+        <div class="font-sans text-gray-200">
+          <div class="font-semibold text-white pr-3">${item.location}</div>
+          <div class="mt-1.5"><span class="${statusClass}">${statusLabel}</span></div>
+          <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            <span><span class="text-gray-400">${t.table.headers.amount}:</span> <strong class="font-semibold text-green-400">${numberFormatter.format(item.amount)}</strong></span>
+            <span><span class="text-gray-400">${t.table.headers.deadline}:</span> <strong class="font-semibold text-gray-100">${new Date(item.deadline).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })}</strong></span>
           </div>
+          <a href="/bandi/${toSlug(item.location)}" class="mt-2.5 inline-flex items-center gap-1 font-medium text-blue-400 hover:text-blue-300 transition-colors">
+            ${t.table.headers.view} →
+          </a>
         </div>
       `
-      marker.bindPopup(popupContent, { minWidth: 220 })
+      marker.bindPopup(popupContent, { minWidth: 220, maxWidth: 280 })
       marker.addTo(layer)
     })
   }, [markers, numberFormatter, locale, t, today])
