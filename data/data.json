@@ -1006,7 +1006,8 @@
         "amount": 3,
         "image": "https://upload.wikimedia.org/wikipedia/it/0/02/Bressana_Bottarone-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
         "latitude": "45.07807",
-        "longitude": "9.13119"
+        "longitude": "9.13119",
+        "detectedat": "2026-09-01"
     },
     {
         "location": "Comune di Casal di Principe (CE)",
@@ -1015,6 +1016,7 @@
         "amount": 4,
         "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Casal_di_Principe-Stemma.png/960px-Casal_di_Principe-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
         "latitude": "41.010",
-        "longitude": "14.131"
+        "longitude": "14.131",
+        "detectedat": "2026-09-01"
     }
 ]
