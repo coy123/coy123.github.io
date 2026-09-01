@@ -154,7 +154,21 @@ describe('the release rule', () => {
       // send, so an unparseable value must trigger neither.
       expect(hasExpired(undefined, today), 'missing').to.be.false
       expect(hasExpired('not a date', today), 'garbage').to.be.false
-      expect(hasExpired('2026-02-31', today), 'not a real day').to.be.false
+    })
+
+    it('silently rolls a real-looking but impossible day over, which is why lib/data.ts round-trips', () => {
+      // `new Date('2026-02-31')` is NOT invalid — it rolls to the 3rd of March.
+      // So a February typo reaches `hasExpired` as a perfectly readable date a
+      // few days later, and this function has no way to object.
+      expect(detectionDay('2026-02-31')).to.equal('2026-03-03')
+      expect(hasExpired('2026-02-31', today), 'read as 2026-03-03, which is past').to.be.true
+
+      // Nothing above is a defence, and it is not meant to be. The round-trip
+      // check in `lib/data.ts` -> assertReadableDeadline is what rejects the
+      // row, while `next build` is reading the file, and
+      // `data-integrity.cy.ts` asserts the same four rules over the dataset.
+      // This test exists so that a future "simplification" of either one knows
+      // what it is removing.
     })
   })
 

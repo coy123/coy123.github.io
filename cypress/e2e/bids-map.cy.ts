@@ -61,6 +61,34 @@ describe('Bids map', () => {
     })
   })
 
+  it('states the bando status in the popup, agreeing with the marker colour', () => {
+    // The badge and the marker colour are both rendered from the single
+    // `hasExpired()` answer MapView computes per marker (CLAUDE.md, "One rule
+    // for scaduto"). This asserts they cannot drift apart, and that the words
+    // are the ones the detail page uses rather than a second copy.
+    const check = (stroke: string, label: string, textClass: string, shouldBeActive: boolean) => {
+      const pool = bidsWithCoordinates.filter((bid) => isActive(bid) === shouldBeActive)
+      // The dataset carries both today, but it is curated — do not fail a run
+      // because every bando happens to be open.
+      if (!pool.length) return
+
+      cy.get(sel.mapMarker).filter(`[stroke="${stroke}"]`).first().click({ force: true })
+      cy.get(sel.mapPopup).should('be.visible')
+      cy.get(sel.mapPopupStatus).should('contain.text', label).and('have.class', textClass)
+
+      // ...and the bando it actually named really does have that status.
+      cy.get(sel.mapPopup).then(($popup) => {
+        const text = $popup.text()
+        const bid = bids.find((candidate) => text.includes(candidate.location))
+        expect(bid, `popup names a bid from data.json (got: ${text.slice(0, 120)})`).to.exist
+        expect(isActive(bid!), `${bid!.location} is labelled "${label}"`).to.equal(shouldBeActive)
+      })
+    }
+
+    check('#22c55e', t.pages.bidDetail.labels.active, 'text-green-300', true)
+    check('#f87171', t.pages.bidDetail.labels.expired, 'text-red-300', false)
+  })
+
   it('navigates to the detail page from a popup link', () => {
     cy.get(sel.mapMarker).first().click({ force: true })
     cy.get(sel.mapPopup).find('a[href^="/bandi/"]').click()

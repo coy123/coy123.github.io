@@ -45,6 +45,10 @@ export const sel = {
   map: '.leaflet-container',
   mapMarker: 'path.leaflet-interactive',
   mapPopup: '.leaflet-popup',
+  // The open/scaduto pill inside a map popup. `rounded-full` is the only
+  // structural class that distinguishes it from the other spans in there,
+  // which is the same anchoring convention the rest of this file uses.
+  mapPopupStatus: '.leaflet-popup span.rounded-full',
   mapPopupClose: '.leaflet-popup-close-button',
   mapZoomIn: '.leaflet-control-zoom-in',
   mapZoomOut: '.leaflet-control-zoom-out',
