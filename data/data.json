@@ -988,5 +988,35 @@
         "latitude": "40.833",
         "longitude": "14.33333",
         "detectedat": "2026-02-20"
+    },
+    {
+        "location": "Comune di Bellante (TE)",
+        "deadline": "2026-02-26",
+        "url": "https://www.comune.bellante.te.it/backend/media/news/files/133/Bando_di_pubblico_concorso_n_2_autorizzazioni_NCC_Comune_di_Bellante.pdf",
+        "amount": 2,
+        "image": "https://upload.wikimedia.org/wikipedia/it/b/b7/Bellante-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "42.75",
+        "longitude": "13.8",
+        "detectedat": "2026-02-26"
+    },
+    {
+        "location": "Comune di Bressana Bottarone (PV)",
+        "deadline": "2026-09-29",
+        "url": "https://www.inpa.gov.it/bandi-e-avvisi/dettaglio-bando-avviso/?concorso_id=49db73d02b984c859f8de8cefa9ece46",
+        "amount": 3,
+        "image": "https://upload.wikimedia.org/wikipedia/it/0/02/Bressana_Bottarone-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "45.07807",
+        "longitude": "9.13119",
+        "detectedat": "2026-09-01"
+    },
+    {
+        "location": "Comune di Casal di Principe (CE)",
+        "deadline": "2026-09-30",
+        "url": "https://comunecasaldiprincipe.it/2026/08/31/bando-di-concorso-pubblico-per-titoli-ed-esami-per-lassegnazione-di-n-4-autorizzazioni-per-lesercizio-del-servizio-di-noleggio-con-conducente-n-c-c-mediante-autovettura/",
+        "amount": 4,
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Casal_di_Principe-Stemma.png/960px-Casal_di_Principe-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "latitude": "41.010",
+        "longitude": "14.131",
+        "detectedat": "2026-09-01"
     }
 ]
