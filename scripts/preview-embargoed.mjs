@@ -57,7 +57,10 @@ const value = (name) => {
   return i === -1 ? undefined : args[i + 1]
 }
 
-const STAGING = 'https://staging--bandincc.netlify.app'
+// Netlify's auto-generated site name for the staging site. It is NOT
+// `staging--bandincc.netlify.app`: that branch-subdomain form assumes a site
+// named `bandincc`, which does not exist, so every link it produced 404'd.
+const STAGING = 'https://spiffy-semifreddo-87751b.netlify.app'
 const PRODUCTION = 'https://www.bandincc.it'
 
 const file = value('--file') ?? 'data/data.json'

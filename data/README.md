@@ -94,7 +94,7 @@ right now?" after you have.
 ### 3. By hand
 
 ```
-https://staging--bandincc.netlify.app/bandi/<slug>/
+https://spiffy-semifreddo-87751b.netlify.app/bandi/<slug>/
 ```
 
 ### Building the slug by hand

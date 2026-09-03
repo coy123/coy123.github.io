@@ -62,7 +62,7 @@ npx cypress run --spec 'cypress/e2e/{home,routes}.cy.ts'
 Against a deployed preview:
 
 ```bash
-CYPRESS_BASE_URL=https://staging--bandincc.netlify.app npm run cy:run
+CYPRESS_BASE_URL=https://spiffy-semifreddo-87751b.netlify.app npm run cy:run
 ```
 
 ### Expected result
