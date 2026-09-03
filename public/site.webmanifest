@@ -1,7 +1,7 @@
 {
   "name": "Bandi NCC Italia",
   "short_name": "Bandi NCC",
-  "description": "Tutti i bandi NCC in Italia aggiornati ogni giorno: licenze Noleggio Con Conducente, scadenze e requisiti comune per comune.",
+  "description": "Bandi NCC pubblicati dai comuni italiani: licenze Noleggio Con Conducente, scadenze e requisiti comune per comune. I bandi appena verificati arrivano prima agli abbonati.",
   "lang": "it",
   "start_url": "/",
   "scope": "/",

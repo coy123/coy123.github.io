@@ -43,28 +43,7 @@ whenever nothing is embargoed. Worth considering a fixture-backed run of
 
 ---
 
-## 2. The site-wide description still promises what the paywall removed
-
-**Verified.** `app/layout.tsx:15`, `app/layout.tsx:79`, `public/site.webmanifest:4`
-
-All three still read *"Tutti i bandi NCC in Italia aggiornati ogni giorno."*
-`app/page.tsx:17` carries a comment explaining precisely why that wording must
-not be used any more, and the home page's own description was rewritten — the
-layout was missed.
-
-Line 79 is the `WebSite` JSON-LD, emitted on **every one of the ~110 exported
-pages**. So the claim that `/abbonamento` charges €5.90/month to correct is what
-search engines read site-wide, and what the manifest shows on an installed PWA.
-
-`routes.cy.ts` asserts per-page `<meta name="description">` values and never
-looks at the layout default or the JSON-LD, so nothing catches it.
-
-Replace all three with the `/` wording ("I bandi appena verificati arrivano
-prima agli abbonati").
-
----
-
-## 3. `npm run lint` does not work, and nothing lints in CI
+## 2. `npm run lint` does not work, and nothing lints in CI
 
 **Verified.** `package.json:11`
 
@@ -79,95 +58,7 @@ it. Do not leave it as-is — it is a command that appears to exist and hangs.
 
 ---
 
-## 4. `scripts/send-newsletter.mjs` re-mails a bando when a typo is fixed
-
-**Verified.** `scripts/send-newsletter.mjs:59`
-
-```js
-const key = (b) => `${b.location}|${b.deadline}`
-```
-
-The header comment justifies deadline changes counting as new bandi. It does not
-consider location edits. `cypress/README.md` names four rows a maintainer is
-likely to tidy — `Comunne di Reggio Emilia (RE)` (double n), `Comune di Spolet (PG)`
-(missing o), and two region-instead-of-province labels. **Correcting any such
-typo on a bando whose scadenza is still ahead makes the diff see a brand-new row
-and mails it to the paid list a second time.**
-
-The four rows named today are all expired, so the `hasExpired` guard at line 98
-happens to drop them. That is coincidence, not design.
-
-Key on `url` (the stable identity of a bando) or `url|deadline`, and put the
-rename hazard in the README next to the "editing changes the URL" warning.
-
----
-
-## 5. `postcss.config.cjs` requires a package that is not installed
-
-**Verified.** It declares `@tailwindcss/postcss`; `node_modules/@tailwindcss`
-does not exist and the package is not in `package.json` — the project is on
-Tailwind 3 via `postcss.config.mjs`. Inert today because the `.mjs` wins
-resolution. A build failure waiting on a resolution-order change. Delete the
-`.cjs`.
-
----
-
-## 6. `stripe-worker/`, `newsletter/` and `scripts/` are typechecked by nothing
-
-**Reported.** `tsconfig.json:40-48` excludes `scripts`, `cypress` and
-`stripe-worker`; no workflow runs the Worker's own `typecheck`; `render.mjs` is
-`checkJs: false`.
-
-Rename `{{SUMMARY}}` in `newsletter/email_template.html` and nothing fails until
-`newsletter.yml` fires on a real batch, at which point `fill()` throws, the send
-step exits non-zero, the marker correctly stays put, and the bandi are not
-mailed that day. The same break in `welcome_template.html` is **worse**:
-`sendWelcomeEmail` swallows every error by design, so a paying subscriber
-silently gets nothing and the only trace is a Worker log line.
-
-Add a job running `npm --prefix stripe-worker run typecheck` and
-`DRY_RUN=true BEFORE_SHA=HEAD~1 node scripts/send-newsletter.mjs` — the dry-run
-path exercises `renderEmail`, `renderTable` and `fill` end to end and cannot
-send.
-
----
-
-## 7. The cookie banner's "Rifiuta" does nothing
-
-**Reported.** `components/CookieBanner.tsx:12,19,25`, `app/layout.tsx:65`
-
-`cookie-consent` is written on both buttons and read only to decide whether to
-show the banner. Nothing else reads it, and Umami loads unconditionally before
-and regardless of any choice.
-
-Worse, the modal copy at line 88 says *"Usiamo cookie tecnici e, con il tuo
-consenso, cookie di analisi e profilazione"* while
-`locales/it.json → pages.cookiePolicy.sections[2]` says the opposite, correctly
-and defensibly: Umami sets no cookies and needs no prior consent, and there are
-no profiling cookies at all. The banner's own first line and the modal's
-disagree with each other inside one component.
-
-Either align the modal copy with the policy, or actually gate the Umami
-`<Script>` on the stored consent. Shipping copy that promises a gate that does
-not exist is the one option to avoid.
-
----
-
-## 8. `newsletter.yml` marker step lost its implicit `success()` guard
-
-**Reported.** `.github/workflows/newsletter.yml:120`
-
-An explicit `if:` replaces GitHub's default `success()` condition. Not
-exploitable today — `markAccountedFor()` is the last statement in the script, so
-`up_to_date=true` and a failing `send` step cannot coexist. But the entire design
-of that marker is that it must never advance past unmailed rows, and this is the
-one place a future inserted step breaks it silently.
-
-`if: success() && steps.send.outputs.up_to_date == 'true'`.
-
----
-
-## 9. Collapsed FAQ answers stay in the tab order
+## 3. Collapsed FAQ answers stay in the tab order
 
 **Reported.** `components/FAQAccordion.tsx:23,53-66`
 
@@ -179,7 +70,7 @@ answers containing links. `accessibility.cy.ts` does not cover it.
 
 ---
 
-## 10. JSON-LD is serialised without `</script>` escaping
+## 4. JSON-LD is serialised without `</script>` escaping
 
 **Reported.** `app/layout.tsx:73`, `app/page.tsx:36`, `app/bandi/[bid]/page.tsx:100`,
 `app/faq/page.tsx:42`, `app/abbonamento/page.tsx:70`, `app/about-us/page.tsx:40`,
@@ -200,7 +91,7 @@ impact (popups render only on click), same class of fix.
 
 ---
 
-## 11. Dead code and inert config
+## 5. Dead code and inert config
 
 **Reported, individually cheap to confirm.**
 
@@ -217,7 +108,7 @@ impact (popups render only on click), same class of fix.
 
 ---
 
-## 12. Internal bid links omit the trailing slash
+## 6. Internal bid links omit the trailing slash
 
 **Reported.** `components/Table.tsx:60,77`, `components/MapView.tsx`
 
@@ -227,7 +118,7 @@ a redirect, and it is inconsistent with `Footer.tsx` / `Navigation.tsx`.
 
 ---
 
-## 13. Embargoed detail pages are enumerable
+## 7. Embargoed detail pages are enumerable
 
 **Reported, and largely moot today.** `app/bandi/[bid]/page.tsx:28`
 
@@ -244,7 +135,7 @@ about this second path.** If privacy ever becomes real, both need answering.
 
 ---
 
-## 14. Doc drift
+## 8. Doc drift
 
 **Verified where counted.**
 

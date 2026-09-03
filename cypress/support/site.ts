@@ -31,7 +31,10 @@ export interface RawBid {
   url: string
   amount: number
   image: string
-  /** As the file spells it: lowercase, and an ISO instant rather than a day. */
+  /**
+   * As the file spells it: lowercase. A bare `YYYY-MM-DD` in every row today;
+   * older rows carried an ISO instant, and `detectionDay` still reads both.
+   */
   detectedat?: string
   /** The Italian calendar day that instant belongs to, as `lib/data.ts` derives it. */
   detectedAt?: string
@@ -191,7 +194,10 @@ export const normalize = (value: string) =>
 /* Derived fixtures                                                    */
 /* ------------------------------------------------------------------ */
 
-export const bidPath = (bid: RawBid) => `/bandi/${toSlug(bid.location)}`
+// Trailing slash included: `next.config.mjs` sets `trailingSlash: true`, so the
+// slashless form is a 301 on both hosts. This is the canonical path, and it is
+// what Table.tsx and MapView.tsx emit — assertions compare against it directly.
+export const bidPath = (bid: RawBid) => `/bandi/${toSlug(bid.location)}/`
 
 /**
  * Open or closed, as the app decides it: Italian calendar days, so a bando is

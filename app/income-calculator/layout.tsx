@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { jsonLd } from '@/lib/jsonLd'
 
 export const metadata: Metadata = {
   title: 'Calcolatore Guadagni NCC',
@@ -34,7 +35,7 @@ export default function IncomeCalculatorLayout({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(calculatorSchema) }}
       />
       {children}
     </>

@@ -85,6 +85,22 @@ jobs:
         env:
           STRIPE_MODE: ${{ inputs.stripe-mode }}
 
+      # The Worker is a separate package with its own tsconfig, and the root
+      # `tsconfig.json` excludes `stripe-worker` — so nothing here typechecked it
+      # until this step existed. It matters more than a typecheck usually does:
+      # `sendWelcomeEmail` swallows every error by design (a throw would 500 the
+      # webhook and make Stripe retry, re-granting and re-sending), so a break in
+      # that file costs a paying subscriber their welcome email silently, with
+      # one Worker log line as the only trace.
+      #
+      # `npm ci` because the Worker carries its own lockfile. It is not part of
+      # the root install, and it holds no test suite of its own — this is the
+      # whole of its CI.
+      - name: Typecheck the Stripe Worker
+        run: |
+          npm ci --prefix stripe-worker
+          npm --prefix stripe-worker run typecheck
+
       - name: Build static export
         run: npm run build
         env:

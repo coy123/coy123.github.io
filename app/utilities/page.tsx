@@ -5,6 +5,7 @@ import MarkdownArticle from '@/components/MarkdownArticle'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import HeroCrest from '@/components/HeroCrest'
+import { jsonLd } from '@/lib/jsonLd'
 
 export const metadata: Metadata = {
   title: 'Strumenti Utili',
@@ -40,7 +41,7 @@ export default function UtilitiesPage() {
     <div className="w-full mx-auto">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(articleSchema) }}
       />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"

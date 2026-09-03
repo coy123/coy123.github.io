@@ -3,6 +3,29 @@
 import { useState, useEffect } from 'react'
 import { getTranslations } from '@/lib/translations'
 
+/**
+ * The consent banner, kept deliberately ahead of what the site actually does.
+ *
+ * **The stored value is not read by anything, and that is intended.** The site
+ * sets no cookies at all — there is no `document.cookie` anywhere in the
+ * codebase, and Umami (app/layout.tsx) is cookieless, collects no IP and no
+ * personal data, so it loads unconditionally and must keep loading whatever is
+ * clicked here. `locales/it.json → pages.cookiePolicy` states that position and
+ * is the accurate description of today's behaviour.
+ *
+ * So "Rifiuta" changes nothing today, and nothing is being broken by that: with
+ * no cookies to refuse there is no consent to obtain. What the banner and its
+ * modal do is ask the question anyway, so the mechanism and the user's answer
+ * are already in place the day something is added that genuinely needs consent
+ * — an ad network, an embedded player, a real analytics cookie. At that point
+ * this component gains a reader for `cookie-consent` and the copy becomes
+ * literally true; until then it is deliberately broader than the site.
+ *
+ * A code review flagged the mismatch on 2026-09-01 (the modal offers "cookie di
+ * analisi e profilazione" while the policy correctly says there are none) and
+ * the call was to keep it. Do not "fix" this by narrowing the modal copy to
+ * match the policy, and do not gate the Umami <Script> on the stored value.
+ */
 export default function CookieBanner() {
   const t = getTranslations()
   const [isVisible, setIsVisible] = useState(false)

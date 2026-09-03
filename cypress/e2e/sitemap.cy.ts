@@ -49,7 +49,7 @@ describe('sitemap.xml', () => {
   it('lists every content page and every published bando, and nothing else', () => {
     const expected = [
       ...ROUTES.map((route) => `${ORIGIN}${route.path === '/' ? '/' : `${route.path}/`}`),
-      ...bids.map((bid) => `${ORIGIN}${bidPath(bid)}/`),
+      ...bids.map((bid) => `${ORIGIN}${bidPath(bid)}`),
     ].sort()
 
     readSitemap().then((locs) => {

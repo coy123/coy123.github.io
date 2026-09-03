@@ -71,7 +71,7 @@ A clean run against `next dev` is **561 passing, 20 pending, 0 failing** out of
 581, in about 6 minutes. Pending is not a failure — see Known gaps for what
 those 20 are and why they are skipped.
 
-The browser-less tests are not in that total; `npm run test:unit` adds 49 more
+The browser-less tests are not in that total; `npm run test:unit` adds 57 more
 in about two seconds. See "What does not live here" below.
 
 Measured 2026-09-03. The 516 and 519 quoted here previously were extrapolations
@@ -148,9 +148,10 @@ Two behaviours differ, and the suite is written to pass in both modes:
   the production output puts them in `<head>`. Assertions therefore use
   `meta[name=…]` rather than `head meta[name=…]`.
 
-The suite has been verified end-to-end against `next dev`. **It has not yet
-been run against the built export** — do that once with
-`npm run test:e2e:static` before wiring it into CI.
+The suite is verified end-to-end against both targets, and both are wired
+into CI: `.github/workflows/e2e.yml` builds and then runs
+`npm run test:e2e:static` against the resulting `out/`, and that job gates
+every deploy on both branches.
 
 ### What does not live here
 
@@ -159,7 +160,7 @@ A test that never opens a page does not belong in a browser. Those live in
 above:
 
 ```bash
-npm run test:unit      # 49 tests, ~2s, no server, no build, no Electron
+npm run test:unit      # 57 tests, ~2s, no server, no build, no Electron
 ```
 
 | File | Covers |

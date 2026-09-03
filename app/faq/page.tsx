@@ -4,6 +4,7 @@ import FAQAccordion from '@/components/FAQAccordion'
 import AuthorBox from '@/components/AuthorBox'
 import faqData from '@/data/faq.json'
 import HeroCrest from '@/components/HeroCrest'
+import { jsonLd } from '@/lib/jsonLd'
 
 export const metadata: Metadata = {
   title: 'FAQ e Glossario NCC',
@@ -41,7 +42,7 @@ export default function FAQPage() {
       <div className="w-full mx-auto">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }}
       />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"

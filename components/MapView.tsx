@@ -14,6 +14,19 @@ interface MapViewProps {
 
 type WithCoordinates = TableData & { latitude: number; longitude: number }
 
+/**
+ * `bindPopup()` takes a raw HTML string, so anything interpolated into it is
+ * markup, not text. `item.location` comes from `data/data.json`, which is fed
+ * from a crawler — the one path an untrusted string reaches this file by. Every
+ * other value in the popup is a number, a date or a translation constant.
+ */
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+
 export default function MapView({ data }: MapViewProps) {
   const t = getTranslations()
   const locale = 'it-IT'
@@ -127,13 +140,13 @@ export default function MapView({ data }: MapViewProps) {
       // any utility on the same element.
       const popupContent = `
         <div class="font-sans text-gray-200">
-          <div class="font-semibold text-white pr-3">${item.location}</div>
+          <div class="font-semibold text-white pr-3">${escapeHtml(item.location)}</div>
           <div class="mt-1.5"><span class="${statusClass}">${statusLabel}</span></div>
           <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <span><span class="text-gray-400">${t.table.headers.amount}:</span> <strong class="font-semibold text-green-400">${numberFormatter.format(item.amount)}</strong></span>
             <span><span class="text-gray-400">${t.table.headers.deadline}:</span> <strong class="font-semibold text-gray-100">${new Date(item.deadline).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })}</strong></span>
           </div>
-          <a href="/bandi/${toSlug(item.location)}" class="mt-2.5 inline-flex items-center gap-1 font-medium text-blue-400 hover:text-blue-300 transition-colors">
+          <a href="/bandi/${toSlug(item.location)}/" class="mt-2.5 inline-flex items-center gap-1 font-medium text-blue-400 hover:text-blue-300 transition-colors">
             ${t.table.headers.view} →
           </a>
         </div>

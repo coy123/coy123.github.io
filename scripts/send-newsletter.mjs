@@ -56,6 +56,18 @@ const markAccountedFor = () => {
 // BOTH sides of the diff below, not just the rendered rows: a padded location
 // or deadline would make an already-mailed row look brand new and re-send it to
 // every subscriber.
+//
+// `location`, not `url`, and deliberately so. A code review proposed keying on
+// the URL as "the stable identity of a bando" — it is the wrong trade. A comune
+// republishing the same bando at a new URL (a CMS migration, a moved PDF, a
+// changed slug) would then read as brand new and be mailed a second time, and
+// that is the failure we cannot see coming. A renamed location is the opposite:
+// it is our own edit, made deliberately, and its cost is bounded and visible.
+// So the key tracks what the comune publishes, not where it happens to sit.
+//
+// The consequence to keep in mind: correcting a typo in a `location` whose
+// scadenza is still ahead WILL re-mail that bando. Fix such a row's spelling
+// only once it has expired, or accept the duplicate.
 const key = (b) => `${b.location}|${b.deadline}`
 
 // A manual dispatch has no github.event.before. A dry run then previews the most

@@ -98,6 +98,75 @@ describe('Accessibility basics', () => {
       .should('have.class', 'grid-rows-[1fr]')
   })
 
+  it('tells assistive tech whether an FAQ answer is open', () => {
+    // Without aria-expanded the toggle announces as a bare button: nothing says
+    // it expands anything, nor whether it currently is. aria-controls ties it to
+    // the panel it opens.
+    cy.visitPage('/faq')
+    cy.get(sel.accordion).first().find('button').first().as('toggle')
+
+    cy.get('@toggle').should('have.attr', 'aria-expanded', 'false')
+    cy.get('@toggle')
+      .invoke('attr', 'aria-controls')
+      .should('be.a', 'string')
+      .and('not.be.empty')
+
+    cy.get('@toggle').then(($toggle) => {
+      const panelId = $toggle.attr('aria-controls') as string
+      // The panel must exist, and point back at the button that controls it.
+      cy.get(`#${CSS.escape(panelId)}`)
+        .should('exist')
+        .and('have.attr', 'aria-labelledby', $toggle.attr('id') as string)
+    })
+
+    cy.get('@toggle').click()
+    cy.get('@toggle').should('have.attr', 'aria-expanded', 'true')
+  })
+
+  it('keeps every id unique across both accordions on the page', () => {
+    // /faq renders two independent accordions — 18 FAQ entries, then the
+    // glossary — and the ids now cross the SSR/hydration boundary. An index-based
+    // scheme would collide between the two lists and aria-controls would resolve
+    // to the wrong panel.
+    cy.visitPage('/faq')
+    cy.get('[aria-controls]').then(($toggles) => {
+      const ids = [...$toggles].map((el) => el.getAttribute('aria-controls'))
+      expect(ids.length, 'toggles found').to.be.greaterThan(1)
+      expect(new Set(ids).size, 'every aria-controls target is distinct').to.eq(ids.length)
+    })
+  })
+
+  it('takes a collapsed answer out of the tab order', () => {
+    // The panel collapses with grid-rows/opacity, which hides it visually but
+    // leaves its content focusable and readable by a screen reader. `invisible`
+    // is what actually removes it: without it, a keyboard user is dragged
+    // through the links buried in every closed answer on the page.
+    cy.visitPage('/faq')
+
+    // Every answer on the page starts collapsed.
+    cy.get(sel.accordionPanel).should('have.class', 'invisible')
+
+    // Anything focusable inside any of them must be unreachable. Asserted over
+    // every panel rather than a chosen one: which answers carry links is a
+    // property of data/faq.json, and the first one happens not to.
+    cy.get(sel.accordionPanel).find('a').should('have.length.greaterThan', 0)
+    cy.get(sel.accordionPanel)
+      .find('a')
+      .each(($link) => {
+        // `:visible` is Cypress's own check and honours visibility:hidden on an
+        // ancestor, which is exactly the property that removes the tab stop.
+        cy.wrap($link).should('not.be.visible')
+      })
+
+    cy.get(sel.accordion).first().find('button').first().click()
+    cy.get(sel.accordion)
+      .first()
+      .find(sel.accordionPanel)
+      .first()
+      .should('have.class', 'visible')
+      .and('be.visible')
+  })
+
   it('submits the calculator with the keyboard', () => {
     cy.visitPage('/income-calculator')
     cy.get('#hoursPerDay').focus().type('{enter}')

@@ -171,7 +171,7 @@ describe('release delay', () => {
       // The newsletter links straight to /bandi/<slug>/ on day 0. A missing
       // page would 404 exactly the readers who are paying for the head start.
       allBids.forEach((bid) => {
-        cy.assertReachable(encodeURI(`${bidPath(bid)}/`))
+        cy.assertReachable(encodeURI(bidPath(bid)))
       })
     })
 

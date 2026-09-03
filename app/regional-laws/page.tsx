@@ -4,6 +4,7 @@ import LawsContent from '@/components/LawsContent'
 import lawsData from '@/data/laws.json'
 import { LawData } from '@/types'
 import HeroCrest from '@/components/HeroCrest'
+import { jsonLd } from '@/lib/jsonLd'
 
 export const metadata: Metadata = {
   title: 'Normative Regionali',
@@ -33,7 +34,7 @@ export default function RegionalLawsPage() {
       <div className="w-full mx-auto">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(webPageSchema) }}
       />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"

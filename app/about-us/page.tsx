@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
 import HeroCrest from '@/components/HeroCrest'
+import { jsonLd } from '@/lib/jsonLd'
 
 export const metadata: Metadata = {
   title: 'Chi Siamo',
@@ -39,7 +40,7 @@ export default function AboutUsPage() {
       <div className="w-full mx-auto">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(aboutSchema) }}
       />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"

@@ -16,14 +16,19 @@ a fixed finding is deleted from the file rather than kept and marked done, so
 the numbering shifts as items are cleared and is not a stable reference. The
 ones most likely to bite:
 
-- `app/layout.tsx:15`/`:79` and `site.webmanifest` still promise "aggiornati
-  ogni giorno" on all ~110 pages, which the seven-day delay made false (2).
-- **`npm run lint` hangs** — no ESLint config exists, so `next lint` waits on an
-  interactive prompt. It is listed under "Bash Commands" below anyway (3).
-- `scripts/send-newsletter.mjs` keys its diff on `location|deadline`, so fixing
-  a typo in a comune name **re-mails that bando to the paid list** (4).
 - The dataset-driven half of `embargo.cy.ts` **skips entirely whenever nothing
   is embargoed**, which is most weeks — a green run is not evidence there (1).
+- **`npm run lint` hangs** — no ESLint config exists, so `next lint` waits on an
+  interactive prompt. It is listed under "Bash Commands" below anyway (2).
+
+**Not every finding survives contact.** Three were closed without the change the
+review asked for, and the reasoning is worth keeping so they are not re-filed:
+the newsletter diff key is `location|deadline` **deliberately** (a comune
+reposting the same deadline at a new URL must not re-mail — see the comment in
+`scripts/send-newsletter.mjs`); the cookie banner's unread consent value is
+deliberate forward cover (see the comment on `components/CookieBanner.tsx`); and
+the claim that naming an `if:` removes GitHub's implicit `success()` is simply
+false — the default applies unless you name a status-check function.
 
 Do not restate its findings as done. Verify one before claiming it is fixed, and
 delete it from the file when it genuinely is.
@@ -155,7 +160,7 @@ bid"). Don't assume a PR-gated `master` when reasoning about how a commit got
 there.
 
 ## CI/CD Pipelines (`.github/workflows/`)
-- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
+- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), typechecks the Stripe Worker (its own package, its own lockfile — the root `tsconfig.json` excludes it), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
 - **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch` + a daily `schedule:` at 05:00 UTC. The cron is load-bearing, not housekeeping: the seven-day release delay is evaluated at build time, so a rebuild is what actually makes a bando public. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
 - **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `npx netlify-cli@27 deploy --dir=out --prod --no-build` in a plain `run:` step. **`--no-build` is load-bearing**: since netlify-cli v20 `deploy` builds by default, so without it the CLI reads the site's build settings from the Netlify UI and runs `npm run build` in a job that has no checkout. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets, and fails fast with a named error if either is empty. **Do not go back to `netlify/actions/cli@master`** — its `entrypoint.sh` captures the CLI in a command substitution and ends on an `::set-output` echo (removed by GitHub in 2023), so the step exits 0 no matter what the CLI did and prints none of its output. That is why staging deploys looked green for months while the site never updated.
 - **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it. New to the diff is not the same as mailable: a row whose deadline has already passed (an archive backfill) is logged and dropped, and if every new row was expired no campaign is sent at all — but the marker still advances, because those rows are accounted for by the deliberate decision not to mail them.
@@ -178,7 +183,7 @@ Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
 runs both, so both gate both deploys.
 
 **Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
-`node --test` — no framework, no dependency, ~2s for 49 tests. Node 22 strips
+`node --test` — no framework, no dependency, ~2s for 57 tests. Node 22 strips
 the TypeScript itself, so a test imports `../lib/embargo.ts` and
 `../cypress/support/site.ts` directly and checks the real modules:
 
@@ -187,6 +192,12 @@ the TypeScript itself, so a test imports `../lib/embargo.ts` and
   plus the three release-delay invariants over the real dataset
 - `test/subscription.test.ts` — the Stripe links in `locales/it.json`: right
   mode, `locale=it`, "IVA inclusa"
+- `test/newsletter-templates.test.ts` — both email shells rendered end to end
+  against a fixture, so a renamed `{{SLOT}}` fails here rather than in an inbox.
+  `fill()` already throws on an unfilled slot, but only while an email is being
+  built — for `welcome_template.html` that is inside the Worker, whose
+  `sendWelcomeEmail` swallows errors by design, so the break costs a paying
+  subscriber their welcome email with no trace but a log line
 
 These were Cypress specs until 2026-09-03 and only ever because the suite is
 what gates the deploys. **Anything that is a pure call into `lib/` or a check on
@@ -215,7 +226,7 @@ Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
 A clean Cypress run against `next dev` is 561 passing / 20 pending / 0 failing
-out of 581, in about 6 minutes, with `npm run test:unit` adding 49 more in two
+out of 581, in about 6 minutes, with `npm run test:unit` adding 57 more in two
 seconds — measured 2026-09-03, after the browser-less tests moved to `test/`.
 (The 516 quoted here for the previous year was an extrapolation, not a
 measurement, and had drifted badly.) The pending ones are deliberate
@@ -321,6 +332,7 @@ Key conventions:
 ├── test/                       # Browser-less tests, run by `node --test`
 │   ├── data-integrity.test.ts  # data/*.json + glossary hygiene; the delay over the dataset
 │   ├── embargo.test.ts         # The seven-day release rule against fixed instants
+│   ├── newsletter-templates.test.ts # Both email shells rendered against a fixture
 │   └── subscription.test.ts    # Stripe links in locales/it.json: mode, locale, IVA
 ├── types.ts                    # TypeScript interfaces (TableData, LawData)
 ├── tsconfig.json               # TS config (strict, bundler module resolution)
@@ -341,9 +353,11 @@ interface TableData {
   longitude?: number
 }
 ```
-Plus `detectedat` in the JSON (lowercase, an ISO instant — Rome midnight
-serialised as UTC, e.g. `"2026-07-31T22:00:00.000Z"`), normalised on read into
-`detectedAt`, an Italian calendar day. It drives the seven-day release delay —
+Plus `detectedat` in the JSON (lowercase), normalised on read into
+`detectedAt`, an Italian calendar day. Every row holds a bare `YYYY-MM-DD`
+today; rows written before commit `6ca1ec5` carried an ISO instant instead
+(Rome midnight serialised as UTC, e.g. `"2026-07-31T22:00:00.000Z"`), which is
+still valid input — `detectionDay()` reads both. It drives the seven-day release delay —
 see "The seven-day release delay" below.
 
 Data source: `data/data.json` — manually curated, loaded via `lib/data.ts`.
@@ -1020,10 +1034,9 @@ The home page section about participating in bids contains a Keliweb affiliate l
 - All coat-of-arms images are external URLs (mostly Wikimedia Commons)
 - `next.config.mjs` allows `upload.wikimedia.org` domain for `next/image`, but pages currently use raw `<img>` tags
 
-## Duplicate PostCSS Configs
-Both `postcss.config.mjs` (ESM) and `postcss.config.cjs` (CommonJS) exist. The `.mjs` uses `tailwindcss` plugin, the `.cjs` uses `@tailwindcss/postcss`. This can cause confusion — Next.js picks one based on its module resolution.
-
-# Current Data Stats (as of last update)
-- 90 NCC bid entries in `data/data.json`
+# Current Data Stats (as of 2026-09-03)
+- 102 NCC bid entries in `data/data.json`
 - 13 regional law entries in `data/laws.json`
-- 17 FAQ entries in `data/faq.json`
+- 18 FAQ entries in `data/faq.json`
+
+These drift with every `data.json` push — count them rather than trusting this.

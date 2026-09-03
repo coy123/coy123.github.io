@@ -4,6 +4,7 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
 import SideAdSlot from '@/components/SideAdSlot'
+import { jsonLd } from '@/lib/jsonLd'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -12,7 +13,12 @@ export const metadata: Metadata = {
         default: 'Bandi NCC Italia | Licenze Noleggio Con Conducente',
         template: '%s | Bandi NCC Italia'
     },
-    description: 'Tutti i bandi NCC in Italia aggiornati ogni giorno. Trova licenze Noleggio Con Conducente disponibili, scadenze e requisiti comune per comune.',
+    // No "aggiornati ogni giorno" and no "tutti": a bando is subscriber-only
+    // for its first week (lib/embargo.ts → RELEASE_DELAY_DAYS). This default is
+    // inherited by every page that sets no description of its own, and the same
+    // sentence is repeated in the WebSite JSON-LD below and in
+    // public/site.webmanifest — keep the three in step.
+    description: 'Consulta i bandi NCC pubblicati dai comuni italiani: licenze disponibili, scadenze e link ufficiali, comune per comune. I bandi appena verificati arrivano prima agli abbonati.',
     openGraph: {
         type: 'website',
         locale: 'it_IT',
@@ -71,12 +77,12 @@ export default function RootLayout({children}: {
         <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
+                __html: jsonLd({
                     '@context': 'https://schema.org',
                     '@type': 'WebSite',
                     name: 'Bandi NCC Italia',
                     url: 'https://bandincc.it',
-                    description: 'Tutti i bandi NCC in Italia aggiornati ogni giorno. Trova licenze Noleggio Con Conducente disponibili, scadenze e requisiti comune per comune.',
+                    description: 'Consulta i bandi NCC pubblicati dai comuni italiani: licenze disponibili, scadenze e link ufficiali, comune per comune. I bandi appena verificati arrivano prima agli abbonati.',
                     publisher: {
                         '@type': 'Organization',
                         name: 'BandiNCC.it',

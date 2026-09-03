@@ -11,6 +11,7 @@ import BidStatus from './BidStatus'
 import BidDetailMapWrapper from './BidDetailMapWrapper'
 import HeroCrest from '@/components/HeroCrest'
 import NewsletterAd from '@/components/NewsletterAd'
+import { jsonLd } from '@/lib/jsonLd'
 
 function findBid(slug: string) {
   return bids.find((item) => toSlug(item.location) === slug)
@@ -97,7 +98,7 @@ export default async function BidDetailPage({ params }: { params: Promise<{ bid:
       <div className="w-full mx-auto">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(bidSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(bidSchema) }}
       />
       {/* Hero Section */}
       <div

@@ -35,7 +35,7 @@ describe('Bid detail pages', () => {
       // `bids` is the published set — the embargoed rows get their pages too,
       // and embargo.cy.ts checks those (they are unlisted, not absent).
       bids.forEach((bid) => {
-        cy.assertReachable(encodeURI(`${bidPath(bid)}/`))
+        cy.assertReachable(encodeURI(bidPath(bid)))
       })
     })
 

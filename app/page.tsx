@@ -6,6 +6,7 @@ import HomeContent from '@/components/HomeContent'
 import CurrentDate from '@/components/CurrentDate'
 import HeroCrest from '@/components/HeroCrest'
 import ReactMarkdown from 'react-markdown'
+import { jsonLd } from '@/lib/jsonLd'
 
 export const revalidate = 3600 // ISR: rivalidazione ogni ora
 
@@ -34,7 +35,7 @@ export default async function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLd({
             '@context': 'https://schema.org',
             '@type': 'Dataset',
             name: 'Database Bandi e Licenze NCC in Italia',

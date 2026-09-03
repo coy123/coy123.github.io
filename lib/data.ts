@@ -26,9 +26,12 @@ export interface RawBid {
    * the same boundary that turns the coordinate strings into numbers, so no
    * other module sees this spelling.
    *
-   * Nor is it always a bare date. What the file holds today is an ISO instant
-   * — "2026-07-31T22:00:00.000Z", midnight in Rome serialised as UTC — and a
-   * plain "2026-08-01" is equally valid. `detectionDay` reads either.
+   * Nor is the shape fixed. Every row holds a bare "2026-08-01" today, but
+   * rows written before commit 6ca1ec5 carried an ISO instant instead
+   * — "2026-07-31T22:00:00.000Z", midnight in Rome serialised as UTC — and
+   * that is still valid input. `detectionDay` reads either, and folds the
+   * instant through Europe/Rome rather than slicing the string, which would
+   * date that example the 31st of July and release it a day early.
    */
   detectedat?: string
   latitude?: string

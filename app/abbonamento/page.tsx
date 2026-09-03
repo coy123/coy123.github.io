@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getTranslations } from '@/lib/translations'
 import { currentStripeMode, isPlaceholderLink, stripeHref } from '@/lib/subscription'
 import HeroCrest from '@/components/HeroCrest'
+import { jsonLd } from '@/lib/jsonLd'
 
 const t = getTranslations()
 
@@ -67,7 +68,7 @@ export default function AbbonamentoPage() {
     <div className="w-full mx-auto">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(offerSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(offerSchema) }}
       />
       <div
         className="mb-3 relative rounded-lg overflow-hidden p-4 sm:p-6"
