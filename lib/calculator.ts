@@ -33,11 +33,11 @@ export interface CalculatorInputs {
 
 export function calculateIncome(inputs: CalculatorInputs): number {
     const totalHours = inputs.hoursPerDay * inputs.daysPerMonth
-    const billableHours = totalHours * cityToOccupancy.get(inputs.cityType)!!
-    const hourlyRate = cityToHourlyRate.get(inputs.cityType)!! * timeOfDayMultiplier.get(inputs.timeOfDay)!!
+    const billableHours = totalHours * cityToOccupancy.get(inputs.cityType)!
+    const hourlyRate = cityToHourlyRate.get(inputs.cityType)! * timeOfDayMultiplier.get(inputs.timeOfDay)!
     const monthlyRevenue = billableHours * hourlyRate
-    const totalKm = totalHours * cityToDistance.get(inputs.cityType)!!
-    const variableCosts = totalKm * fuelCost.get(inputs.fuel)!!
+    const totalKm = totalHours * cityToDistance.get(inputs.cityType)!
+    const variableCosts = totalKm * fuelCost.get(inputs.fuel)!
     const grossProfit = monthlyRevenue - variableCosts - fixedCost
     return grossProfit
 }

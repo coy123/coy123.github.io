@@ -168,3 +168,34 @@ export const isPublished = (
  */
 export const daysUntilRelease = (detectedAt: string, at: number = Date.now()): number =>
   dayNumber(detectedAt) + RELEASE_DELAY_DAYS - dayNumber(romeDay(at))
+
+/**
+ * Splits a set of bandi into what the public site may render and what is held
+ * back for subscribers.
+ *
+ * This exists so the partition can be tested. `lib/data.ts` reads the real
+ * `data/data.json` at module scope, so a test importing it gets whatever the
+ * file happens to contain that day — and `cypress/e2e/embargo.cy.ts` inherits
+ * the same problem, which is why eleven of its thirteen tests skip themselves
+ * whenever nothing is inside the window (most weeks). A DST bug in
+ * `releaseCutoff()` once released an embargoed bando a day early and shipped
+ * green through all of it.
+ *
+ * `lib/data.ts` calls this rather than filtering twice inline, so
+ * `test/embargo-split.test.ts` exercises the exact function the site uses
+ * instead of a copy that can drift away from it.
+ *
+ * Both lists come from one pair of `cutoff`/`today` values: resolving them
+ * separately either side of midnight in Rome would put a row in neither list
+ * or in both.
+ */
+export const splitByRelease = <T extends { detectedAt?: string; deadline?: string }>(
+  rows: T[],
+  cutoff: string = releaseCutoff(),
+  today: string = currentDay()
+): { published: T[]; embargoed: T[] } => {
+  const published: T[] = []
+  const embargoed: T[] = []
+  for (const row of rows) (isPublished(row, cutoff, today) ? published : embargoed).push(row)
+  return { published, embargoed }
+}

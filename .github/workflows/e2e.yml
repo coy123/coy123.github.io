@@ -69,6 +69,13 @@ jobs:
       - name: Verify Cypress
         run: npx cypress verify
 
+      # Cheapest gate in the job, so it runs first. Before `eslint.config.mjs`
+      # existed this step was impossible: `npm run lint` ran `next lint`, found
+      # no config, and blocked on an interactive prompt — it would have hung the
+      # runner until the job timed out, which is why no workflow called it.
+      - name: Lint
+        run: npm run lint
+
       # The browser-less half of the suite: the release rule, every check on
       # data/*.json, and the Stripe links in locales/it.json. None of it needs a
       # build or a server, so it runs first — a bad deadline, a pasted crest or

@@ -9,6 +9,20 @@ export default defineConfig({
   e2e: {
     baseUrl,
     specPattern: 'cypress/e2e/**/*.cy.ts',
+    // A spec runs in a browser and cannot write to the terminal. `cy.task` is
+    // the only channel that reaches the CI log, and `embargo.cy.ts` needs it:
+    // most weeks nothing is inside the seven-day window, so eleven of its
+    // tests skip themselves, and a silent skip is indistinguishable from a
+    // pass in a green run. This is what makes that visible.
+    setupNodeEvents(on) {
+      on('task', {
+        notice(message: string) {
+          console.log(message)
+          return null
+        },
+      })
+      return undefined
+    },
     supportFile: 'cypress/support/e2e.ts',
     fixturesFolder: 'cypress/fixtures',
     downloadsFolder: 'cypress/downloads',

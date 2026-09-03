@@ -8,7 +8,11 @@ import HeroCrest from '@/components/HeroCrest'
 import ReactMarkdown from 'react-markdown'
 import { jsonLd } from '@/lib/jsonLd'
 
-export const revalidate = 3600 // ISR: rivalidazione ogni ora
+// No `revalidate` here. ISR needs a server and `output: 'export'` has none, so
+// the export is only as fresh as the last build. What actually refreshes the
+// site is the daily 05:00 UTC `schedule:` in .github/workflows/deploy.yml —
+// load-bearing, because the seven-day release delay is evaluated at build time
+// and a rebuild is what makes an embargoed bando public.
 
 // No `title` here on purpose. The root layout's `title.template` does not apply
 // to the segment that declares it, so setting `title: 'Home'` produced the

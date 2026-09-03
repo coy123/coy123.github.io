@@ -3,35 +3,34 @@ This is a project for showing the latest Italian NCC (Noleggio Con Conducente / 
 
 Domain: www.bandincc.it
 
-# ⚠️ Open code-review backlog — read `CODE-REVIEW.md`
+# Decisions a review already tried to overturn
 
-**`CODE-REVIEW.md` (2026-09-01) is an unfinished backlog, not a historical
-record. Surface it to me at the start of a session whenever the work touches
-the embargo, the sitemap, the newsletter diff, CI, or site-wide metadata.**
+The 2026-09-01 code review is **closed** — every finding was either fixed or
+deliberately rejected, and `CODE-REVIEW.md` is gone. Five of them were closed
+*without* the change the review asked for. They look like bugs and are not, so
+they will be re-filed by the next reviewer unless the reasoning stays somewhere:
 
-It holds a full review of the repo (everything but `bandincc-crawler/`), ranked
-by consequence, each item marked *verified* (reproduced by hand) or *reported*
-(one agent's reading — check it before acting). **Everything in it is open** —
-a fixed finding is deleted from the file rather than kept and marked done, so
-the numbering shifts as items are cleared and is not a stable reference. The
-ones most likely to bite:
+- **The newsletter diff key is `location|deadline`, not `url`.** A comune
+  reposting the same deadline at a new URL must not re-mail. See the comment in
+  `scripts/send-newsletter.mjs` — including the accepted cost, that renaming a
+  still-open bando WILL re-mail it.
+- **The cookie banner's stored consent is read by nothing, on purpose.** The
+  site sets no cookies and Umami is cookieless, so there is nothing to gate; the
+  banner asks anyway so the mechanism exists the day something needs it. See the
+  comment on `components/CookieBanner.tsx`. Do not narrow the modal copy to
+  match the policy, and do not gate the Umami `<Script>`.
+- **Embargoed `/bandi/` URLs are guessable, and that is fine.** See "The
+  seven-day release delay".
+- **Naming an `if:` does not remove GitHub's implicit `success()`.** The default
+  applies unless you name a status-check function, so
+  `newsletter.yml`'s marker step is already guarded.
+- **`data/data.json` is curated by hand.** The crawler only produces candidates
+  for a person to check, so "crawler-fed, therefore untrusted" is not a valid
+  argument for anything. The `</script>` escaping in `lib/jsonLd.ts` is kept as
+  construction-over-attention, not as a live-threat mitigation.
 
-- The dataset-driven half of `embargo.cy.ts` **skips entirely whenever nothing
-  is embargoed**, which is most weeks — a green run is not evidence there (1).
-- **`npm run lint` hangs** — no ESLint config exists, so `next lint` waits on an
-  interactive prompt. It is listed under "Bash Commands" below anyway (2).
-
-**Not every finding survives contact.** Three were closed without the change the
-review asked for, and the reasoning is worth keeping so they are not re-filed:
-the newsletter diff key is `location|deadline` **deliberately** (a comune
-reposting the same deadline at a new URL must not re-mail — see the comment in
-`scripts/send-newsletter.mjs`); the cookie banner's unread consent value is
-deliberate forward cover (see the comment on `components/CookieBanner.tsx`); and
-the claim that naming an `if:` removes GitHub's implicit `success()` is simply
-false — the default applies unless you name a status-check function.
-
-Do not restate its findings as done. Verify one before claiming it is fixed, and
-delete it from the file when it genuinely is.
+`SideAdBanner.tsx` is likewise unused but deliberately kept — it may be needed
+again.
 
 
 # Tech Stack
@@ -49,8 +48,8 @@ delete it from the file when it genuinely is.
 - All pages are pre-rendered at build time; the `out/` directory is deployed
 - `trailingSlash: true` — all routes end with `/`
 - `reactStrictMode: true`
-- `images.domains`: `['upload.wikimedia.org']` — for coat of arms images
-- Note: `revalidate = 3600` on the home page has no effect in export mode; the page is only updated on rebuild
+- No `images` config: nothing imports `next/image` (every crest is a raw `<img>`), so the block only configured a loader that never ran. Re-add it — as `remotePatterns`, not the Next-15-deprecated `domains` — if `next/image` is ever adopted
+- No `revalidate` anywhere: ISR needs a server and export mode has none. The site is only as fresh as its last build, and the daily 05:00 UTC `schedule:` in `deploy.yml` is what rebuilds it
 
 # Autonomy
 Edit files and run commands (`curl`, `grep`, `node`, `python3`, file reads, etc.) directly — do not stop to propose them and wait for approval. Just do the work and report what you found or changed.
@@ -160,7 +159,7 @@ bid"). Don't assume a PR-gated `master` when reasoning about how a commit got
 there.
 
 ## CI/CD Pipelines (`.github/workflows/`)
-- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), typechecks the Stripe Worker (its own package, its own lockfile — the root `tsconfig.json` excludes it), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
+- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run lint` (cheapest gate, so it goes first), runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), typechecks the Stripe Worker (its own package, its own lockfile — the root `tsconfig.json` excludes it), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
 - **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch` + a daily `schedule:` at 05:00 UTC. The cron is load-bearing, not housekeeping: the seven-day release delay is evaluated at build time, so a rebuild is what actually makes a bando public. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
 - **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `npx netlify-cli@27 deploy --dir=out --prod --no-build` in a plain `run:` step. **`--no-build` is load-bearing**: since netlify-cli v20 `deploy` builds by default, so without it the CLI reads the site's build settings from the Netlify UI and runs `npm run build` in a job that has no checkout. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets, and fails fast with a named error if either is empty. **Do not go back to `netlify/actions/cli@master`** — its `entrypoint.sh` captures the CLI in a command substitution and ends on an `::set-output` echo (removed by GitHub in 2023), so the step exits 0 no matter what the CLI did and prints none of its output. That is why staging deploys looked green for months while the site never updated.
 - **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it. New to the diff is not the same as mailable: a row whose deadline has already passed (an archive backfill) is logged and dropped, and if every new row was expired no campaign is sent at all — but the marker still advances, because those rows are accounted for by the deliberate decision not to mail them.
@@ -171,7 +170,9 @@ there.
 # Bash Commands
 - `npm run dev`: build and run the project locally (uses Turbopack)
 - `npm run build`: production build via Next.js
-- `npm run lint`: run Next.js linter
+- `npm run lint`: ESLint 9 flat config (`eslint.config.mjs`), via `eslint .` — **not**
+  the deprecated `next lint`, which hung on an interactive prompt because no config existed
+- `npm run lint:fix`: the same, applying the fixable ones
 - `npm run test:unit`: run the browser-less tests under `node --test` (~2s, no server)
 - `npm run test:e2e`: run the Cypress suite against `next dev`
 - `npm run test:e2e:static`: run it against the built `out/` export (run `npm run build` first)
@@ -183,11 +184,19 @@ Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
 runs both, so both gate both deploys.
 
 **Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
-`node --test` — no framework, no dependency, ~2s for 57 tests. Node 22 strips
+`node --test` — no framework, no dependency, ~2s for 68 tests. Node 22 strips
 the TypeScript itself, so a test imports `../lib/embargo.ts` and
 `../cypress/support/site.ts` directly and checks the real modules:
 
 - `test/embargo.test.ts` — the release rule against fixed instants, no dataset
+- `test/embargo-split.test.ts` — the paywall's partition against a **fixture**,
+  so it runs identically on every commit whatever `data/data.json` holds that
+  day. It exists because `cypress/e2e/embargo.cy.ts` derives its expectations
+  from the live dataset: eleven of its thirteen tests skip themselves whenever
+  nothing is inside the seven-day window, which is most weeks, and a silent skip
+  is indistinguishable from a pass. A DST bug in `releaseCutoff()` released an
+  embargoed bando a day early and shipped green through that whole file. It
+  tests `splitByRelease` — the exact function `lib/data.ts` calls, not a copy
 - `test/data-integrity.test.ts` — every check on `data/*.json` and the glossary,
   plus the three release-delay invariants over the real dataset
 - `test/subscription.test.ts` — the Stripe links in `locales/it.json`: right
@@ -225,9 +234,12 @@ dies during binary verification with `Invalid regular expression flags`. On
 Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
-A clean Cypress run against `next dev` is 561 passing / 20 pending / 0 failing
-out of 581, in about 6 minutes, with `npm run test:unit` adding 57 more in two
-seconds — measured 2026-09-03, after the browser-less tests moved to `test/`.
+A clean Cypress run against `next dev` is 564 passing / 20 pending / 0 failing
+out of 584, with `npm run test:unit` adding 68 more in two seconds — measured
+2026-09-03, after the browser-less tests moved to `test/` and the three
+accordion accessibility tests were added. Wall-clock is about 6 minutes on an
+idle machine; a run sharing the box with other agents' dev servers took 14:30,
+so treat the duration as load-dependent and the counts as the real signal.
 (The 516 quoted here for the previous year was an extrapolation, not a
 measurement, and had drifted badly.) The pending ones are deliberate
 opt-ins (external link checks) or export-only
@@ -244,6 +256,36 @@ Key conventions:
 - Third-party assets (Wikimedia crests, OSM tiles, Umami) are stubbed by
   default; `CYPRESS_checkExternalLinks=true` opts into real network checks.
 - `cy.visitPage()` pre-dismisses the cookie banner; `cy.visitRaw()` does not.
+
+# Linting
+
+`eslint.config.mjs` — ESLint 9 flat config, run by `npm run lint` and gated in
+`e2e.yml` ahead of the tests. Clean as of 2026-09-03.
+
+- **Not `next lint`.** That command is deprecated in Next 15, and with no config
+  present it dropped into an interactive "How would you like to configure
+  ESLint?" prompt — so the script hung forever, in a terminal and in CI alike.
+  `package.json` calls `eslint` directly now.
+- **`eslint-config-next` 15.5.9 ships only eslintrc-shaped configs**, so
+  `FlatCompat` translates `next/core-web-vitals` and `next/typescript`. Drop it
+  when that package exports a flat config of its own.
+- **Three rules are deliberately off**, each with its reason in the config:
+  `@next/next/no-img-element` (every crest is an external `<img>` by design —
+  see "Image Strategy"), `import/no-anonymous-default-export` on `*.config.*`,
+  and `no-explicit-any`/`no-unused-expressions` under `cypress/`, `test/`,
+  `scripts/` and `newsletter/`.
+- **`bandincc-crawler/` and `next-env.d.ts` are ignored.** The first is a
+  separate project this repo must never write to, and its nested
+  `coy123.github.io/` is a stale copy of this very repo — linting it would
+  report hundreds of unfixable findings. The second is regenerated by every
+  build.
+
+Turning it on surfaced nine pre-existing errors, all fixed: five doubled
+non-null assertions (`!!`) in `lib/calculator.ts`, two untyped Leaflet refs in
+`components/MapView.tsx` (now `L.Map` / `L.LayerGroup`), an `any` walk in
+`lib/translations.ts` (now `unknown`, narrowed per step — note it returns the
+key on a miss rather than a non-string value, which its `: string` signature had
+been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 
 # Code Style
 - Use ES modules (import/export) syntax, not CommonJS (require)
@@ -298,7 +340,7 @@ Key conventions:
 │   ├── MarkdownArticle.tsx     # Renderer for the two .md long-form pages (see "Article typography")
 │   ├── Navigation.tsx          # Desktop + mobile nav with hamburger menu
 │   ├── NewsletterAd.tsx        # House ad for the paid newsletter (banner + side variants)
-│   ├── SideAdBanner.tsx        # UNUSED — leftover "EGAF" placeholder from the old ad slots
+│   ├── SideAdBanner.tsx        # UNUSED but deliberately kept — old "EGAF" ad placeholder, may be needed again
 │   ├── SideAdSlot.tsx          # One desktop ad rail; client-side so it can hide itself by route
 │   └── Table.tsx               # Main bids table with deadline sorting/coloring
 ├── data/                       # Static JSON data files
@@ -326,15 +368,16 @@ Key conventions:
 │   ├── mailerlite.mjs          # One-off send: a campaign to a throwaway group of one
 │   └── render.mjs              # Rows, slug, dates, placeholder fill, welcome copy
 ├── scripts/
-│   ├── prerender.js            # Legacy prerender script (generates static HTML from dist/)
 │   ├── preview-welcome.mjs     # Renders/sends the welcome email by hand (see below)
 │   └── send-newsletter.mjs     # The daily campaign (run by .github/workflows/newsletter.yml)
 ├── test/                       # Browser-less tests, run by `node --test`
 │   ├── data-integrity.test.ts  # data/*.json + glossary hygiene; the delay over the dataset
+│   ├── embargo-split.test.ts   # The paywall's partition against a fixture, never the live data
 │   ├── embargo.test.ts         # The seven-day release rule against fixed instants
 │   ├── newsletter-templates.test.ts # Both email shells rendered against a fixture
 │   └── subscription.test.ts    # Stripe links in locales/it.json: mode, locale, IVA
 ├── types.ts                    # TypeScript interfaces (TableData, LawData)
+├── eslint.config.mjs           # ESLint 9 flat config (eslint-config-next via FlatCompat)
 ├── tsconfig.json               # TS config (strict, bundler module resolution)
 └── package.json                # Dependencies and scripts
 ```
@@ -378,7 +421,7 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 # Pages — Detailed Descriptions
 
 ## Home Page (`app/page.tsx`)
-- **Server component** with ISR revalidation every 3600 seconds
+- **Server component**. No ISR — `output: 'export'` has no server; the daily `deploy.yml` cron is what refreshes it
 - Hero section with background image (`/images/driver.png`) and title/subtitle from translations
 - Description text + anchor links (pill-shaped buttons) to content sections below
 - `CurrentDate` component showing last-updated date (client-side to avoid SSR hydration mismatch)
@@ -565,19 +608,13 @@ The JSON structure includes:
 - FAQ page schema includes both FAQ items and glossary terms as Question/Answer pairs
 - `robots: { index: true, follow: true }`
 - Bid detail pages use `generateStaticParams()` for full SSG
-- Home page uses ISR with 1-hour revalidation
+- Home page is statically exported like every other page; it is refreshed by the daily rebuild, not by revalidation
 
 # Service Worker (`public/service-worker.js`)
 - Cache-first strategy for same-origin static assets (CSS, JS, images under `/assets/` or matching common extensions)
 - Cache name: `licenzia-static-v1`
 - Skips waiting on install, claims clients on activate
 - Cleans up old caches on activation
-
-# Prerender Script (`scripts/prerender.js`)
-- Legacy script (likely from pre-Next.js migration)
-- Generates static HTML for specific routes by modifying `dist/index.html` with route-specific metadata
-- Routes: `/`, `/how-to-become-driver`, `/regional-laws`, `/utilities`, `/disclaimer`, `/faq`
-- Not actively used with Next.js (Next.js handles SSG/ISR natively)
 
 # How to Add/Edit Data
 
@@ -883,6 +920,23 @@ properly.
   from the site, not in the sitemap, and `robots: noindex, nofollow` until the
   release date. The sitemap is generated from `publishedBids`, so this holds by
   construction — see "The sitemap is generated" below.
+- **Those URLs are guessable, and that is fine — do not "fix" it.** `toSlug()`
+  is a pure function of the comune name, so anyone with a list of Italian
+  comuni can generate every candidate `/bandi/Comune-di-<Nome>-(<XX>)/` and
+  probe which ones exist. A code review raised this; it was closed deliberately.
+  The attack needs a comune list, knowledge of the slug rule, and thousands of
+  probes — and anybody who clears that bar would simply read `data/data.json`
+  from the public GitHub repo, which hands over the whole embargoed set with no
+  guessing at all. The embargo is a publishing convention that gives subscribers
+  a head start, not an access control, and it has never been one.
+
+  Every real fix costs something the product depends on: unguessable slugs break
+  URL permanence for published bandi, not building the pages breaks the day-0
+  newsletter link, and a slug that changes at release kills every link already
+  mailed. So the answer stays "guessable, and unlisted is enough". If the repo
+  is ever made private, note that closing the `raw.githubusercontent` path (see
+  "The welcome email") does **not** close this one — but the same reasoning
+  applies, and neither is worth engineering around.
 - **The build is what releases a bando**, so `deploy.yml` carries a daily
   `schedule:` at 05:00 UTC (07:00 Italian summer time). Without it a row
   detected eight days ago stays hidden until somebody pushes. It chains into
@@ -896,6 +950,11 @@ properly.
 - **`cypress/e2e/embargo.cy.ts`** is the guard: no embargoed location, URL, slug
   or crest anywhere in the exported HTML or the sitemap, plus the locked-row
   behaviour, plus two tests holding the expiry exemption in both directions.
+  **Eleven of its thirteen tests skip themselves when nothing is inside the
+  window**, so a green run is not evidence on an ordinary week. Its `before()`
+  hook prints a banner naming exactly which checks did not run — via
+  `cy.task('notice')`, registered in `cypress.config.ts`, because a spec runs in
+  a browser and cannot otherwise reach the CI log.
   `cypress/support/site.ts` mirrors the split — `bids` is published, `allBids`
   is everything, `embargoedBids` is what is held back.
 
@@ -1032,7 +1091,7 @@ The home page section about participating in bids contains a Keliweb affiliate l
 ## Image Strategy
 - No local images except `/public/images/driver.png` (hero background)
 - All coat-of-arms images are external URLs (mostly Wikimedia Commons)
-- `next.config.mjs` allows `upload.wikimedia.org` domain for `next/image`, but pages currently use raw `<img>` tags
+- All pages use raw `<img>` tags; nothing imports `next/image`, and `next.config.mjs` carries no `images` config as a result
 
 # Current Data Stats (as of 2026-09-03)
 - 102 NCC bid entries in `data/data.json`

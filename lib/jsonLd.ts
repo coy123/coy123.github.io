@@ -7,10 +7,15 @@
  * `data/data.json`, `data/faq.json` or `locales/it.json` would close the tag
  * early and turn everything after it into live markup.
  *
- * No such string exists today and the data is curator-reviewed, but
- * `data/data.json` is fed from a crawler, which is the one path by which an
- * untrusted comune name or bid title can arrive. Escaping `<` at the point of
- * serialisation is the fix that does not depend on anybody remembering.
+ * This is not a live bug and is not expected to become one. Every row in
+ * `data/data.json` is entered by hand — the crawler only produces candidates
+ * for a person to check — so nothing here arrives unreviewed, and no such
+ * string exists in any data file today.
+ *
+ * It is kept because it costs one `replace` at the single point where every
+ * schema is serialised, and because the alternative is relying on every future
+ * curator noticing that a comune name containing `</script>` would end the tag.
+ * A guard that holds by construction beats one that holds by attention.
  *
  * `<` is a plain JSON string escape, so the output still parses to the
  * identical object — search engines see no difference.

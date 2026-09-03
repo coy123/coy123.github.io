@@ -9,6 +9,7 @@ import {
   hasExpired,
   isPublished,
   releaseCutoff,
+  splitByRelease,
 } from './embargo'
 
 /** A row exactly as it is stored in data/data.json. */
@@ -135,6 +136,7 @@ export {
   hasExpired,
   isPublished,
   releaseCutoff,
+  splitByRelease,
 }
 
 // Both halves of every comparison, resolved once while `next build` runs. Two
@@ -149,10 +151,12 @@ const today = currentDay()
  * says (see `hasExpired` — the archive is backfilled with old bandi, and those
  * have no head start left to sell).
  */
-export const publishedBids: TableData[] = bids.filter((bid) => isPublished(bid, cutoff, today))
+const split = splitByRelease(bids, cutoff, today)
+
+export const publishedBids: TableData[] = split.published
 
 /** The bandi still inside their subscriber-only window. Never sent to a client. */
-export const embargoedBids: TableData[] = bids.filter((bid) => !isPublished(bid, cutoff, today))
+export const embargoedBids: TableData[] = split.embargoed
 
 /**
  * How many bandi are being held back. This number — and nothing else about

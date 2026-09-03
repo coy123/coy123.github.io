@@ -16,9 +16,11 @@ type WithCoordinates = TableData & { latitude: number; longitude: number }
 
 /**
  * `bindPopup()` takes a raw HTML string, so anything interpolated into it is
- * markup, not text. `item.location` comes from `data/data.json`, which is fed
- * from a crawler — the one path an untrusted string reaches this file by. Every
- * other value in the popup is a number, a date or a translation constant.
+ * markup, not text. `item.location` is the only free text that reaches it —
+ * every other value in the popup is a number, a date or a translation constant.
+ *
+ * `data/data.json` is curated by hand, so this guards nothing that is loose
+ * today; it is here for the same reason as `lib/jsonLd.ts`, one level down.
  */
 const escapeHtml = (value: string) =>
   value
@@ -32,8 +34,8 @@ export default function MapView({ data }: MapViewProps) {
   const locale = 'it-IT'
   const numberFormatter = useMemo(() => new Intl.NumberFormat('de-DE'), [])
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
-  const mapInstanceRef = useRef<any>(null)
-  const markersLayerRef = useRef<any>(null)
+  const mapInstanceRef = useRef<L.Map | null>(null)
+  const markersLayerRef = useRef<L.LayerGroup | null>(null)
 
   const markers = useMemo(
     () =>

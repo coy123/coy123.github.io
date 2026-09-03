@@ -8,7 +8,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "serve:static": "serve out --listen 3000 --no-port-switching",
     "test:unit": "node --test \"test/**/*.test.ts\"",
     "cy:open": "cypress open --e2e --browser electron",
@@ -34,10 +35,13 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@types/leaflet": "^1.9.21",
     "@types/node": "25.0.10",
     "autoprefixer": "^10.4.21",
     "cypress": "^15.19.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.9",
     "postcss": "^8.5.6",
     "serve": "^14.2.6",
     "start-server-and-test": "^3.0.11",

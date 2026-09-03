@@ -1,6 +1,5 @@
 import { sel } from '../support/selectors'
 import {
-  RELEASE_DELAY_DAYS,
   allBids,
   bidPath,
   bids,
@@ -28,6 +27,15 @@ import {
  * undated, counts as published. The ones that need a held-back bando skip
  * themselves rather than pass vacuously.
  *
+ * **A skip here is not a pass, and the run says so.** Eleven of these tests
+ * need a held-back bando, and most weeks there is none — so on an ordinary run
+ * they do nothing while the suite still reports green. That is how a DST bug in
+ * `releaseCutoff()`, which released an embargoed bando a day early, shipped
+ * through this whole file unnoticed. The `before()` hook below prints a banner
+ * to the CI log naming exactly which checks did not run, and
+ * `test/embargo-split.test.ts` covers the same partition against a fixture, so
+ * something real runs on every commit whatever the dataset holds that day.
+ *
  * Everything left here needs the export. The three dataset invariants that
  * used to open this file — nothing held back past its release date, nothing
  * held back once scaduto, every expired bando published — read only the JSON
@@ -48,7 +56,45 @@ const locked = t.dashboard.locked
  */
 const tolerance = nearCutoff.length
 
+/** The checks that go quiet when the dataset has nothing inside the window. */
+const DATASET_DRIVEN = [
+  'the exported HTML carries no trace of an embargoed bando',
+  'embargoed slugs stay out of the sitemap',
+  'the locked rows: blur content, row count, count text, countdown, CTA, search',
+  'the map note',
+  'an embargoed detail page is noindex',
+]
+
 describe('release delay', () => {
+  // Printed to the terminal, not the browser console, so it is visible in a CI
+  // log. `cy.task('notice')` is registered in cypress.config.ts.
+  before(() => {
+    if (embargoedBids.length) {
+      cy.task(
+        'notice',
+        `\n  ✓ embargo checks ARE running: ${embargoedBids.length} bando/i currently held back.\n`
+      )
+      return
+    }
+    cy.task(
+      'notice',
+      [
+        '',
+        '  ' + '='.repeat(72),
+        '  !! EMBARGO LEAK CHECKS DID NOT RUN',
+        '',
+        '     Nothing is inside the seven-day window today, so these skipped:',
+        ...DATASET_DRIVEN.map((name) => `       - ${name}`),
+        '',
+        '     They are PENDING, not passing. This spec proves nothing about the',
+        '     paywall on this run. The fixture-backed cover is',
+        '     test/embargo-split.test.ts (npm run test:unit).',
+        '  ' + '='.repeat(72),
+        '',
+      ].join('\n')
+    )
+  })
+
   describe('the exported HTML', () => {
     it('carries no trace of an embargoed bando', function () {
       if (!embargoedBids.length) this.skip()
