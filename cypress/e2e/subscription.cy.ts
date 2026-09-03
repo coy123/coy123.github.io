@@ -1,12 +1,6 @@
 import { sel } from '../support/selectors'
 import { bidPath, bids, hrefSelector, t } from '../support/site'
-import {
-  hasItalianLocale,
-  isPlaceholderLink,
-  matchesStripeMode,
-  stripeHref,
-  type StripeMode,
-} from '../../lib/subscription'
+import { isPlaceholderLink, stripeHref, type StripeMode } from '../../lib/subscription'
 
 /**
  * The paid-newsletter surface: /abbonamento (the pitch and the Stripe Payment
@@ -22,7 +16,13 @@ import {
  * Every link is resolved through `stripeHref` for the mode the export was built
  * in, so the DOM assertions below double as a check that `next build` and this
  * run agreed on `STRIPE_MODE`: if they disagreed, the anchor carries the other
- * mode's URL and is simply not found.
+ * mode's URL and is simply not found. That is the half of the gate only a
+ * rendered page can hold, and it is why these tests stayed in Cypress.
+ *
+ * The half that needs no page — that the URLs in `locales/it.json` belong to
+ * the mode being built, carry `locale=it`, and that the prices say "IVA
+ * inclusa" — is `test/subscription.test.ts`, which runs under `node --test`
+ * ahead of the build. `e2e.yml` puts `STRIPE_MODE` on that step too.
  */
 type Plan = {
   id: string
@@ -57,30 +57,6 @@ describe('Abbonamento', () => {
     })
   })
 
-  it('states that VAT is included', () => {
-    // The prices are tax-inclusive in Stripe and irreversibly so per price:
-    // advertising them without saying "IVA inclusa" would understate the
-    // total to a B2C buyer.
-    plans.forEach((plan) => {
-      expect(plan.note, `${plan.name} note`).to.contain('IVA inclusa')
-    })
-  })
-
-  it(`ships only ${mode}-mode Stripe links`, () => {
-    // The hard gate on the whole two-mode arrangement, and the reason
-    // `stripeHref` does not need to throw during the build: `e2e.yml` runs this
-    // against the built `out/` before either deploy job starts.
-    //
-    // A test-mode Payment Link on www.bandincc.it would take a card, charge
-    // nobody and grant nothing — a broken checkout that looks like a working
-    // one. A live link on staging is the mirror image: a routine test run that
-    // silently bills a real card.
-    ;[...planLinks.map(({ plan, href }) => [plan.name, href] as const), ['portale', portalHref] as const]
-      .forEach(([name, href]) => {
-        expect(matchesStripeMode(href, mode), `${name}: ${href} belongs in ${mode} mode`).to.be.true
-      })
-  })
-
   it(
     mode === 'test'
       ? 'says out loud that this build is the test environment'
@@ -106,13 +82,6 @@ describe('Abbonamento', () => {
       })
     })
 
-    it('asks Stripe for Italian checkout on every plan', () => {
-      // Without `locale=it` Stripe renders checkout in the browser's language,
-      // and a fair share of this audience runs an English browser.
-      planLinks.forEach(({ plan, href }) => {
-        expect(hasItalianLocale(href), `${plan.name} carries locale=it`).to.be.true
-      })
-    })
   } else {
     it('renders no payment button while the Payment Links are placeholders', () => {
       // A live page whose "Abbonati" link 404s is worse than one that says
@@ -224,8 +193,8 @@ describe('Grazie', () => {
 
   it('stays out of the index', () => {
     // It is a post-payment confirmation, not content: indexed it would compete
-    // with /abbonamento for the same intent. It is left out of
-    // public/sitemap.xml for the same reason.
+    // with /abbonamento for the same intent. It is left out of the generated
+    // sitemap for the same reason — see `sitemap.cy.ts`, which asserts that.
     cy.get('meta[name="robots"]').should('have.attr', 'content').and('match', /noindex/)
   })
 

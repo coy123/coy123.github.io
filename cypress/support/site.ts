@@ -3,12 +3,12 @@
  * JSON the app itself renders, so adding a bid/law/FAQ never requires touching
  * a spec.
  */
-import bidsJson from '../../data/data.json'
-import lawsJson from '../../data/laws.json'
-import faqJson from '../../data/faq.json'
-import translations from '../../locales/it.json'
-import { toSlug } from '../../lib/slug'
-import { trimStrings } from '../../lib/trim'
+import bidsJson from '../../data/data.json' with { type: 'json' }
+import lawsJson from '../../data/laws.json' with { type: 'json' }
+import faqJson from '../../data/faq.json' with { type: 'json' }
+import translations from '../../locales/it.json' with { type: 'json' }
+import { toSlug } from '../../lib/slug.ts'
+import { trimStrings } from '../../lib/trim.ts'
 import {
   RELEASE_DELAY_DAYS,
   currentDay,
@@ -16,14 +16,14 @@ import {
   hasExpired,
   isPublished,
   releaseCutoff,
-} from '../../lib/embargo'
+} from '../../lib/embargo.ts'
 import {
   CREST_EAGER_ROWS,
   CREST_SIZE_DETAIL,
   CREST_SIZE_TABLE,
   CREST_WIDTHS,
   crestUrl,
-} from '../../lib/crest'
+} from '../../lib/crest.ts'
 
 export interface RawBid {
   location: string
@@ -52,7 +52,7 @@ export interface FaqEntry {
 
 /**
  * The rows exactly as data/data.json stores them, untrimmed. Only the source
- * hygiene checks in data-integrity.cy.ts should use this — assert against
+ * hygiene checks in test/data-integrity.test.ts should use this — assert against
  * `bids` everywhere else, since that is what the app actually renders.
  */
 export const rawBids: RawBid[] = bidsJson as RawBid[]

@@ -5,7 +5,8 @@
 // the home table and the map until the delay expires (see "The seven-day
 // release delay" in CLAUDE.md). Its detail page, however, is built and served
 // from day 0 — the newsletter links to it — it is simply unlinked, kept out of
-// public/sitemap.xml and marked `noindex`.
+// the sitemap (app/sitemap.ts builds that from the published rows only) and
+// marked `noindex`.
 //
 // So the page can be checked before it goes public; the only missing piece is
 // knowing its address, because the slug is computed rather than stored. That is

@@ -69,6 +69,22 @@ jobs:
       - name: Verify Cypress
         run: npx cypress verify
 
+      # The browser-less half of the suite: the release rule, every check on
+      # data/*.json, and the Stripe links in locales/it.json. None of it needs a
+      # build or a server, so it runs first — a bad deadline, a pasted crest or
+      # a test-mode Payment Link on a live build is named in about two seconds
+      # rather than after a Next build and a five-minute Electron run. Node 22
+      # strips the TypeScript itself; there is no test framework and no extra
+      # dependency behind this step.
+      #
+      # STRIPE_MODE is here for the same reason it is on the two steps below:
+      # `test/subscription.test.ts` checks that the URLs in the JSON belong to
+      # the mode this job is about to build.
+      - name: Run unit tests
+        run: npm run test:unit
+        env:
+          STRIPE_MODE: ${{ inputs.stripe-mode }}
+
       - name: Build static export
         run: npm run build
         env:

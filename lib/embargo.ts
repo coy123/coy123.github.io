@@ -123,7 +123,7 @@ export const releaseCutoff = (at: number = Date.now()): string =>
  * treats expiry as a reason to publish or to stay quiet, so the unreadable
  * case has to fall through to the ordinary seven-day rule rather than release
  * a row early. It should never get this far in any case: `lib/data.ts` throws
- * on such a row while `next build` reads the file, and `data-integrity.cy.ts`
+ * on such a row while `next build` reads the file, and `test/data-integrity.test.ts`
  * fails the suite on one too.
  */
 export const hasExpired = (deadline?: string, today: string = currentDay()): boolean => {
@@ -139,7 +139,7 @@ export const hasExpired = (deadline?: string, today: string = currentDay()): boo
  * For a paywall that fallback points the wrong way, though: a mistyped key or
  * a mangled date would let a brand-new bando skip its embargo, and nothing
  * about the page would look wrong. So it is not left to run silently —
- * `data-integrity.cy.ts` fails the suite on any row whose date is missing or
+ * `test/data-integrity.test.ts` fails the suite on any row whose date is missing or
  * unreadable, and the suite gates both deploys.
  *
  * An expired bando is published whatever its detection date says. The archive

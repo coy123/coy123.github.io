@@ -5,7 +5,6 @@ import {
   bidPath,
   bids,
   embargoedBids,
-  hasExpired,
   nearCutoff,
   t,
   toSlug,
@@ -29,9 +28,15 @@ import {
  * undated, counts as published. The ones that need a held-back bando skip
  * themselves rather than pass vacuously.
  *
- * "Already scaduto" is the one clause that is not about time since detection:
+ * Everything left here needs the export. The three dataset invariants that
+ * used to open this file — nothing held back past its release date, nothing
+ * held back once scaduto, every expired bando published — read only the JSON
+ * and `lib/embargo.ts`, so they moved to `test/data-integrity.test.ts` and now
+ * run under `node --test` before the build. `test/embargo.test.ts` is the
+ * third piece: the rule itself against fixed instants, with no dataset at all.
+ * "Already scaduto" is the clause that is not about time since detection —
  * the archive is backfilled with bandi that closed months ago, and those are
- * published on sight. The two tests below the leak check are what hold that.
+ * published on sight.
  */
 
 const locked = t.dashboard.locked
@@ -44,43 +49,6 @@ const locked = t.dashboard.locked
 const tolerance = nearCutoff.length
 
 describe('release delay', () => {
-  it('holds back nothing that is older than the window', () => {
-    // The complement of the leak check: everything past its seven days must be
-    // in the published set, or the delay is quietly hiding the whole archive.
-    const stale = embargoedBids.filter((bid) => {
-      const age = (Date.now() - new Date(bid.detectedAt!).getTime()) / 86_400_000
-      return age > RELEASE_DELAY_DAYS + 1
-    })
-    expect(
-      stale.map((bid) => `${bid.location} (${bid.detectedAt})`),
-      'bandi held back past their release date'
-    ).to.be.empty
-  })
-
-  it('holds back nothing whose scadenza has already passed', () => {
-    // The archive is filled in backwards: old bandi are added long after they
-    // closed so the history is exhaustive, and the convention is to date those
-    // rows with their own deadline, which puts them outside the window anyway.
-    // The expiry clause in `isPublished` is what makes the outcome right when
-    // that is forgotten — a closed bando has no head start left to sell, and
-    // hiding one for a week only makes the free site look incomplete.
-    const scaduti = embargoedBids.filter((bid) => hasExpired(bid.deadline))
-    expect(
-      scaduti.map((bid) => `${bid.location} (scadenza ${bid.deadline})`),
-      'expired bandi held back from the public site'
-    ).to.be.empty
-  })
-
-  it('shows every expired bando, however recently it was detected', () => {
-    // The complement, stated over the whole dataset rather than the held-back
-    // slice: an expired row is in the published set whatever `detectedat` says.
-    const missing = allBids.filter((bid) => hasExpired(bid.deadline) && !bids.includes(bid))
-    expect(
-      missing.map((bid) => `${bid.location} (scadenza ${bid.deadline})`),
-      'expired bandi missing from the published set'
-    ).to.be.empty
-  })
-
   describe('the exported HTML', () => {
     it('carries no trace of an embargoed bando', function () {
       if (!embargoedBids.length) this.skip()
@@ -102,8 +70,11 @@ describe('release delay', () => {
     it('keeps embargoed slugs out of the sitemap', function () {
       if (!embargoedBids.length) this.skip()
 
-      // public/sitemap.xml is maintained by hand, so this is the one guard
-      // against a slug being pasted in before the bando is public.
+      // `app/sitemap.ts` generates this from `publishedBids`, so a leak here
+      // would mean the split itself failed rather than a hand-edit slipping.
+      // Kept as a direct assertion anyway: it is the one file that can name a
+      // withheld comune with no page linking to it. See `sitemap.cy.ts` for
+      // the completeness half.
       cy.request('/sitemap.xml').then((response) => {
         embargoedBids.forEach((bid) => {
           expect(response.body as string, `${bid.location} in sitemap`).to.not.contain(

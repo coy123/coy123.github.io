@@ -11,21 +11,22 @@ the embargo, the sitemap, the newsletter diff, CI, or site-wide metadata.**
 
 It holds a full review of the repo (everything but `bandincc-crawler/`), ranked
 by consequence, each item marked *verified* (reproduced by hand) or *reported*
-(one agent's reading — check it before acting). Finding 1 is fixed; **everything
-else is still open.** The ones most likely to bite:
+(one agent's reading — check it before acting). **Everything in it is open** —
+a fixed finding is deleted from the file rather than kept and marked done, so
+the numbering shifts as items are cleared and is not a stable reference. The
+ones most likely to bite:
 
-- The **sitemap** has two hard 404s and lists 39 of 99 bandi (finding 3).
 - `app/layout.tsx:15`/`:79` and `site.webmanifest` still promise "aggiornati
-  ogni giorno" on all ~110 pages, which the seven-day delay made false (4).
+  ogni giorno" on all ~110 pages, which the seven-day delay made false (2).
 - **`npm run lint` hangs** — no ESLint config exists, so `next lint` waits on an
-  interactive prompt. It is listed under "Bash Commands" below anyway (5).
+  interactive prompt. It is listed under "Bash Commands" below anyway (3).
 - `scripts/send-newsletter.mjs` keys its diff on `location|deadline`, so fixing
-  a typo in a comune name **re-mails that bando to the paid list** (6).
+  a typo in a comune name **re-mails that bando to the paid list** (4).
 - The dataset-driven half of `embargo.cy.ts` **skips entirely whenever nothing
-  is embargoed**, which is most weeks — a green run is not evidence there (2).
+  is embargoed**, which is most weeks — a green run is not evidence there (1).
 
 Do not restate its findings as done. Verify one before claiming it is fixed, and
-strike an item from the file when it genuinely is.
+delete it from the file when it genuinely is.
 
 
 # Tech Stack
@@ -48,7 +49,9 @@ strike an item from the file when it genuinely is.
 
 # Autonomy
 Edit files and run commands (`curl`, `grep`, `node`, `python3`, file reads, etc.) directly — do not stop to propose them and wait for approval. Just do the work and report what you found or changed.
-The exceptions below still hold: no git writes, no deploys, no running or building the app.
+The exceptions below still hold: no git writes, no deploys, no running or
+building the app, and **no reaching outside the worktree you were started in**
+— see "You are working exclusively in this worktree" under Git and Deployment.
 
 ## `bandincc-crawler/` is off-limits
 **Never create, edit, move or delete anything inside `bandincc-crawler/`.** It is
@@ -78,6 +81,72 @@ those commands start are part of running the tests, so they are fine; what stays
 off-limits is starting the app to poke at it by hand, and deploying.
 There are two branches: staging and master. Development is done on staging. Staging is connected to Netlify for deployment and master is connected to GitHub Pages for deployment. The domain is www.bandincc.it
 
+## You are working exclusively in this worktree
+
+Several agents run in parallel, each in its own `git worktree` on its own
+branch. **Stay inside the directory you were started in.** Everything you read,
+edit, run and test belongs to this checkout and no other.
+
+- **Never check out, switch, create, delete, merge or rebase a branch.** The
+  no-git-writes rule above is not relaxed here — it is the mechanism that keeps
+  worktrees from colliding. A `git checkout` in one worktree can fail another
+  agent's build mid-run, and git will refuse outright if the branch is checked
+  out elsewhere. Your branch is whatever `git branch --show-current` already
+  says; treat it as fixed.
+- **Never edit files in another worktree**, even when a path is readable from
+  here. If a change belongs to another branch, say so and stop — do not reach
+  across and make it.
+- **Never `git worktree add`, `move`, `remove` or `prune`.** The user manages
+  the set of worktrees.
+- **You do not commit.** As above, the user handles every git write, including
+  in worktrees. Leave your work in the working tree and report what you changed
+  so it can be reviewed and committed.
+- **Read-only git stays fine**, and is the right way to orient yourself:
+  `git status`, `git branch --show-current`, `git worktree list`, `git log`,
+  `git diff`, `git show`, `git blame`.
+- **Assume the other worktrees are moving.** Files can change under you between
+  two of your own commands (it has already happened: specs moved from
+  `cypress/e2e/` into `test/` while an agent was mid-task, so a suite result it
+  had just reported was stale minutes later). If something you verified
+  earlier no longer matches, re-check it rather than assuming you broke it — and
+  say so in your report.
+- **Run the Cypress suite on a random port, and leave the port settings as you
+  found them.** The `npm run test:e2e*` scripts hardcode port 3000, and
+  `serve:static` passes `--no-port-switching`, so a second agent's suite does
+  not quietly pick another port — it hard-fails, and it can take down the run
+  that got there first. Pick a free high port per run instead.
+
+  **Do this with environment variables and CLI flags, never by editing
+  `package.json` or `cypress.config.ts`** — then there is nothing to revert and
+  no port change can leak into your branch's diff. `cypress.config.ts` already
+  reads `CYPRESS_BASE_URL`, and both servers take the port on the command line:
+
+  ```bash
+  P=$(( ( RANDOM % 20000 ) + 40000 ))
+
+  # against the built export (run `npm run build` first)
+  CYPRESS_BASE_URL="http://localhost:$P" npx start-server-and-test \
+    "npx serve out --listen $P --no-port-switching" "http://localhost:$P" \
+    "npx cypress run --e2e --env staticExport=true"
+
+  # against next dev
+  CYPRESS_BASE_URL="http://localhost:$P" npx start-server-and-test \
+    "npx next dev --turbopack -p $P" "http://localhost:$P" \
+    "npx cypress run --e2e"
+  ```
+
+  If you ever do have to change a port in a tracked file, **revert it before you
+  report** and say that you did — a stray port in `package.json` is exactly the
+  kind of edit that gets committed by accident and then fails CI, which pins
+  3000 deliberately.
+
+- **Shared state outside the worktrees is still shared.** Your `node_modules/`,
+  `.next/` and `out/` belong to your checkout, but the Cypress binary cache
+  (`~/.cache/Cypress`) and the npm cache (`~/.npm`) are global and shared by
+  every agent. Reading them is fine; do not clear or prune either — another
+  agent may be mid-run.
+- `bandincc-crawler/` remains off-limits from every worktree (see above).
+
 **Planned (not in place yet): the colleague gets push access to `staging` only,
 and changes reach `master` through pull requests** so the checks always run
 before anything hits production. Until that lands, direct pushes to `master`
@@ -86,7 +155,7 @@ bid"). Don't assume a PR-gated `master` when reasoning about how a commit got
 there.
 
 ## CI/CD Pipelines (`.github/workflows/`)
-- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
+- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
 - **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch` + a daily `schedule:` at 05:00 UTC. The cron is load-bearing, not housekeeping: the seven-day release delay is evaluated at build time, so a rebuild is what actually makes a bando public. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
 - **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `npx netlify-cli@27 deploy --dir=out --prod --no-build` in a plain `run:` step. **`--no-build` is load-bearing**: since netlify-cli v20 `deploy` builds by default, so without it the CLI reads the site's build settings from the Netlify UI and runs `npm run build` in a job that has no checkout. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets, and fails fast with a named error if either is empty. **Do not go back to `netlify/actions/cli@master`** — its `entrypoint.sh` captures the CLI in a command substitution and ends on an `::set-output` echo (removed by GitHub in 2023), so the step exits 0 no matter what the CLI did and prints none of its output. That is why staging deploys looked green for months while the site never updated.
 - **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it. New to the diff is not the same as mailable: a row whose deadline has already passed (an archive backfill) is logged and dropped, and if every new row was expired no campaign is sent at all — but the marker still advances, because those rows are accounted for by the deliberate decision not to mail them.
@@ -98,24 +167,58 @@ there.
 - `npm run dev`: build and run the project locally (uses Turbopack)
 - `npm run build`: production build via Next.js
 - `npm run lint`: run Next.js linter
+- `npm run test:unit`: run the browser-less tests under `node --test` (~2s, no server)
 - `npm run test:e2e`: run the Cypress suite against `next dev`
 - `npm run test:e2e:static`: run it against the built `out/` export (run `npm run build` first)
 - `npm run test:e2e:open`: same as `test:e2e`, with the Cypress UI
 
 # Testing
-End-to-end tests live in `cypress/` (TypeScript, Cypress 15) and are documented
-in `cypress/README.md`. They gate both deploys: `e2e.yml` is a reusable
-build-and-test job that `deploy.yml` and `netlify-deploy.yml` both call before
-they publish anything (see CI/CD above).
+Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
+`netlify-deploy.yml` both call before they publish anything (see CI/CD above) —
+runs both, so both gate both deploys.
+
+**Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
+`node --test` — no framework, no dependency, ~2s for 49 tests. Node 22 strips
+the TypeScript itself, so a test imports `../lib/embargo.ts` and
+`../cypress/support/site.ts` directly and checks the real modules:
+
+- `test/embargo.test.ts` — the release rule against fixed instants, no dataset
+- `test/data-integrity.test.ts` — every check on `data/*.json` and the glossary,
+  plus the three release-delay invariants over the real dataset
+- `test/subscription.test.ts` — the Stripe links in `locales/it.json`: right
+  mode, `locale=it`, "IVA inclusa"
+
+These were Cypress specs until 2026-09-03 and only ever because the suite is
+what gates the deploys. **Anything that is a pure call into `lib/` or a check on
+`data/` belongs here, not in a spec** — the browser adds nothing and takes
+something: Cypress's global `beforeEach` fires four `cy.intercept` calls ahead of
+every test, which was the only thing in those synchronous assertions capable of
+hanging, and on 2026-09-02 it failed a staging deploy at the same commit master
+had gone green on.
+
+`cypress/support/site.ts` is shared by both layers and is **deliberately
+framework-free** — it names neither `cy` nor `Cypress`. Two things keep it
+loadable by plain Node and must stay: JSON imports carry `with { type: 'json' }`,
+and `lib/` imports carry explicit `.ts` extensions.
+
+Careful before moving anything else: several tests read only data but reach the
+page through a local helper (`faqAccordion()`, `fillAndSubmit()`, `valueFor()`),
+so grepping for `cy.` inside the `it` block will miss them. `cypress/README.md`
+→ "What does not live here" records the three deliberate keeps.
+
+**End-to-end tests: `cypress/` (TypeScript, Cypress 15)**, documented in
+`cypress/README.md`.
 
 Cypress 15 needs **Node >= 20.1** (the repo pins 22 via `.nvmrc`); on Node 18 it
 dies during binary verification with `Invalid regular expression flags`. On
 Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
-A clean run against `next dev` was 516 passing / 19 pending / 0 failing before
-`cypress/e2e/subscription.cy.ts` was added (2026-08-04); that spec adds ~15 more
-and the count has not been re-measured since. The pending ones are deliberate
+A clean Cypress run against `next dev` is 561 passing / 20 pending / 0 failing
+out of 581, in about 6 minutes, with `npm run test:unit` adding 49 more in two
+seconds — measured 2026-09-03, after the browser-less tests moved to `test/`.
+(The 516 quoted here for the previous year was an extrapolation, not a
+measurement, and had drifted badly.) The pending ones are deliberate
 opt-ins (external link checks) or export-only
 assertions; `cypress/README.md` → "Known gaps and caveats" explains each, plus
 the two behaviours that differ between `next dev` and the built export and the
@@ -145,6 +248,7 @@ Key conventions:
 │   ├── page.tsx                # Home page (bid table + map)
 │   ├── globals.css             # Tailwind imports + custom animations (fadeIn, scaleIn)
 │   ├── not-found.tsx           # Custom 404 page
+│   ├── sitemap.ts              # /sitemap.xml, generated from publishedBids at build time
 │   ├── bandi/[bid]/            # Dynamic bid detail pages
 │   │   ├── page.tsx            # Bid detail (SSG with generateStaticParams)
 │   │   ├── BidDetailMap.tsx    # Single-marker Leaflet map for a bid
@@ -202,6 +306,7 @@ Key conventions:
 │   └── it.json                 # All Italian translations/content for the site
 ├── public/
 │   ├── images/driver.png       # Hero background image used across all pages
+│   ├── robots.txt              # Points crawlers at the generated /sitemap.xml
 │   └── service-worker.js       # Cache-first SW for static assets (CSS, JS, images)
 ├── newsletter/                 # Email markup — one shell per email, one shared table
 │   ├── email_template.html     # Daily campaign shell (MailerLite; owns {$unsubscribe})
@@ -213,6 +318,10 @@ Key conventions:
 │   ├── prerender.js            # Legacy prerender script (generates static HTML from dist/)
 │   ├── preview-welcome.mjs     # Renders/sends the welcome email by hand (see below)
 │   └── send-newsletter.mjs     # The daily campaign (run by .github/workflows/newsletter.yml)
+├── test/                       # Browser-less tests, run by `node --test`
+│   ├── data-integrity.test.ts  # data/*.json + glossary hygiene; the delay over the dataset
+│   ├── embargo.test.ts         # The seven-day release rule against fixed instants
+│   └── subscription.test.ts    # Stripe links in locales/it.json: mode, locale, IVA
 ├── types.ts                    # TypeScript interfaces (TableData, LawData)
 ├── tsconfig.json               # TS config (strict, bundler module resolution)
 └── package.json                # Dependencies and scripts
@@ -350,9 +459,10 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 
 ## Grazie (`app/grazie/page.tsx`)
 - The Stripe Payment Link redirect target after a successful payment
-- `robots: noindex` and deliberately absent from `public/sitemap.xml`: a
-  post-payment confirmation, not content, and indexed it would compete with
-  `/abbonamento/` for the same intent
+- `robots: noindex` and deliberately absent from the sitemap — it is not in
+  `STATIC_PAGES` in `app/sitemap.ts`, nor in `ROUTES`: a post-payment
+  confirmation, not content, and indexed it would compete with `/abbonamento/`
+  for the same intent
 - Carries no order details — a static export cannot read the Stripe session, and
   the entitlement comes from the webhook, not from this page loading. Anyone can
   open the URL directly, so the copy is written to survive that
@@ -633,6 +743,33 @@ would need overriding anyway, the whole `prose` ruleset ships whether or not
 the content uses those elements, and neither of the two DOM-level fixes above
 is something a stylesheet plugin can do.
 
+## The sitemap is generated (`app/sitemap.ts`)
+
+`/sitemap.xml` is a Next metadata route, built from `publishedBids` + a list of
+the content pages. There is no `public/sitemap.xml` any more — it was
+hand-maintained, and by 2026-09 it listed 39 of 102 detail pages, pointed at two
+slugs `toSlug()` never produces (`Comune-di-Forl%C3%AC-(FC)`,
+`Comune-di-Calto-(RO,-Veneto)` — both hard 404s), and omitted the trailing slash
+on all 50 entries, so every one of them was a 301 first.
+
+- **It reads `publishedBids`, never `bids`.** The sitemap is the one place a
+  withheld comune could leak with no page linking to it, so the embargo holds
+  here by construction rather than by remembering.
+- **`export const dynamic = 'force-static'` is required.** A metadata route is a
+  Route Handler underneath, and `output: 'export'` refuses to collect one
+  without it. The build fails loudly if it is removed.
+- **Every URL ends in a slash**, because `trailingSlash: true` makes the
+  slashless form a redirect.
+- `STATIC_PAGES` must stay equal to `ROUTES` in `cypress/support/routes.ts`.
+  The two are deliberately not shared — the app does not import from `cypress/`,
+  which `tsconfig.json` excludes — so `cypress/e2e/sitemap.cy.ts` asserts the
+  equality as an exact set comparison instead: a missing page and a stray page
+  both fail. Adding a content page means adding it in both places.
+- `/grazie` and `/contact` are absent from both, being `noindex`.
+- Under `staticExport` the spec also requests every `<loc>` with
+  `followRedirect: false` and requires a 200 — the check that would have caught
+  both 404s.
+
 ## Slug Generation
 Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `MapView`, `generateStaticParams()` and `findBid()` alike. It strips diacritics, folds typographic quotes and dashes to their ASCII equivalents, drops anything still outside printable ASCII, then hyphenates whitespace:
 
@@ -640,7 +777,7 @@ Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `M
 - `"Comune di Forlì (FC)"` → `"Comune-di-Forli-(FC)"`
 - `"Comune di Colle di Val d’Elsa (Toscana)"` → `"Comune-di-Colle-di-Val-d'Elsa-(Toscana)"`
 
-Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `cypress/e2e/data-integrity.cy.ts` enforces this.
+Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `test/data-integrity.test.ts` enforces this.
 
 ## One rule for scaduto (`hasExpired`)
 
@@ -668,14 +805,14 @@ and the release delay itself all call it, and `cypress/support/site.ts` →
   naming the row and what is wrong with it. Four checks — present, `YYYY-MM-DD`
   shape, parses, and **round-trips** (`"2026-02-31"` matches the shape and
   parses happily, to the 3rd of March; only the round-trip catches it). They
-  mirror `data-integrity.cy.ts` → "uses ISO deadlines that parse to real dates"
+  mirror `test/data-integrity.test.ts` → "uses ISO deadlines that parse to real dates"
   one for one, so the build and the suite cannot disagree about what readable
   means. The value checked is the trimmed one: a stray trailing space is a
   hygiene matter for the suite, not a reason to stop a deploy.
 - **`detectedat` is deliberately NOT build-checked**, only suite-checked. The
   failure mode of a build has to stay "an old bando keeps showing", never "the
   site will not build".
-- **The deploy is gated either way.** `data-integrity.cy.ts` covers `allBids`,
+- **The deploy is gated either way.** `test/data-integrity.test.ts` covers `allBids`,
   embargoed rows included, and runs in the `test` job that `package`/`deploy`
   both `needs:`. `newsletter.yml` only fires on a successful deploy, so a bad
   row cannot be mailed either.
@@ -718,7 +855,7 @@ properly.
   never `bids`.
 - **A row with no readable `detectedat` counts as published.** That fallback is
   right for a build (the table can never silently empty) but fails *open* for a
-  paywall, so `data-integrity.cy.ts` fails the suite on any row whose date is
+  paywall, so `test/data-integrity.test.ts` fails the suite on any row whose date is
   missing, unreadable or in the future — including a d/m/Y typo, which `Date`
   would otherwise parse as a different month.
 - **`components/LockedRows.tsx`** renders the withheld rows as a blurred
@@ -729,8 +866,9 @@ properly.
   covered"). The map gets a one-line note instead of a blurred pin.
 - **Detail pages are built for embargoed bandi too**, because the newsletter
   links to `/bandi/<slug>/` on day 0. They are unlisted, not absent: no link
-  from the site, not in `public/sitemap.xml` (**do not add an embargoed slug by
-  hand**), and `robots: noindex, nofollow` until the release date.
+  from the site, not in the sitemap, and `robots: noindex, nofollow` until the
+  release date. The sitemap is generated from `publishedBids`, so this holds by
+  construction — see "The sitemap is generated" below.
 - **The build is what releases a bando**, so `deploy.yml` carries a daily
   `schedule:` at 05:00 UTC (07:00 Italian summer time). Without it a row
   detected eight days ago stays hidden until somebody pushes. It chains into

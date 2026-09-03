@@ -12,8 +12,8 @@ const t = getTranslations()
  *
  * `noindex`: it is a post-payment confirmation, not content. Indexed it would
  * compete with /abbonamento/ for the same intent and show people a "thank you"
- * page for a purchase they never made. It is deliberately absent from
- * public/sitemap.xml for the same reason.
+ * page for a purchase they never made. For the same reason it is left out of
+ * `STATIC_PAGES` in app/sitemap.ts, so the generated sitemap never lists it.
  *
  * It carries no order details — a static export has no way to read the Stripe
  * session, and the entitlement is granted by the webhook, not by this page

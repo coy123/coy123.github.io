@@ -37,7 +37,7 @@ export interface RawBid {
 
 /**
  * Why a bando's `deadline` is unusable, or null when it is fine. The four
- * checks mirror `data-integrity.cy.ts` → "uses ISO deadlines that parse to
+ * checks mirror `test/data-integrity.test.ts` → "uses ISO deadlines that parse to
  * real dates", one for one, so the build and the suite can never disagree
  * about what a readable deadline is.
  *
@@ -75,7 +75,7 @@ const deadlineProblem = (deadline: unknown): string | null => {
  * The value checked is the TRIMMED one, because that is what the app uses; a
  * stray trailing space is a hygiene matter for the suite, not a reason to stop
  * a deploy. `detectedat` is deliberately not checked here — it is guarded by
- * `data-integrity.cy.ts` alone, and the failure mode of a build has to stay
+ * `test/data-integrity.test.ts` alone, and the failure mode of a build has to stay
  * "an old bando keeps showing", never "the site will not build".
  */
 const assertReadableDeadline = (bid: { location?: string; deadline?: string }, index: number) => {

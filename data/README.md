@@ -165,7 +165,7 @@ node scripts/preview-embargoed.mjs   # what is held back, and where to see it
 npm run test:e2e                     # the full suite, including data integrity
 ```
 
-`cypress/e2e/data-integrity.cy.ts` is the spec that checks this file.
+`test/data-integrity.test.ts` is the spec that checks this file.
 
 ## A note on privacy
 

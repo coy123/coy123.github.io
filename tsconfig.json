@@ -43,6 +43,7 @@
     "dist",
     "scripts",
     "cypress",
+    "test",
     "cypress.config.ts",
     "stripe-worker",
     "bandincc-crawler"

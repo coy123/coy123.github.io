@@ -842,7 +842,7 @@ hardcoded in a component:
   labels it has. Reached from the home-page banner ad, the two desktop side
   rails and a footer link — see `CLAUDE.md` → Ad Slots.
 - `app/grazie/page.tsx` — the Payment Link redirect target. `noindex` and absent
-  from `public/sitemap.xml` on purpose: it is a post-payment confirmation, not
+  from the generated sitemap on purpose: it is a post-payment confirmation, not
   content, and indexed it would compete with `/abbonamento/`. Carries no order
   details — a static export cannot read the Stripe session, and entitlement comes
   from the webhook, not from this page loading.

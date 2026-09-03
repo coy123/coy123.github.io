@@ -18,7 +18,7 @@
  * buckets — 64px and 160px both fail, which is why the sizes below look odd for
  * a 32px and an 80px box. The buckets in `CREST_WIDTHS` were verified against
  * the live service for every crest in `data/*.json`;
- * `cypress/e2e/data-integrity.cy.ts` pins the list so a future edit cannot
+ * `test/data-integrity.test.ts` pins the list so a future edit cannot
  * silently reintroduce a width that 400s.
  *
  * Anything that is not an `upload.wikimedia.org` path in one of the two shapes

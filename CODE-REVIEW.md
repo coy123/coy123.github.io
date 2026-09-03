@@ -1,8 +1,11 @@
 # Code review — 2026-09-01
 
 A full read of the repository (everything except `bandincc-crawler/`), done in one
-pass by a review agent and then spot-verified by hand. **Nothing here is fixed
-except finding 1**, which was repaired the same day; the rest is a backlog.
+pass by a review agent and then spot-verified by hand.
+
+**Everything below is open.** A finding is deleted from this file once it is
+genuinely fixed, rather than being kept and marked done — so the file is a
+worklist, never a changelog. Git history is where the record of a fix lives.
 
 Each finding says whether it was **verified** (reproduced independently, command
 included where it is short) or **reported** (the agent's reading, not separately
@@ -12,50 +15,19 @@ Findings are ordered by consequence, not by effort.
 
 ---
 
-## 1. `releaseCutoff()` leaked an embargoed bando across DST — FIXED 2026-09-01
-
-**Verified.** `lib/embargo.ts:105`
-
-The cutoff was computed by subtracting `RELEASE_DELAY_DAYS * DAY_MS` from the
-current instant and reading the Rome calendar day off the result. The week
-containing an Italian DST change is 169 hours long (October) or 167 (March), so
-168 hours is not seven calendar days across one.
-
-A build at 23:30 Rome on 2026-10-30 produced a cutoff of `2026-10-24` where the
-calendar says `2026-10-23`. A bando detected on the 24th then satisfied
-`detectedAt <= cutoff` on **day six**, putting its comune, URL, crest and
-deadline into the public export a day before subscribers stopped having it to
-themselves. A scan of every half hour of 2026 found 28 disagreements, 14 of them
-in that fail-open direction, all in the 23:00 hour during the week after the
-October change — roughly seven hours a year. The 05:00 UTC cron never lands in
-it; a hand push at night can, and `data/data.json` is pushed by hand.
-
-The March transition failed the safe way but drove `daysUntilRelease()` to 0,
-against the ">= 1" promise in its own comment — masked only because
-`LockedRows.tsx` branches on `<= 1`.
-
-**Fixed** by counting in calendar days like the rest of the file:
-`dayString(dayNumber(currentDay(at)) - RELEASE_DELAY_DAYS)`. Re-scanning 2026
-gives 0 mismatches and no `daysUntilRelease` below 1. `cypress/e2e/embargo-rule.cy.ts`
-was added at the same time and covers both transitions.
-
-The same call is in `stripe-worker/src/welcome.ts:111`, where the mirror-image
-case dropped a bando out of the welcome email a subscriber had just paid for.
-**That file imports the fixed `lib/embargo.ts`, so it is fixed too — but the
-Worker must be redeployed for the fix to take effect.**
-
----
-
-## 2. The release delay has no effective test coverage
+## 1. The release delay has no effective test coverage
 
 **Verified.** `cypress/e2e/embargo.cy.ts`, `cypress/support/site.ts:100`
 
 Every meaningful assertion in `embargo.cy.ts` is written `if (!embargoedBids.length) return`,
-because it checks the live `data/data.json`. All 99 rows currently have
-`detectedat <= 2026-08-22`, so **`embargoedBids` is empty and the HTML-leak
-check, the sitemap check and all seven locked-row tests self-skip.** On a normal
+because it checks the live `data/data.json`. Whenever every row is older than the
+window, **`embargoedBids` is empty and the HTML-leak check, the sitemap check
+and all seven locked-row tests self-skip** — which was the case on the day of
+the review, and is the case most weeks. On a normal
 CI run today the paywall is guarded by three assertions that reduce to "nothing
-is expired-and-hidden". Finding 1 shipped green through all of it.
+is expired-and-hidden". The DST bug in `releaseCutoff()` — which leaked an
+embargoed bando into the public export a day early — shipped green through all
+of it before being caught by hand.
 
 `cypress/README.md` documents the skipping as deliberate, and it is — the
 consequence is what nobody had noticed.
@@ -64,45 +36,14 @@ consequence is what nobody had noticed.
 (`age > RELEASE_DELAY_DAYS + 1`), which by construction cannot detect a one-day
 cutoff error.
 
-**Partly addressed:** `cypress/e2e/embargo-rule.cy.ts` now exercises the rule
+**Partly addressed:** `test/embargo.test.ts` now exercises the rule
 against fixed dates with no dataset. The dataset-driven half is still vacuous
 whenever nothing is embargoed. Worth considering a fixture-backed run of
 `embargo.cy.ts` so the leak checks always execute.
 
 ---
 
-## 3. `public/sitemap.xml` — two hard 404s, 60 missing pages, 49 redirects
-
-**Verified.**
-
-```
-loc entries:                 50
-/bandi/ entries:             39      (data.json has 99, all published)
-entries without a trailing slash: 49  (next.config.mjs sets trailingSlash: true)
-```
-
-- `sitemap.xml:74` → `/bandi/Comune-di-Forl%C3%AC-(FC)`. `toSlug()` folds the
-  diacritic; the built directory is `Comune-di-Forli-(FC)`. Confirmed against
-  `out/bandi/`. **Hard 404.**
-- `sitemap.xml:119` → `/bandi/Comune-di-Calto-(RO,-Veneto)`. `toSlug()` maps the
-  comma to a separator; the built directory is `Comune-di-Calto-(RO-Veneto)`.
-  **Hard 404.**
-- **60 published detail pages are not in the sitemap at all** — the entire
-  long-tail SEO surface.
-- 49 of 50 `<loc>` values are 301s before they resolve.
-
-The file is hand-maintained, which is the root cause. Generating it at build
-time from `publishedBids` + `ROUTES` removes the whole class — and note the
-constraint that makes that non-trivial: **an embargoed slug must never enter the
-sitemap** (`embargo.cy.ts:102`), so the generator has to read the published set,
-not `bids`.
-
-Nothing in the suite asserts that every published slug is present or that every
-`<loc>` resolves. Worth adding alongside the generator.
-
----
-
-## 4. The site-wide description still promises what the paywall removed
+## 2. The site-wide description still promises what the paywall removed
 
 **Verified.** `app/layout.tsx:15`, `app/layout.tsx:79`, `public/site.webmanifest:4`
 
@@ -123,7 +64,7 @@ prima agli abbonati").
 
 ---
 
-## 5. `npm run lint` does not work, and nothing lints in CI
+## 3. `npm run lint` does not work, and nothing lints in CI
 
 **Verified.** `package.json:11`
 
@@ -138,7 +79,7 @@ it. Do not leave it as-is — it is a command that appears to exist and hangs.
 
 ---
 
-## 6. `scripts/send-newsletter.mjs` re-mails a bando when a typo is fixed
+## 4. `scripts/send-newsletter.mjs` re-mails a bando when a typo is fixed
 
 **Verified.** `scripts/send-newsletter.mjs:59`
 
@@ -161,7 +102,7 @@ rename hazard in the README next to the "editing changes the URL" warning.
 
 ---
 
-## 7. `postcss.config.cjs` requires a package that is not installed
+## 5. `postcss.config.cjs` requires a package that is not installed
 
 **Verified.** It declares `@tailwindcss/postcss`; `node_modules/@tailwindcss`
 does not exist and the package is not in `package.json` — the project is on
@@ -171,7 +112,7 @@ resolution. A build failure waiting on a resolution-order change. Delete the
 
 ---
 
-## 8. `stripe-worker/`, `newsletter/` and `scripts/` are typechecked by nothing
+## 6. `stripe-worker/`, `newsletter/` and `scripts/` are typechecked by nothing
 
 **Reported.** `tsconfig.json:40-48` excludes `scripts`, `cypress` and
 `stripe-worker`; no workflow runs the Worker's own `typecheck`; `render.mjs` is
@@ -191,7 +132,7 @@ send.
 
 ---
 
-## 9. The cookie banner's "Rifiuta" does nothing
+## 7. The cookie banner's "Rifiuta" does nothing
 
 **Reported.** `components/CookieBanner.tsx:12,19,25`, `app/layout.tsx:65`
 
@@ -212,7 +153,7 @@ not exist is the one option to avoid.
 
 ---
 
-## 10. `newsletter.yml` marker step lost its implicit `success()` guard
+## 8. `newsletter.yml` marker step lost its implicit `success()` guard
 
 **Reported.** `.github/workflows/newsletter.yml:120`
 
@@ -226,7 +167,7 @@ one place a future inserted step breaks it silently.
 
 ---
 
-## 11. Collapsed FAQ answers stay in the tab order
+## 9. Collapsed FAQ answers stay in the tab order
 
 **Reported.** `components/FAQAccordion.tsx:23,53-66`
 
@@ -238,7 +179,7 @@ answers containing links. `accessibility.cy.ts` does not cover it.
 
 ---
 
-## 12. JSON-LD is serialised without `</script>` escaping
+## 10. JSON-LD is serialised without `</script>` escaping
 
 **Reported.** `app/layout.tsx:73`, `app/page.tsx:36`, `app/bandi/[bid]/page.tsx:100`,
 `app/faq/page.tsx:42`, `app/abbonamento/page.tsx:70`, `app/about-us/page.tsx:40`,
@@ -259,7 +200,7 @@ impact (popups render only on click), same class of fix.
 
 ---
 
-## 13. Dead code and inert config
+## 11. Dead code and inert config
 
 **Reported, individually cheap to confirm.**
 
@@ -276,7 +217,7 @@ impact (popups render only on click), same class of fix.
 
 ---
 
-## 14. Internal bid links omit the trailing slash
+## 12. Internal bid links omit the trailing slash
 
 **Reported.** `components/Table.tsx:60,77`, `components/MapView.tsx`
 
@@ -286,7 +227,7 @@ a redirect, and it is inconsistent with `Footer.tsx` / `Navigation.tsx`.
 
 ---
 
-## 15. Embargoed detail pages are enumerable
+## 13. Embargoed detail pages are enumerable
 
 **Reported, and largely moot today.** `app/bandi/[bid]/page.tsx:28`
 
@@ -303,13 +244,13 @@ about this second path.** If privacy ever becomes real, both need answering.
 
 ---
 
-## 16. Doc drift
+## 14. Doc drift
 
 **Verified where counted.**
 
 - CLAUDE.md → "Current Data Stats" says 90 bids / 13 laws / 17 FAQs. Actual:
-  **99 / 13 / 18**.
-- All 99 rows now store a bare `YYYY-MM-DD` in `detectedat` (commit `6ca1ec5`).
+  **102 / 13 / 18**.
+- All rows now store a bare `YYYY-MM-DD` in `detectedat` (commit `6ca1ec5`).
   CLAUDE.md → "Data Model", `lib/data.ts:30-31` and `cypress/support/site.ts:34`
   all still describe the ISO instant as the current shape. `detectionDay()`
   handles both, so nothing breaks — three comments now mislead.
@@ -357,7 +298,7 @@ Worth recording so a future pass does not redo it.
   deploy job. The `newsletter-sent` marker logic is careful and
   `markAccountedFor` is placed correctly, before the early exit.
 - **`lib/data.ts`** — `assertReadableDeadline` mirrors the four
-  `data-integrity.cy.ts` checks exactly, round-trip included; `detectedat` is
+  `test/data-integrity.test.ts` checks exactly, round-trip included; `detectedat` is
   pulled out of the spread so the raw spelling never reaches a client payload.
 - **`data/data.json` is clean** — all 99 rows have valid round-tripping
   deadlines, present and non-future `detectedat`, no duplicate locations, no
