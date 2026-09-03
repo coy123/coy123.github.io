@@ -1018,5 +1018,15 @@
         "latitude": "41.010",
         "longitude": "14.131",
         "detectedat": "2026-09-01"
+    },
+    {
+        "location": "Comune di Trezzano sul Naviglio (MI)",
+        "deadline": "2026-09-24",
+        "url": "https://trezzano.e-pal.it/L190/sezione/show/186516?idSezione=13&sort=&activePage=&search=&",
+        "amount": 3,
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Trezzano_sul_Naviglio-Stemma.svg/960px-Trezzano_sul_Naviglio-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "latitude": "45.421889",
+        "longitude": "9.074226",
+        "detectedat": "2026-09-03"
     }
 ]
