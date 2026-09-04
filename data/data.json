@@ -1018,5 +1018,15 @@
         "latitude": "45.421889",
         "longitude": "9.074226",
         "detectedat": "2026-09-03"
+    },
+    {
+        "location": "Comune di Castelvetro di Modena (MO)",
+        "deadline": "2026-10-02",
+        "url": "https://www.comune.castelvetro-di-modena.mo.it/novita/avvisi/bando-di-concorso-pubblico-per-titoli-ed-esami-per-il-rilascio-di-n-3-autorizzazioni-di-noleggio-con-conducente-mediante-autovettura",
+        "amount": 3,
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/Castelvetro_di_Modena-Stemma.svg/960px-Castelvetro_di_Modena-Stemma.svg.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "latitude": "44.50",
+        "longitude": "10.947",
+        "detectedat": "2026-09-04"
     }
 ]
