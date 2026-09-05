@@ -19,6 +19,11 @@ in `stripe-worker/STATUS.md` → step 1, "→ On the OSS grant".
 
 ## Where we are
 
+> **Superseded 2026-09-05 — see `roadmap.md`.** The locked rows shipped and
+> worked: 30 active subscriptions, MRR €165.20. The numbers below are the
+> pre-launch diagnosis, kept because the reasoning still explains *why* it
+> worked.
+
 The paid newsletter launched and got **2 subscribers**. The diagnosis from the
 Umami numbers is that this is a funnel problem, not a pricing or product problem.
 
