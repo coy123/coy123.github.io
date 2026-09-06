@@ -46,6 +46,12 @@ jobs:
       # The real domain, the real money. Stated rather than left to the default
       # so that anyone reading this file sees which Stripe account it ships.
       stripe-mode: live
+      # Every trigger but the cron runs the full suite. The nightly rebuild
+      # ships the same commit and the same data as the push run that already
+      # passed — only the date has moved, and it can only move rows from
+      # embargoed to published. e2e.yml carries the full reasoning; a push, a
+      # PR or a manual dispatch is still gated on Cypress.
+      run-e2e: ${{ github.event_name != 'schedule' }}
 
   # Pull requests stop after `test`. Only a push to master (or a manual
   # dispatch) is allowed to publish.
@@ -88,3 +94,91 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+
+  # ── Cloudflare Pages ───────────────────────────────────────────────────────
+  # Runs beside the GitHub Pages jobs above, deploying the SAME tested artifact
+  # to a second host, so the migration can be verified on *.pages.dev before any
+  # DNS moves. Once bandincc.it points at Cloudflare, `package` and `deploy`
+  # above are deleted and this becomes the only deploy — see roadmap.md,
+  # "Going private on Cloudflare Pages".
+  #
+  # Direct upload, not Cloudflare's git integration: CI already builds and
+  # tests, the repo is about to be private, and uploading the artifact keeps the
+  # "what ships is what was tested" guarantee that `package` has.
+  #
+  # Gated on the CLOUDFLARE_ACCOUNT_ID *variable* (not a secret — an account id
+  # identifies, it does not authorise) so this job simply does not exist until
+  # the Pages project does. Setting the variable turns it on; nothing here goes
+  # red in the meantime.
+  cloudflare:
+    name: Deploy to Cloudflare Pages
+    needs: test
+    if: github.event_name != 'pull_request' && vars.CLOUDFLARE_ACCOUNT_ID != ''
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download tested static export
+      uses: actions/download-artifact@v4
+      with:
+        name: static-export-pages
+        path: out
+
+    - name: Fail fast if the API token is missing
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      run: |
+        if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+          echo "::error::CLOUDFLARE_API_TOKEN is empty. Add it as a repository secret" \
+               "(scope: Cloudflare Pages:Edit)."
+          exit 1
+        fi
+
+    # --branch=master makes this a PRODUCTION deployment: Pages treats any other
+    # branch name as a preview. The project's production branch must match.
+    - name: Deploy to Cloudflare Pages
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      run: npx wrangler@4 pages deploy out --project-name=bandincc --branch=master
+
+  # ── data.json → KV, for the welcome email ──────────────────────────────────
+  # stripe-worker/src/welcome.ts builds a new subscriber's table of
+  # currently-embargoed bandi from this key. It used to read data/data.json off
+  # raw.githubusercontent.com, which only worked while the repo was public.
+  #
+  # `needs: deploy` deliberately: the key must not move ahead of the site. A
+  # subscriber who checks out just after a deploy should be shown exactly the
+  # rows the live site is still hiding, and writing this first would briefly
+  # promise rows the site had not yet released.
+  #
+  # continue-on-error, because the site being live matters more than the email
+  # being current: a failure here leaves the previous value in place, which is
+  # stale by at most one deploy, and the run summary still shows it red.
+  publish-data:
+    name: Publish data.json to KV
+    needs: deploy
+    if: github.event_name != 'pull_request' && vars.CLOUDFLARE_ACCOUNT_ID != ''
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+    # data/ for the payload, the Worker's wrangler.toml so `--binding` resolves
+    # to the namespace id without repeating it here.
+    - name: Checkout data and the Worker config
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          data
+          stripe-worker/wrangler.toml
+        sparse-checkout-cone-mode: false
+
+    - name: Write data.json to KV
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      run: |
+        npx wrangler@4 kv key put data.json \
+          --path=data/data.json \
+          --binding=BANDI \
+          --config=stripe-worker/wrangler.toml \
+          --remote

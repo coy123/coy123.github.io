@@ -233,13 +233,28 @@ site hides everything from the last seven days (`lib/embargo.ts`). They had paid
 for a head start they could not see. This email thanks them and hands over
 exactly the currently-embargoed set.
 
-**Where the data comes from.** The Worker fetches `data/data.json` from
-`raw.githubusercontent.com`, which works because the website repo is public —
-an accepted trade-off, not an oversight. **If that repo is ever made private
-this fetch 404s and the email silently loses its table**, because a failure in
-here is caught and swallowed by design. The replacement is a read-only PAT, or
-better a KV namespace that `deploy.yml` writes the embargoed set into. The
-comment above `DATA_URL` says the same thing where someone will actually see it.
+**Where the data comes from.** The `BANDI` KV namespace, bound in
+`wrangler.toml` and written by `.github/workflows/deploy.yml` → `publish-data`
+after every successful production deploy. Until 2026-09-06 the Worker fetched
+`data/data.json` straight from `raw.githubusercontent.com`, which worked only
+because the website repo was public; it is going private, so the fetch would
+have 404'd and the email would have **silently** lost its table — a failure on
+this path is caught and swallowed by design.
+
+Create the namespace once and paste the id it prints into **both**
+`[[kv_namespaces]]` and `[[env.test.kv_namespaces]]` (named environments
+inherit no bindings):
+
+```bash
+npx wrangler kv namespace create BANDI
+
+# Seed it before deploying a Worker that reads it, or the first welcome email
+# out of the gate has no table:
+npx wrangler kv key put data.json --path=../data/data.json --binding=BANDI --remote
+```
+
+The comment above `DATA_KEY` in `src/welcome.ts` says the same where someone
+will actually see it.
 
 **What it shares with the daily campaign.** Everything visual:
 `newsletter/email_template.html` (the shell), `newsletter/email_table.html` (the

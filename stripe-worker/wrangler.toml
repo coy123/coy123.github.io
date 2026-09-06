@@ -50,6 +50,24 @@ STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/cNi14namu0kOaTH4fXfEk00?
 # campaign name with [test]; that prefix is the only way to tell them apart.
 DEPLOY_MODE = "live"
 
+# --- data/data.json for the welcome email (src/welcome.ts) ------------------
+# Written by .github/workflows/deploy.yml after every successful production
+# deploy, read by the welcome email to build its table of currently-embargoed
+# bandi. It replaced a plain fetch of raw.githubusercontent.com, which only ever
+# worked because the website repo was public.
+#
+# NOT a secret: it holds the same curated data.json the site is built from, and
+# a namespace id is an identifier, not a credential.
+#
+# Create it once, then paste the id it prints here AND in [[env.test.kv_namespaces]]:
+#   npx wrangler kv namespace create BANDI
+#
+# The same namespace serves both environments on purpose — the data is not
+# mode-specific, and a test checkout should exercise the real held-back rows.
+[[kv_namespaces]]
+binding = "BANDI"
+id = "5281f3d3d63c4e6db9f19f0a365896c8"
+
 # ---------------------------------------------------------------------------
 # Staging / test mode  —  `npm run deploy:test`, `npm run tail:test`
 #
@@ -97,3 +115,11 @@ MAILERLITE_GROUP_ID = "194986214311330839"
 # differ from production.
 STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_cNi14namu0kOaTH4fXfEk00?locale=it"
 DEPLOY_MODE = "test"
+
+# Repeated, not inherited — as with vars above, a named environment takes no
+# bindings from the top level. Same namespace id: one copy of the data, read by
+# both Workers. Leaving this out is silent until the first test checkout, which
+# then sends a welcome email with no table.
+[[env.test.kv_namespaces]]
+binding = "BANDI"
+id = "5281f3d3d63c4e6db9f19f0a365896c8"

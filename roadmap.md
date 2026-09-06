@@ -38,17 +38,12 @@ Four ordered actions in `stripe-worker/STATUS.md` → step 1, "→ On the OSS gr
   (L. 21/1992), same buyer, and it would fix the thin-supply churn risk. A
   separate site was chosen instead; revisit if the two lists overlap in practice.*
 - **Regional/provincial filter tab.** Per-province table + zoomed map. Can.
-- **Paid tooling, €10–20/month.** Three problems, one budget: MailerLite's "sent
-  by" banner (looks cheap to paying customers), the public GitHub repo (public
-  `data.json` makes the 7-day embargo bypassable in theory), and free GitHub
-  Pages (cannot host Germany as a separate site in the same deployment
-  environment). Davide approved, Can executes.
-  - On the repo specifically: `coy123.github.io` is public because free GitHub
-    Pages *user* sites must be, so `data/data.json` and its full history are
-    readable by anyone who finds it. Options: move the source to a private repo
-    that pushes only `out/` to the public Pages repo, or move hosting. Note that
-    closing this also breaks the welcome email's `raw.githubusercontent` fetch —
-    see `CLAUDE.md` → "The welcome email".
+- **Paid tooling, €10–20/month.** Three problems, one budget: MailerLite's
+  "sent by" banner (looks cheap to paying customers), the public GitHub repo,
+  and free GitHub Pages. **Decided 2026-09-06: MailerLite paid, and everything
+  else is option B — Cloudflare Pages, repo private, GitHub stays on Free.**
+  Hosting is €0, so the whole budget goes to MailerLite. Plan and reasoning:
+  "Going private on Cloudflare Pages" below.
 - **Subscriber questionnaire.** A mayor contacted us directly — ask him and all
   subscribers, plus everyone who has emailed us, what they need. Davide writes,
   Can sends.
@@ -86,6 +81,95 @@ Four ordered actions in `stripe-worker/STATUS.md` → step 1, "→ On the OSS gr
 | **Pratica assistita** (€49–99 per-bando document pack) | after we have applied ourselves and gained real experience |
 | **Other bandi verticals** | after 3 months of renewal data |
 | **Managing websites/deployment for comuni** — technical know-how yes, experience no; fake it till we make it | opportunistic: keep watching comuni with bad or missing sites |
+
+---
+
+## Going private on Cloudflare Pages (decision B, 2026-09-06)
+
+**Why.** The driver is not the embargo — `CLAUDE.md` already records that the
+seven-day delay is a publishing convention, not access control, and guessable
+`/bandi/` URLs were left alone on exactly that reasoning. The driver is that
+**the dataset is the moat**: a year of curated bandi over ~7,900 comuni, sitting
+in a public repo with its full history, is the one asset a competitor could
+`git clone` — and it is also the training data for the bandi predictor.
+Germany and banditaxi.it will be private from day one for the same reason.
+
+**Why Cloudflare and not GitHub Pro.** Measured over the 30 days to 2026-09-06:
+103 CI runs, ~412 min wall-clock, ≈650 billable min/month once the nightly cron
+runs a full month. Three private repos land at 1,500–2,000 min/month against
+GitHub Free's 2,000 — which is why the cron now skips Cypress (worth ~350
+min/month across three sites). Hosting itself is the tiebreaker:
+
+- Cloudflare Pages Free has unlimited bandwidth and requests, 100 projects,
+  20,000 files per deployment (our export is ~1,000) and 100 custom domains per
+  project. Nothing here binds at three sites, or at thirty.
+- GitHub Pages has a 1 GB site cap, a 100 GB/month soft bandwidth cap, needs
+  **Pro at $4/mo** for a private repo — and its terms exclude sites "primarily
+  directed at facilitating commercial transactions". We sell a subscription and
+  intend to sell a book. Arguable, but the failure mode is the site going dark.
+
+If minutes ever do run out, GitHub says so before billing, and Pro's extra 1,000
+minutes cost $4 against $6 to buy them à la carte — so Pro is the cheap fix at
+that point, not a reason to stay on GitHub Pages.
+
+### Order of work — the sequencing is load-bearing
+
+The repo cannot go private until nothing depends on it being public, and DNS
+cannot leave GitHub Pages until Cloudflare is serving the same export.
+
+1. **[x] Trim the nightly run.** `e2e.yml` takes a `run-e2e` input; `deploy.yml`
+   passes false on `schedule:` only. Done 2026-09-06.
+2. **[~] Stand up Cloudflare Pages beside GitHub Pages.** A `bandincc` project
+   on direct upload — no git integration, since CI already builds and the repo
+   is about to be private. `deploy.yml` → `cloudflare` downloads the tested
+   `out/` artifact and runs `wrangler pages deploy`. Both hosts serve in
+   parallel; verify on `bandincc.pages.dev` before touching DNS.
+   *Project created 2026-09-06 (production branch `master`). Waiting on the two
+   GitHub repo settings below — the job is gated on the variable, so it does
+   not run until they exist.*
+3. **[~] Replace the Worker's `raw.githubusercontent` fetch with KV.** This is
+   the hard dependency on a public repo, and it must land *before* step 5.
+   `deploy.yml` → `publish-data` writes `data/data.json` into the namespace
+   after a successful deploy; `welcome.ts` reads it from the binding. Both
+   Worker environments bind it — named environments inherit nothing.
+   `scripts/preview-welcome.mjs --remote` reads the same key.
+   *Code done and namespace `BANDI` (`5281f3d3…`) seeded and verified
+   2026-09-06: `--remote` renders the three held rows, and both `--dry-run`
+   deploys show the binding. Waiting only on `npm run deploy` +
+   `npm run deploy:test`, which the live Workers still predate.*
+4. **[ ] Cut DNS over.** Move `bandincc.it` from IONOS nameservers to
+   Cloudflare (free, and it gives apex CNAME flattening — today the apex is four
+   A records at GitHub's IPs and `www` is a CNAME to `coy123.github.io`), then
+   add both hostnames to the Pages project. Verify, then drop the custom domain
+   from GitHub Pages settings.
+5. **[ ] Flip the repo private**, and only then. On GitHub Free a private repo
+   **unpublishes its Pages site**, so step 4 must be complete and verified
+   first. Then delete the `package`/`deploy` jobs from `deploy.yml` — and
+   repoint `publish-data` from `needs: deploy` to `needs: cloudflare`, or the
+   KV write silently stops running with them.
+6. **[ ] Retire Netlify.** Staging becomes a Cloudflare Pages preview
+   deployment (`--branch=staging`), which drops `netlify.toml`, the
+   `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID` secrets and a whole vendor. Staging
+   must keep `STRIPE_MODE=test`. Keep the `preview-urls` job — its comment about
+   the public run summary needs rewriting, not the job.
+7. **[ ] Documentation sweep.** `CLAUDE.md` (CI/CD, "The welcome email",
+   hosting), `stripe-worker/README.md`, `data/README.md`, and the
+   public-repo caveats that will no longer be true.
+
+### Notes
+
+- **Two Cloudflare settings** are needed in the repo: `CLOUDFLARE_API_TOKEN`
+  as a *secret* (scoped to Pages:Edit + Workers KV Storage:Edit, nothing more)
+  and `CLOUDFLARE_ACCOUNT_ID` as a *variable* —
+  `6575c0665b08ee893a387025144de696`, an identifier rather than a credential,
+  and both the `cloudflare` and `publish-data` jobs are gated on it being set.
+- **Actions minutes are account-wide**, not per repo. Watch the total once
+  Germany and banditaxi.it exist, not this repo alone.
+- **`retention-days: 1` was already set** on the `out/` artifact; only the
+  failure-only Cypress screenshots keep 7 days, which is negligible.
+- The Pages site stays publicly visible either way — going private hides the
+  source and the history, never the deployed HTML. The build-time embargo split
+  is still what keeps withheld rows out of the export.
 
 ---
 

@@ -56,26 +56,38 @@ export interface WelcomeEnv {
   MAILERLITE_API_KEY?: string
   STRIPE_PORTAL_URL?: string
   DEPLOY_MODE?: string
+  // data/data.json, written by .github/workflows/deploy.yml on every successful
+  // production deploy. Optional for the same reason as the key above: the
+  // Worker's REQUIRED check in src/index.ts owns what must exist, and a missing
+  // binding here costs a table in one email, never a webhook.
+  BANDI?: KVNamespace
 }
 
 /**
- * data.json, read straight from the repo it is curated in.
+ * Where the Worker reads data/data.json: a KV namespace, not the repo.
  *
- * ── If the repo is ever made private, this breaks. ───────────────────────────
- * The repo is public today, which is an accepted trade-off (see CLAUDE.md):
- * the embargoed rows are therefore already readable by anyone who thinks to
- * look at GitHub, and the audience is not technical. The moment that changes,
- * this fetch 404s and the welcome email silently loses its table — it will not
- * fail loudly, because a fetch error here is caught and swallowed by design.
+ * ── Why not raw.githubusercontent any more ──────────────────────────────────
+ * This used to fetch
+ * `raw.githubusercontent.com/coy123/coy123.github.io/master/data/data.json`,
+ * which worked only because the website repo was public. The repo is going
+ * private (the dataset is the moat — see roadmap.md), and that URL then 404s.
+ * The break would have been silent: every error on this path is caught and
+ * swallowed by design, because a throw would 500 the webhook and make Stripe
+ * retry, re-granting and re-sending. A paying subscriber would simply get a
+ * welcome email with no table.
  *
- * The replacement, in rough order of effort: (a) a fine-grained read-only PAT
- * as a Worker secret and the contents API instead of raw; (b) a KV namespace
- * that .github/workflows/deploy.yml writes the embargoed set into, which also
- * removes the GitHub dependency entirely. (b) is the better home if the site
- * ever needs the data at runtime for anything else.
+ * `deploy.yml` writes the file into KV as the last step of a successful
+ * production deploy, so the key changes at exactly the moment the site's own
+ * view of the data changes: a subscriber who checks out a minute after a deploy
+ * is shown precisely the rows the site is still hiding from them.
+ *
+ * Both Worker environments bind the SAME namespace. The data is not
+ * mode-specific, and a test checkout should exercise the real held-back rows
+ * rather than an empty table. Named environments inherit nothing, so the
+ * binding is declared twice in wrangler.toml.
  * ────────────────────────────────────────────────────────────────────────────
  */
-const DATA_URL = 'https://raw.githubusercontent.com/coy123/coy123.github.io/master/data/data.json'
+const DATA_KEY = 'data.json'
 
 /** A row of data/data.json, as it is stored (`detectedat`, lowercase). */
 interface RawBid {
@@ -116,18 +128,20 @@ export const embargoedBandi = (rows: RawBid[], at: number = Date.now()): Bid[] =
     .filter((row) => !isPublished(row, cutoff, today))
 }
 
-const fetchBandi = async (): Promise<RawBid[]> => {
-  // raw.githubusercontent sits behind a CDN with a short cache; the query
-  // string keeps a just-pushed bando from being missed by a few minutes.
-  const res = await fetch(`${DATA_URL}?t=${Date.now()}`, {
-    headers: { Accept: 'application/json' },
-    cf: { cacheTtl: 0 },
-  })
+const fetchBandi = async (env: WelcomeEnv): Promise<RawBid[]> => {
+  // A deploy that predates the binding, or a `--env test` deploy that forgot
+  // it. Named rather than left to a TypeError on the next line, because this
+  // message is the only thing that will reach the log.
+  if (!env.BANDI) throw new Error('BANDI KV namespace is not bound')
 
-  if (!res.ok) throw new Error(`data.json fetch failed: ${res.status}`)
+  // Parsed by the runtime rather than through JSON.parse here; malformed
+  // content throws, which is the same outcome the old fetch had.
+  const parsed = await env.BANDI.get(DATA_KEY, 'json')
 
-  const parsed = await res.json()
-  if (!Array.isArray(parsed)) throw new Error('data.json did not parse as an array')
+  if (parsed === null) {
+    throw new Error(`KV key "${DATA_KEY}" is empty — has a deploy written it yet?`)
+  }
+  if (!Array.isArray(parsed)) throw new Error('KV data.json did not parse as an array')
   return parsed as RawBid[]
 }
 
@@ -168,7 +182,7 @@ export const sendWelcomeEmail = async (
       console.warn(`No customer on the checkout for ${email}: sending unguarded`)
     }
 
-    const bandi = embargoedBandi(await fetchBandi())
+    const bandi = embargoedBandi(await fetchBandi(env))
 
     // Copy and layout live in newsletter/render.mjs alongside the campaign's,
     // so `scripts/preview-welcome.mjs` can render exactly this email locally

@@ -163,7 +163,7 @@ bid"). Don't assume a PR-gated `master` when reasoning about how a commit got
 there.
 
 ## CI/CD Pipelines (`.github/workflows/`)
-- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run lint` (cheapest gate, so it goes first), runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), typechecks the Stripe Worker (its own package, its own lockfile — the root `tsconfig.json` excludes it), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
+- **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run lint` (cheapest gate, so it goes first), runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), typechecks the Stripe Worker (its own package, its own lockfile — the root `tsconfig.json` excludes it), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. The Cypress half is gated on a `run-e2e` input (default true): `deploy.yml` passes false on its nightly `schedule:` run only, because that rebuild ships the same commit and the same `data/data.json` as the push run that already went green — the only input that moved is the date, and it can move a row embargoed → published but never back. Lint, `test:unit` and the build (with `assertReadableDeadline`) still run every night. Worth ~3.5 min per nightly run per site once the repo is private and Actions minutes are metered. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
 - **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch` + a daily `schedule:` at 05:00 UTC. The cron is load-bearing, not housekeeping: the seven-day release delay is evaluated at build time, so a rebuild is what actually makes a bando public. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages.
 - **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `npx netlify-cli@27 deploy --dir=out --prod --no-build` in a plain `run:` step. **`--no-build` is load-bearing**: since netlify-cli v20 `deploy` builds by default, so without it the CLI reads the site's build settings from the Netlify UI and runs `npm run build` in a job that has no checkout. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets, and fails fast with a named error if either is empty. **Do not go back to `netlify/actions/cli@master`** — its `entrypoint.sh` captures the CLI in a command substitution and ends on an `::set-output` echo (removed by GitHub in 2023), so the step exits 0 no matter what the CLI did and prints none of its output. That is why staging deploys looked green for months while the site never updated.
 - **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it. New to the diff is not the same as mailable: a row whose deadline has already passed (an archive backfill) is logged and dropped, and if every new row was expired no campaign is sent at all — but the marker still advances, because those rows are accounted for by the deliberate decision not to mail them.
@@ -937,10 +937,9 @@ properly.
   Every real fix costs something the product depends on: unguessable slugs break
   URL permanence for published bandi, not building the pages breaks the day-0
   newsletter link, and a slug that changes at release kills every link already
-  mailed. So the answer stays "guessable, and unlisted is enough". If the repo
-  is ever made private, note that closing the `raw.githubusercontent` path (see
-  "The welcome email") does **not** close this one — but the same reasoning
-  applies, and neither is worth engineering around.
+  mailed. So the answer stays "guessable, and unlisted is enough". The repo is
+  going private (see `roadmap.md`), and note that this closes neither hole: the
+  slugs stay guessable, and the reasoning above is why that is still fine.
 - **The build is what releases a bando**, so `deploy.yml` carries a daily
   `schedule:` at 05:00 UTC (07:00 Italian summer time). Without it a row
   detected eight days ago stays hidden until somebody pushes. It chains into
@@ -970,13 +969,18 @@ delay hides the rest — so they had paid for a head start they could not see.
 The Worker now sends a welcome email the moment `checkout.session.completed`
 arrives, carrying exactly the currently-embargoed set.
 
-- **Data source: `raw.githubusercontent.com`**, because the website repo is
-  public. That is an accepted trade-off (the embargoed rows are therefore
-  already readable by anyone who looks at GitHub; the audience is not
-  technical). **If the repo is ever made private, that fetch 404s and the email
-  silently loses its table** — the send is best-effort and swallows errors by
-  design. Replace it with a read-only PAT, or better a KV namespace written by
-  `deploy.yml`. The comment above `DATA_URL` repeats this warning in place.
+- **Data source: the `BANDI` KV namespace**, written by `deploy.yml` →
+  `publish-data` after every successful production deploy and read through the
+  binding in `wrangler.toml`. It replaced a plain fetch of
+  `raw.githubusercontent.com`, which only ever worked because the repo was
+  public — see `roadmap.md` → "Going private on Cloudflare Pages". The write is
+  `needs: deploy`, so the key never runs ahead of the site: a subscriber who
+  checks out a minute after a deploy is shown exactly the rows the live site is
+  still hiding. **Both Worker environments bind the same namespace** — named
+  environments inherit nothing, so it is declared twice. The send is
+  best-effort and swallows errors by design, so a missing binding or an empty
+  key costs a table with only a Worker log line to show for it; the comment
+  above `DATA_KEY` says so in place.
 - **Each email owns its shell; only the table is shared.** The two are
   different documents — the campaign is a table under a one-line header and
   carries MailerLite's `{$unsubscribe}`, the welcome email is prose first and

@@ -10,6 +10,9 @@ name: Build and E2E tests
 # `cypress.config.ts` and nothing here sets `CYPRESS_checkExternalLinks`.
 # Wikimedia crests, OSM tiles and Umami are stubbed by `stubExternalAssets`.
 # A municipal site going down can therefore never block a deploy.
+#
+# The Cypress half is skippable via `run-e2e`, and `deploy.yml`'s nightly
+# rebuild is the one caller that skips it — see the block below `on:`.
 
 on:
   workflow_call:
@@ -27,6 +30,32 @@ on:
           whereas the reverse would put a test-mode checkout on the real domain.
         type: string
         default: live
+      run-e2e:
+        description: >-
+          Whether to run the Cypress suite. Defaults to true; `deploy.yml`
+          passes false on its nightly `schedule:` run. See "Why the cron skips
+          Cypress" below.
+        type: boolean
+        default: true
+
+# ── Why the cron skips Cypress ──────────────────────────────────────────────
+# The 05:00 rebuild exists to release embargoed bandi, not to test anything: it
+# runs the SAME commit and the SAME data/data.json as the push run that already
+# went green, and the only input that has moved is the date.
+#
+# That makes the skip safe in the one direction that matters. Time only moves
+# forward, so the sole state change a rebuild can produce is a row crossing
+# embargoed → published — the intended release. A row can never travel the
+# other way, so the nightly export cannot expose anything the earlier full run
+# did not already clear. What still runs is everything that reads the data:
+# `npm run test:unit` (the release rule, the dataset invariants, the Stripe
+# links) and the build itself, whose `assertReadableDeadline` is what fails
+# loudly on a bad row.
+#
+# The saving is the point: ~3.5 min per nightly run per site, and the repo is
+# about to go private — where Actions minutes are metered per account and
+# banditaxi.it and the German site will be drawing on the same 2,000.
+# ────────────────────────────────────────────────────────────────────────────
 
 jobs:
   build-and-test:
@@ -47,12 +76,14 @@ jobs:
       # Electron's runtime libraries. Documented in cypress/README.md — the
       # `t64` suffixes are correct for the Ubuntu 24.04 runner image.
       - name: Install Cypress system dependencies
+        if: inputs.run-e2e
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libgtk2.0-0t64 libgbm1 libnotify4 libnss3 libxss1 libasound2t64 xvfb
 
       - name: Cache Cypress binary
+        if: inputs.run-e2e
         uses: actions/cache@v4
         with:
           path: ~/.cache/Cypress
@@ -64,9 +95,11 @@ jobs:
 
       # No-op when the cache above hit; downloads the binary when it did not.
       - name: Install Cypress binary
+        if: inputs.run-e2e
         run: npx cypress install
 
       - name: Verify Cypress
+        if: inputs.run-e2e
         run: npx cypress verify
 
       # Cheapest gate in the job, so it runs first. Before `eslint.config.mjs`
@@ -122,12 +155,13 @@ jobs:
       # the DOM, so if the two steps ever disagreed the anchors would not be
       # found and the suite would go red rather than ship a mismatched export.
       - name: Run E2E tests against the static export
+        if: inputs.run-e2e
         run: npm run test:e2e:static
         env:
           STRIPE_MODE: ${{ inputs.stripe-mode }}
 
       - name: Upload Cypress screenshots
-        if: failure()
+        if: failure() && inputs.run-e2e
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots-${{ github.run_id }}-${{ github.run_attempt }}

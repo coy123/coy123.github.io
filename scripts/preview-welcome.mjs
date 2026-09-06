@@ -19,11 +19,13 @@
 //   node scripts/preview-welcome.mjs --text                 -> the plain-text part
 //   MAILERLITE_API_KEY=… node scripts/preview-welcome.mjs --send someone@example.com
 //
-// By default it reads the LOCAL data/data.json. `--remote` reads the same URL
-// the Worker does — `master` on GitHub — which is what a real send is built
-// from, whatever branch you happen to have checked out. Use it to see what a
-// staging checkout will actually produce.
+// By default it reads the LOCAL data/data.json. `--remote` reads the same place
+// the Worker does — the BANDI KV namespace, written by deploy.yml from `master`
+// — which is what a real send is built from, whatever branch you happen to have
+// checked out. Use it to see what a staging checkout will actually produce. It
+// shells out to wrangler, so `npx wrangler login` has to have happened.
 
+import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 
 import { composeWelcome, renderEmail, trimStrings } from '../newsletter/render.mjs'
@@ -55,17 +57,27 @@ const PORTAL_URL = 'https://billing.stripe.com/p/login/cNi14namu0kOaTH4fXfEk00?l
 
 const template = (name) => readFileSync(new URL(`../newsletter/${name}`, import.meta.url), 'utf8')
 
-// Must stay in step with DATA_URL in stripe-worker/src/welcome.ts.
-const REMOTE_DATA =
-  'https://raw.githubusercontent.com/coy123/coy123.github.io/master/data/data.json'
+// Must stay in step with DATA_KEY in stripe-worker/src/welcome.ts. `--binding`
+// rather than a namespace id, so the id lives in exactly one place: the
+// Worker's wrangler.toml, which is also what CI passes.
+const KV_ARGS = [
+  'wrangler@4', 'kv', 'key', 'get', 'data.json',
+  '--binding=BANDI',
+  '--config=stripe-worker/wrangler.toml',
+  '--remote',
+]
 
 const rows = async () => {
   if (flag('--empty')) return []
   if (!flag('--remote')) return JSON.parse(readFileSync('data/data.json', 'utf8'))
 
-  const res = await fetch(`${REMOTE_DATA}?t=${Date.now()}`)
-  if (!res.ok) throw new Error(`${REMOTE_DATA} → ${res.status}`)
-  return res.json()
+  // Inherit stderr: wrangler's own message ("not logged in", "namespace not
+  // found") is far more useful than anything this script could say instead.
+  const out = execFileSync('npx', KV_ARGS, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'inherit'],
+  })
+  return JSON.parse(out)
 }
 
 // Same split the Worker applies (stripe-worker/src/welcome.ts): inside its

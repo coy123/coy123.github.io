@@ -93,12 +93,14 @@ jobs:
   # Staging only, deliberately. `deploy.yml` gets no equivalent: production is
   # where these rows are *released*, so a list of them there is noise.
   #
-  # THE RUN SUMMARY IS PUBLIC, and this prints embargoed comune names into it.
-  # That leaks nothing new — the repo is public, so data/data.json is already
-  # world-readable at raw.githubusercontent.com, and stripe-worker/src/welcome.ts
-  # depends on it being so — but it is a choice, not an oversight. If the repo is
-  # ever made private, this step joins that Worker fetch on the list of things
-  # that have to change.
+  # THE RUN SUMMARY IS PUBLIC while the repo is, and this prints embargoed
+  # comune names into it. That leaks nothing new today — data/data.json is
+  # world-readable in the repo itself — but it is a choice, not an oversight.
+  #
+  # The repo is going private (roadmap.md), which resolves this rather than
+  # breaking it: a private repo's run summaries are visible only to
+  # collaborators. The Worker's copy of the same dependency has already moved to
+  # KV; this step needs nothing.
   #
   # A separate job rather than a step on `deploy`, because `deploy` has no
   # checkout and must keep it: that absence is the belt to `--no-build`'s
