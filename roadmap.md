@@ -111,6 +111,13 @@ Four ordered actions in `stripe-worker/STATUS.md` → step 1, "→ On the OSS gr
 
 ## Going private on Cloudflare Pages (decision B, 2026-09-06)
 
+> **→ Resume here.** Steps 1–3 are done and live as of 2026-09-07: the nightly
+> cron skips Cypress, the Worker reads `data.json` from KV instead of the public
+> repo, and `master` deploys to Cloudflare Pages alongside GitHub Pages. **Next
+> is step 4, the DNS cutover** — read its record snapshot first, it is the one
+> step that can break email rather than just the website. Steps 5–7 follow in
+> order and cannot be reordered.
+
 **Why.** The driver is not the embargo — `CLAUDE.md` already records that the
 seven-day delay is a publishing convention, not access control, and guessable
 `/bandi/` URLs were left alone on exactly that reasoning. The driver is that
@@ -144,29 +151,57 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
 
 1. **[x] Trim the nightly run.** `e2e.yml` takes a `run-e2e` input; `deploy.yml`
    passes false on `schedule:` only. Done 2026-09-06.
-2. **[~] Stand up Cloudflare Pages beside GitHub Pages.** A `bandincc` project
+2. **[x] Stand up Cloudflare Pages beside GitHub Pages.** A `bandincc` project
    on direct upload — no git integration, since CI already builds and the repo
    is about to be private. `deploy.yml` → `cloudflare` downloads the tested
    `out/` artifact and runs `wrangler pages deploy`. Both hosts serve in
    parallel; verify on `bandincc.pages.dev` before touching DNS.
-   *Project created 2026-09-06 (production branch `master`). Waiting on the two
-   GitHub repo settings below — the job is gated on the variable, so it does
-   not run until they exist.*
-3. **[~] Replace the Worker's `raw.githubusercontent` fetch with KV.** This is
+   *Done. Project created 2026-09-06 (production branch `master`), token and
+   variable set, and run #143 produced a Production deployment from `master`.
+   Note `*.pages.dev` is unreachable on at least one Italian ISP — DNS resolves
+   but the connection is refused on both 80 and 443 — so verify in a browser on
+   Cloudflare DNS, not with curl from the dev machine.*
+3. **[x] Replace the Worker's `raw.githubusercontent` fetch with KV.** This is
    the hard dependency on a public repo, and it must land *before* step 5.
    `deploy.yml` → `publish-data` writes `data/data.json` into the namespace
    after a successful deploy; `welcome.ts` reads it from the binding. Both
    Worker environments bind it — named environments inherit nothing.
    `scripts/preview-welcome.mjs --remote` reads the same key.
-   *Code done and namespace `BANDI` (`5281f3d3…`) seeded and verified
-   2026-09-06: `--remote` renders the three held rows, and both `--dry-run`
-   deploys show the binding. Waiting only on `npm run deploy` +
-   `npm run deploy:test`, which the live Workers still predate.*
-4. **[ ] Cut DNS over.** Move `bandincc.it` from IONOS nameservers to
-   Cloudflare (free, and it gives apex CNAME flattening — today the apex is four
-   A records at GitHub's IPs and `www` is a CNAME to `coy123.github.io`), then
-   add both hostnames to the Pages project. Verify, then drop the custom domain
-   from GitHub Pages settings.
+   *Done. Namespace `BANDI` (`5281f3d3…`) created 2026-09-06; both Workers
+   redeployed the same day with the binding attached. Run #143's `publish-data`
+   wrote 103 rows — one more than the hand-seeded 102 — which is the proof CI
+   is doing the writing, since the job is `continue-on-error` and would have
+   gone green having written nothing.*
+4. **[ ] Cut DNS over.** Move `bandincc.it` from the IONOS nameservers to
+   Cloudflare (free, and it gives apex CNAME flattening), then add both
+   hostnames to the Pages project. Verify, then drop the custom domain from
+   GitHub Pages settings.
+
+   **This is the riskiest step in the migration, and the website is the least
+   of it.** Moving nameservers moves *all* DNS, and `bandincc.it` carries the
+   mail for info@bandincc.it plus MailerLite's whole sending setup — the
+   address `/grazie/` tells previously-unsubscribed subscribers to write to, and
+   the deliverability of every campaign we send. Cloudflare's import scan is
+   good but not guaranteed complete, so **compare against this snapshot after
+   the move, before changing the nameservers at IONOS if possible**. Taken
+   2026-09-07:
+
+   | Name | Type | Value |
+   |---|---|---|
+   | `bandincc.it` | A ×4 | `185.199.108–111.153` (GitHub Pages — these are what Pages replaces) |
+   | `bandincc.it` | MX | `10 mx00.ionos.it`, `10 mx01.ionos.it` |
+   | `bandincc.it` | TXT | `v=spf1 a mx include:_spf.mlsend.com include:_spf.perfora.net include:_spf.kundenserver.de ~all` |
+   | `bandincc.it` | TXT | `mailerlite-domain-verification=659c7012fd142996b1dc274bbe8633e930b3d195` |
+   | `www` | CNAME | `coy123.github.io` (the other record Pages replaces) |
+   | `mail` | A | `34.91.249.129` |
+   | `mail` | MX | `1 mail.litesrv.io` |
+   | `mail` | TXT | `v=spf1 a mx include:_spf.mlsend.com ~all` |
+   | `_dmarc` | TXT | `v=DMARC1; p=none; fo=1` |
+   | `litesrv._domainkey` | CNAME | `litesrv._domainkey.mlsend.com` (MailerLite DKIM) |
+
+   Only the four apex A records and the `www` CNAME should change. Everything
+   else must survive byte-for-byte; a dropped DKIM or SPF record does not break
+   anything visibly, it just quietly sends the newsletter to spam.
 5. **[ ] Flip the repo private**, and only then. On GitHub Free a private repo
    **unpublishes its Pages site**, so step 4 must be complete and verified
    first. Then delete the `package`/`deploy` jobs from `deploy.yml` — and
@@ -195,6 +230,16 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
 - The Pages site stays publicly visible either way — going private hides the
   source and the history, never the deployed HTML. The build-time embargo split
   is still what keeps withheld rows out of the export.
+- **`*.pages.dev` is unreachable from at least one Italian ISP.** DNS resolves
+  and the Cloudflare IPs are right, but both 80 and 443 hang — including with
+  curl pinned straight to those IPs, so it is not a resolver problem. Verify
+  Cloudflare deployments **in a browser**, or through the Cloudflare API
+  (`wrangler pages deployment list --project-name=bandincc`), never with curl
+  from the dev machine.
+- **MailerLite paid is the other half of this budget and is still open.**
+  Hosting came in at €0, so the whole €10–20 is free for it. It is a card and a
+  few clicks — the deliverable is the "sent by MailerLite" banner disappearing
+  from what paying subscribers receive.
 
 ---
 
