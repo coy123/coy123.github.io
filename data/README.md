@@ -24,11 +24,18 @@ Append an object to `data.json`:
 }
 ```
 
-Three things that are easy to get wrong:
+Four things that are easy to get wrong:
 
+- **The province code in `location` decides the region.** `(MI)` puts the bando
+  under Lombardia in the *Regioni* tab. Get it wrong and the bando shows up
+  under the wrong region — `test/regions.test.ts` catches the ones the
+  coordinates contradict, but only if the row has coordinates. If a bando has
+  neither a province code nor coordinates, it belongs to no region at all and
+  the suite fails: add one or the other.
 - **`latitude` and `longitude` are strings**, not numbers. `lib/data.ts`
   converts them on read. Without them the bando gets no map marker, which is
-  allowed — the table row and the detail page still work.
+  allowed — the table row and the detail page still work (but see the region
+  note above).
 - **`detectedat` is all lowercase.** It is the key that drives the embargo, and
   a capital `A` fails *open*: the bando would go public immediately instead of
   waiting its week, and nothing on the page would look wrong.

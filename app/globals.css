@@ -451,6 +451,124 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* The "NUOVO" flag on the Regioni tab (components/HomeContent.tsx)      */
+/* ------------------------------------------------------------------ */
+
+/* A launch marker with an expiry date: `REGIONS_BADGE_UNTIL` in
+   HomeContent.tsx stops rendering it after 01.11.2026, and these rules go
+   with it. Everything is one moving gradient rather than a colour that
+   flashes on and off — the tab bar is the first thing on the page and a
+   blinking element there is hard to read past. */
+.tab-new-badge {
+  display: inline-block;
+  color: #0b1120;
+  background: linear-gradient(
+    100deg,
+    #fbbf24 0%,
+    #f472b6 25%,
+    #a78bfa 50%,
+    #f472b6 75%,
+    #fbbf24 100%
+  );
+  background-size: 300% 100%;
+  animation: tabNewShine 3.2s linear infinite;
+  box-shadow: 0 0 8px rgb(244 114 182 / 0.55);
+}
+
+/* The mobile tab bar has no room for the word, so the same gradient becomes a
+   dot beside the label. */
+.tab-new-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+@keyframes tabNewShine {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 300% 0;
+  }
+}
+
+/* The gradient still reads as a highlight when it stops moving, and the word
+   NUOVO says the rest. */
+@media (prefers-reduced-motion: reduce) {
+  .tab-new-badge {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Map legend and cluster labels (components/MapView.tsx)               */
+/* ------------------------------------------------------------------ */
+
+/* The legend's swatches. They are the marker styles from lib/mapMarkers.ts
+   written out again — CSS cannot read a TS constant — so the two must be
+   changed together; `test/map-markers.test.ts` pins the colours so at least
+   the source of truth cannot drift silently. */
+.map-legend-dot {
+  display: inline-block;
+  border-radius: 9999px;
+  flex: none;
+}
+
+.map-legend-open {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: #16a34a;
+  border: 2px solid #22c55e;
+}
+
+.map-legend-closed {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: #6b7280;
+  border: 1px solid #9ca3af;
+  opacity: 0.75;
+}
+
+/* The size pair: the same two dots the map draws for a 1-licence bando and for
+   one at the ceiling, so "the circle grows with the number" is shown, not just
+   claimed. */
+.map-legend-small {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #6b7280;
+  border: 1px solid #9ca3af;
+}
+
+.map-legend-large {
+  width: 1rem;
+  height: 1rem;
+  background: #6b7280;
+  border: 1px solid #9ca3af;
+}
+
+/* The number inside a cluster bubble. It is a permanent Leaflet tooltip rather
+   than a divIcon so a cluster stays the same kind of node as a bando, which
+   keeps one selector in the specs — so all of Leaflet's tooltip chrome has to
+   be taken back off it here. */
+.leaflet-tooltip.map-cluster-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.65);
+}
+
+.leaflet-tooltip.map-cluster-label::before {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
 /* Leaflet popups (components/MapView.tsx, app/bandi/[bid]/BidDetailMap) */
 /* ------------------------------------------------------------------ */
 

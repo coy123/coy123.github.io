@@ -188,7 +188,7 @@ Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
 runs both, so both gate both deploys.
 
 **Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
-`node --test` — no framework, no dependency, ~2s for 68 tests. Node 22 strips
+`node --test` — no framework, no dependency, ~2s for 101 tests. Node 22 strips
 the TypeScript itself, so a test imports `../lib/embargo.ts` and
 `../cypress/support/site.ts` directly and checks the real modules:
 
@@ -205,6 +205,15 @@ the TypeScript itself, so a test imports `../lib/embargo.ts` and
   plus the three release-delay invariants over the real dataset
 - `test/subscription.test.ts` — the Stripe links in `locales/it.json`: right
   mode, `locale=it`, "IVA inclusa"
+- `test/map-markers.test.ts` — `lib/mapMarkers.ts`: the size scale (monotonic,
+  clamped at both ends, area-proportional, and actually separating the sizes
+  the dataset holds), the palette (grey not red, closed receding) and the
+  coincident-point spread. See "How the map draws itself"
+- `test/regions.test.ts` — `lib/regions.ts`: the catalogue (20 regions, 107
+  plate codes each in exactly one of them, a resizable crest and an Italian
+  bounding box apiece), the rule itself, and two invariants over the real
+  dataset — every bando resolves to a region, and none is filed under a region
+  its own coordinates are not in. See "The Regioni tab"
 - `test/newsletter-templates.test.ts` — both email shells rendered end to end
   against a fixture, so a renamed `{{SLOT}}` fails here rather than in an inbox.
   `fill()` already throws on an unfilled slot, but only while an email is being
@@ -238,10 +247,11 @@ dies during binary verification with `Invalid regular expression flags`. On
 Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
-A clean Cypress run against `next dev` is 564 passing / 20 pending / 0 failing
-out of 584, with `npm run test:unit` adding 68 more in two seconds — measured
-2026-09-03, after the browser-less tests moved to `test/` and the three
-accordion accessibility tests were added. Wall-clock is about 6 minutes on an
+A clean Cypress run against `next dev` is 603 passing / 20 pending / 0 failing
+out of 623, with `npm run test:unit` adding 101 more in two seconds — measured
+2026-09-06, after the Regioni tab and the map rework added
+`cypress/e2e/regions.cy.ts`, `test/regions.test.ts` and
+`test/map-markers.test.ts`. Wall-clock is about 6 minutes on an
 idle machine; a run sharing the box with other agents' dev servers took 14:30,
 so treat the duration as load-dependent and the counts as the real signal.
 (The 516 quoted here for the previous year was an extrapolation, not a
@@ -344,6 +354,7 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   ├── MarkdownArticle.tsx     # Renderer for the two .md long-form pages (see "Article typography")
 │   ├── Navigation.tsx          # Desktop + mobile nav with hamburger menu
 │   ├── NewsletterAd.tsx        # House ad for the paid newsletter (banner + side variants)
+│   ├── RegionsContent.tsx      # The Regioni tab: region picker + filtered table + regional map
 │   ├── SideAdBanner.tsx        # UNUSED but deliberately kept — old "EGAF" ad placeholder, may be needed again
 │   ├── SideAdSlot.tsx          # One desktop ad rail; client-side so it can hide itself by route
 │   └── Table.tsx               # Main bids table with deadline sorting/coloring
@@ -355,6 +366,8 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   ├── calculator.ts           # Income calculator logic (enums, cost maps, calculateIncome)
 │   ├── crest.ts                # Coat-of-arms URL builder (Wikimedia thumb sizes)
 │   ├── data.ts                 # Data loader (reads data.json, converts lat/lng to numbers)
+│   ├── mapMarkers.ts           # Marker size/colour/clustering constants — imports nothing
+│   ├── regions.ts              # The 20 regions (crest, provinces, bbox) + regionOf() — imports nothing
 │   ├── slug.ts                 # toSlug(): ASCII-safe bid detail slugs
 │   ├── subscription.ts         # Stripe link guards (placeholder + locale=it)
 │   ├── translations.ts         # Translation helper (reads locales/it.json)
@@ -378,7 +391,9 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   ├── data-integrity.test.ts  # data/*.json + glossary hygiene; the delay over the dataset
 │   ├── embargo-split.test.ts   # The paywall's partition against a fixture, never the live data
 │   ├── embargo.test.ts         # The seven-day release rule against fixed instants
+│   ├── map-markers.test.ts     # The marker size scale, the palette, the coincident-point spread
 │   ├── newsletter-templates.test.ts # Both email shells rendered against a fixture
+│   ├── regions.test.ts         # lib/regions.ts: the catalogue, the rule, the dataset
 │   └── subscription.test.ts    # Stripe links in locales/it.json: mode, locale, IVA
 ├── types.ts                    # TypeScript interfaces (TableData, LawData)
 ├── eslint.config.mjs           # ESLint 9 flat config (eslint-config-next via FlatCompat)
@@ -430,10 +445,11 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - Description text + anchor links (pill-shaped buttons) to content sections below
 - `CurrentDate` component showing last-updated date (client-side to avoid SSR hydration mismatch)
 - `HomeContent` client component containing:
-  - **Tab switcher** (Table / Map) — styled toggle buttons
+  - **Tab switcher** (Tabella / Mappa / Regioni) — styled toggle buttons
   - **Search bar** — filters bids by location name (case-insensitive substring match)
   - **Table view** (`Table` component): rows sorted by deadline descending, green background for future deadlines, gray for past. Columns: crest image, location (links to `/bandi/{slug}`), license count, deadline date, view button
   - **Map view** (`MapView` component): Leaflet map centered on Italy (41.87°N, 12.57°E), circle markers (green = active, red = expired), popups with bid info and link to detail page
+  - **Regions view** (`RegionsContent` component): pick one of the 20 regions, then the same table and the same map filtered to it — see "The Regioni tab" below
 - No newsletter ad: the banner slot between the description and the table is empty, and `SideAdSlot` renders nothing here — the locked rows carry the pitch instead (see "Ad Slots"). The disabled Amazon affiliate banner is still in that slot, commented out, because its tracking URL is not reproducible from anywhere else
 - SEO content sections rendered from `t.pages.home.sections` with internal links to related pages
 - JSON-LD Dataset schema
@@ -564,9 +580,11 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - **Client component**, dynamically imported with `ssr: false`
 - Uses raw Leaflet API (not react-leaflet JSX) via `useRef` for map instance
 - OpenStreetMap tiles
-- Circle markers: green (#22c55e) for active deadlines, red (#f87171) for expired — same `hasExpired()` call the table uses
-- Popups show location, amount, deadline, and link to detail page
+- Circle markers, sized and coloured by `lib/mapMarkers.ts` — see "How the map draws itself" below. Green for open, **grey for expired** (not red), from the same `hasExpired()` call the table uses
+- Popups show location, amount, deadline, and link to detail page; a hover tooltip carries the comune and its licence count on pointer devices
+- Carries its own "Solo bandi aperti" checkbox and a legend
 - Auto-fits bounds to show all markers (max zoom 8)
+- Optional `focusBounds` (a `RegionBounds` from `lib/regions.ts`): frames that box instead, with every marker folded into it and a max zoom of 10. That is how the Regioni tab opens on a region rather than on its one pin. Pass a referentially stable object — an entry from `REGIONS`, never a fresh literal — or the framing effect re-runs on every repaint and restarts Leaflet's zoom animation
 
 ## CookieBanner (`components/CookieBanner.tsx`)
 - Checks `localStorage` for `cookie-consent` key
@@ -833,6 +851,138 @@ Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `M
 - `"Comune di Colle di Val d’Elsa (Toscana)"` → `"Comune-di-Colle-di-Val-d'Elsa-(Toscana)"`
 
 Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `test/data-integrity.test.ts` enforces this.
+
+## How the map draws itself (`lib/mapMarkers.ts`)
+
+Every number and colour the map uses lives in one import-free module, next to
+`lib/embargo.ts` and `lib/regions.ts` and for the same reason: plain Node has
+to be able to load it, so `test/map-markers.test.ts` and
+`cypress/support/site.ts` both read the real constants instead of copies.
+
+- **Size is `√licences`, clamped.** A circle is read by its area, so a radius
+  proportional to the count squares the difference — Milano's 450 against a
+  median of 3 would cover Lombardia. `markerRadius()` is
+  `clamp(6, round(4 + 1.8·√n), 18)`; the floor keeps a one-licence bando
+  tappable and the ceiling saturates the three bandi above ~70, whose exact
+  number is in the tooltip and the popup. It returns **whole pixels** because
+  Leaflet's SVG renderer rounds before it writes the arc, so the value the
+  function returns is the value on screen — which is what the spec compares a
+  real marker against.
+- **Open is drawn over closed, always.** Two `L.layerGroup`s added in that
+  order, because Leaflet paints in insertion order and an expired 300-licence
+  circle would otherwise bury the open one beside it — the only row the reader
+  could still act on.
+- **Closed is grey, not red.** The table paints a scaduto row grey, so red on
+  the map taught a second colour for one fact; and green-against-red is exactly
+  the pair a colour-vision deficiency erases, where green-against-grey differs
+  in lightness too. Closed markers are also thinner and more transparent, so
+  the archive recedes.
+- **The country map opens rolled up.** Below `CLUSTER_BELOW_ZOOM` (7) the bandi
+  become one bubble per region, placed on the mean of that region's own points
+  and labelled with the count. At the zoom the whole country fits in — 5 on
+  both desktop and mobile — the dataset has 64 pairs of markers closer together
+  than their own diameter, and proportional sizing makes that worse. Clicking a
+  bubble fits its region's bounds, which is past the threshold, so the comuni
+  appear. **`CLUSTER_BELOW_ZOOM = 0` turns the whole thing off** and nothing
+  else has to change.
+  - The bubble's **ring** is green when the region still holds an open bando
+    and grey when it is all archive. Rolling markers up must not cost the
+    reader the one question the site answers — "can I apply?" — so that fact
+    survives into the cluster.
+  - **A regional map never clusters**: `focusBounds` is what says "this is one
+    region already", and a bubble for the region you are looking at says
+    nothing.
+- **"Tutti i bandi / Solo aperti"** is a segmented control above both maps,
+  starting on *tutti* — the archive is most of the dataset and is deliberately
+  what the page shows. It was a right-aligned checkbox first and readers went
+  straight past it; it is now the same blue-pill shape the tab bar uses, on the
+  left, with the count each choice would leave on the map. Those counts wait
+  for `today`, so they appear together one frame after mount rather than one
+  popping in after the other.
+- **Coincident points are spread** onto a tiny ring by `spreadCoincident()`.
+  Nothing in `data/data.json` is exactly coincident today; when something is —
+  a comune posting twice, a provincia row over a comune row — the lower marker
+  is unclickable and nothing about the page looks wrong.
+- **`CANVAS_MARKER_THRESHOLD` (500) is a tripwire, not a tuning knob.**
+  `preferCanvas` removes the per-marker DOM node that `sel.mapMarker` selects,
+  so the map specs stop working the day a dataset crosses it. That is
+  deliberate at five times the current size; `cypress/README.md` records it.
+- The **bid detail map** (`app/bandi/[bid]/BidDetailMap.tsx`) stays blue and
+  fixed-size on purpose: one marker, and blue means "the bando you are looking
+  at" rather than a status the page already states in words.
+
+## The Regioni tab (`lib/regions.ts`, `components/RegionsContent.tsx`)
+
+The home page's third tab: pick one of the twenty Italian regions and get the
+ordinary table and the ordinary map, filtered to it and framed on it.
+
+- **`lib/regions.ts` imports nothing**, for the same reason `lib/embargo.ts`
+  imports nothing: `cypress/support/site.ts` loads it under plain Node, and
+  that loader resolves no `@/` aliases. The one shape it needs from `types.ts`
+  is redeclared locally as `RegionLocatable`. Keep it that way.
+- **The catalogue is hand-checked data, fetched once at authoring time.** The
+  province plate codes came from Wikidata (`P395` per entity whose `P131` is
+  the region), the crests from each region's `P94`, the bounding boxes from
+  OSM/Nominatim. None of it is fetched at build time and none of it may be —
+  this is a static export. The provenance is written out at the top of the
+  file; re-derive from there rather than guessing at a URL.
+- **Which region a bando is in** (`regionOf`) is decided in this order: the
+  **province code** in `location`, then a **region named** in the text
+  ("Comune di Foggia (Puglia)", "Regione Calabria"), then the **coordinates**.
+  Plus one correction that matters: if the row has coordinates and they land
+  well outside the region the text chose, **the coordinates win**. That is not
+  defensive coding for its own sake — `data/data.json` currently holds
+  `"Comune di Catania (CA)"`, where CA is Cagliari, and without the correction
+  Catania is filed under Sardegna. `location` is typed by hand; the
+  coordinates are checked against the map every time somebody looks at it.
+- **Every row must resolve.** `test/regions.test.ts` fails the suite on a bando
+  that belongs to no region, and on one filed under a region its own
+  coordinates are not in. A row with no province code and no coordinates is the
+  only way to trip the first; the fix is to add one, not to relax the test.
+- **All twenty regions are always offered**, including the ones with nothing in
+  them. The picker is a map of Italy, not a list of this week's stock, and
+  "there is nothing near me" is a real answer. **Two grids, both always in the
+  DOM** — desktop's carries crest, name and counts in words; the phone's is
+  crests only, four across, with the counts as bare numbers and the name on
+  `aria-label`/`title`. One is `display:none` at any width, so a Cypress
+  selector that is not scoped to one of them matches forty buttons.
+- **Each region reports open and closed separately**, green and grey — the
+  table's own row colours, so the pair needs no legend. The tally goes through
+  `regionOf` and `hasExpired` and decides nothing itself. It resolves `today`
+  during render rather than in a mount effect, which is safe *only* because
+  this component is never server-rendered: `HomeContent` starts on the table
+  tab, so the panel does not exist until a click. **Change the default tab and
+  that has to become a mount effect**, or it hydrates a build-time day against
+  the reader's.
+- **Picking a region scrolls the results into view**, smoothly unless
+  `prefers-reduced-motion` says otherwise — the phone picker is five rows of
+  crests, so without it the click looks like it did nothing. It deliberately
+  does not fire on mount: returning to the tab with a region already chosen
+  leaves the page where the reader left it.
+- **The chosen region lives in `HomeContent`**, not in `RegionsContent`, so it
+  survives a trip to the table or map tab and back. The panel itself unmounts.
+- **The tab carries a "NUOVO" flag that expires by itself.**
+  `REGIONS_BADGE_UNTIL` in `components/HomeContent.tsx` is 2026-11-01; after
+  that the badge stops rendering and two tests in `regions.cy.ts` go red, which
+  is the reminder to delete the constant, the two `<span>`s, the
+  `dashboard.tabs.regionsNew*` copy, the `.tab-new-badge` rules in
+  `globals.css` and that spec block together. It is a word on desktop and a
+  dot on mobile, because a fourth label does not fit a 360px tab bar —
+  `responsive.cy.ts` fails the page the moment anything there overflows.
+- **The locked rows never appear over a regional table.** The embargoed count
+  is a national number and the server deliberately never says which region
+  those bandi are in (see "The seven-day release delay"), so the regional view
+  states it as a national number in one line instead. Do not try to break the
+  count down per region — that is exactly the fact the split withholds.
+- **The split runs in the browser**, unlike the embargo's. That is safe for the
+  same reason it would not be safe for the embargo: `regionOf` is a pure
+  function of `location` and the coordinates, both of which are already in the
+  payload for every published row. Nothing new crosses over. `app/page.tsx`
+  still passes `publishedBids` and nothing else.
+- **Sicilia's bounding box is deliberately not OSM's**, which runs down to
+  Lampedusa and out to Pantelleria and frames mostly sea. It is trimmed to
+  Sicily plus the Eolie; nothing is lost, because `MapView` extends whatever
+  box it is given to cover the markers it actually has.
 
 ## One rule for scaduto (`hasExpired`)
 

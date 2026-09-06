@@ -38,6 +38,31 @@ Four ordered actions in `stripe-worker/STATUS.md` → step 1, "→ On the OSS gr
   (L. 21/1992), same buyer, and it would fix the thin-supply churn risk. A
   separate site was chosen instead; revisit if the two lists overlap in practice.*
 - **Regional/provincial filter tab.** Per-province table + zoomed map. Can.
+  *Built at the **region** level on 2026-09-06 (`components/RegionsContent.tsx`,
+  `lib/regions.ts`, `CLAUDE.md` → "The Regioni tab"): a picker of all 20 regions
+  with crests and open/closed counts, the ordinary table filtered to one, and
+  the map framed on it. Per-**province** — 107 entries instead of 20 — was
+  **deferred by decision on 2026-09-06**: not needed for now. If it ever comes
+  back, it wants a province picker nested inside the chosen region rather than
+  a flat list of 107.*
+
+- **Map improvements.** ✅ *Done 2026-09-06 — `lib/mapMarkers.ts`,
+  `components/MapView.tsx`, `CLAUDE.md` → "How the map draws itself". All eight
+  items shipped: dot size by √licences clamped to 6–18px so Milano's 450 cannot
+  cover Lombardia; open markers drawn over closed ones in a second layer group;
+  grey instead of red for scaduto, matching the table and surviving a
+  colour-vision deficiency; a legend; a "Solo bandi aperti" filter; region
+  clustering below zoom 7 with a green ring where a region still has an open
+  bando; hover tooltips on pointer devices; and a canvas-renderer threshold at
+  500 markers. `spreadCoincident()` handles exactly-coincident points, which
+  the dataset does not have yet.*
+
+  *Two things to look at in review: the country map now **opens rolled up** into
+  ~19 region bubbles rather than 102 dots — set `CLUSTER_BELOW_ZOOM = 0` in
+  `lib/mapMarkers.ts` to go back to plain markers, nothing else changes — and
+  `leaflet.markercluster` was deliberately not added, since the region rollup
+  does the same job with no dependency.*
+
 - **Paid tooling, €10–20/month.** Three problems, one budget: MailerLite's
   "sent by" banner (looks cheap to paying customers), the public GitHub repo,
   and free GitHub Pages. **Decided 2026-09-06: MailerLite paid, and everything
@@ -301,7 +326,7 @@ release delay"; do not re-derive them here.
 | Research other bandi | 30.09.2026 | Davide |
 | Market research on affiliate business and monetisation | 30.09.2026 | Davide |
 | Configure Keliweb login | 30.09.2026 | Davide |
-| Implement regional filter tab | 30.09.2026 | Can |
+| Implement regional filter tab *(region level done 06.09.2026; per-province deferred by decision)* | 30.09.2026 | Can |
 | Research bandi predictor | 30.10.2026 | Can |
 | Implement banditaxi.it | 30.10.2026 | Can |
 | Review and correct banditaxi.it | when Can's first version is ready | Davide |

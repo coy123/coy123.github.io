@@ -4,8 +4,19 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Table from './Table'
+import RegionsContent from './RegionsContent'
 import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
+import { currentDay } from '@/lib/embargo'
+
+/**
+ * The "NUOVO" flag on the Regioni tab stops showing on this Italian calendar
+ * day. It is a launch marker, not a feature: once it lapses, delete this
+ * constant, `showNewBadge`, the two `<span>`s that render it, the
+ * `dashboard.tabs.regionsNew*` strings in locales/it.json and the
+ * `.tab-new-badge` rules in app/globals.css. Nothing else depends on it.
+ */
+const REGIONS_BADGE_UNTIL = '2026-11-01'
 
 const MapView = dynamic(() => import('./MapView'), {
   ssr: false,
@@ -32,9 +43,19 @@ export default function HomeContent({
   lockedCount = 0,
   lockedNextInDays = null,
 }: HomeContentProps) {
-  const [activeTab, setActiveTab] = useState<'table' | 'map'>('table')
+  const [activeTab, setActiveTab] = useState<'table' | 'map' | 'regions'>('table')
   const [searchQuery, setSearchQuery] = useState('')
+  // Held here, not inside RegionsContent, so switching to the map and back
+  // does not throw the chosen region away — same reason `searchQuery` lives at
+  // this level. The tab itself unmounts; this does not.
+  const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
   const [searchExpanded, setSearchExpanded] = useState(false)
+  // Resolved after hydration, not during render: this component *is* in the
+  // server-rendered tree, so comparing the date at render time would compare a
+  // build-time day on the server against the reader's day in the browser and
+  // mismatch on the first day after the badge lapses. Same dance as
+  // CurrentDate.tsx, for the same reason.
+  const [showNewBadge, setShowNewBadge] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const t = getTranslations()
   const locked = t.dashboard.locked
@@ -44,6 +65,10 @@ export default function HomeContent({
       searchInputRef.current?.focus()
     }
   }, [searchExpanded])
+
+  useEffect(() => {
+    setShowNewBadge(currentDay() < REGIONS_BADGE_UNTIL)
+  }, [])
 
   const filteredData = useMemo(() => {
     const trimmedQuery = searchQuery.trim()
@@ -85,6 +110,35 @@ export default function HomeContent({
           >
             {searchExpanded ? '🗺️' : t.dashboard.tabs.map}
           </button>
+          <button
+            type="button"
+            onClick={() => { setSearchExpanded(false); setActiveTab('regions'); }}
+            className={`transition-all duration-300 ease-in-out overflow-hidden px-2 py-1.5 text-sm font-medium rounded-md whitespace-nowrap ${
+              searchExpanded ? 'flex-[1]' : 'flex-[4]'
+            } ${!searchExpanded && activeTab === 'regions' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-300'}`}
+          >
+            {searchExpanded ? (
+              '🇮🇹'
+            ) : (
+              <>
+                {t.dashboard.tabs.regions}
+                {/* A dot rather than the word: four labels plus "NUOVO" do not
+                    fit a 360px tab bar, and responsive.cy.ts fails the page
+                    the moment they overflow it. */}
+                {showNewBadge && (
+                  <span
+                    className="tab-new-badge tab-new-dot ml-1 align-middle"
+                    role="img"
+                    aria-label={t.dashboard.tabs.regionsNewLabel}
+                  />
+                )}
+              </>
+            )}
+          </button>
+          {/* Not a <button>: this is the search field itself once expanded, and
+              a text input inside a button is not a thing. `sel.mobileSearchToggle`
+              in cypress/support/selectors.ts is anchored on exactly that — the
+              one plain <div> among the tab buttons. */}
           <div
             onClick={() => { if (!searchExpanded) { setSearchExpanded(true); setActiveTab('table'); } }}
             className={`transition-all duration-300 ease-in-out overflow-hidden px-2 py-1.5 text-sm font-medium rounded-md flex items-center justify-center ${
@@ -110,7 +164,7 @@ export default function HomeContent({
       {/* Desktop Tab Bar */}
       <div className="hidden sm:block mb-4">
         <div className="w-full rounded-lg bg-gray-800 p-1 flex">
-          {(['table', 'map'] as const).map((tab) => (
+          {(['table', 'map', 'regions'] as const).map((tab) => (
             <button
               key={tab}
               type="button"
@@ -122,6 +176,11 @@ export default function HomeContent({
               }`}
             >
               {t.dashboard.tabs[tab]}
+              {tab === 'regions' && showNewBadge && (
+                <span className="tab-new-badge ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wider align-middle">
+                  {t.dashboard.tabs.regionsNew}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -171,6 +230,15 @@ export default function HomeContent({
             </p>
           )}
         </div>
+      )}
+
+      {activeTab === 'regions' && (
+        <RegionsContent
+          data={data}
+          lockedCount={lockedCount}
+          selectedId={selectedRegionId}
+          onSelect={setSelectedRegionId}
+        />
       )}
     </div>
   )

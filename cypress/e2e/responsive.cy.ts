@@ -56,7 +56,8 @@ describe('Responsive layout', () => {
       cy.get(sel.mobileTabBar).should('be.visible')
       cy.get(sel.mobileTabBar).contains('button', t.dashboard.tabs.table).should('be.visible')
       cy.get(sel.mobileTabBar).contains('button', t.dashboard.tabs.map).should('be.visible')
-      cy.get(sel.mobileTabBar).children().first().children().eq(2).should('contain.text', '🔍')
+      cy.get(sel.mobileTabBar).contains('button', t.dashboard.tabs.regions).should('be.visible')
+      cy.get(sel.mobileSearchToggle).should('contain.text', '🔍')
     })
 
     it('expands the search field and filters the table', () => {
@@ -65,13 +66,13 @@ describe('Responsive layout', () => {
         bid.location.toLowerCase().includes(sample.toLowerCase())
       ).length
 
-      cy.get(sel.mobileTabBar).children().first().children().eq(2).click()
+      cy.get(sel.mobileSearchToggle).click()
       cy.get(sel.mobileTabBar).find('input').should('be.focused').type(sample)
       cy.get(sel.tableRow).should('have.length', expected)
     })
 
     it('collapses the search when a tab is picked again', () => {
-      cy.get(sel.mobileTabBar).children().first().children().eq(2).click()
+      cy.get(sel.mobileSearchToggle).click()
       cy.get(sel.mobileTabBar).find('input').should('exist')
       cy.get(sel.mobileTabBar).contains('button', '🗺️').click()
       cy.get(sel.mobileTabBar).find('input').should('not.exist')
