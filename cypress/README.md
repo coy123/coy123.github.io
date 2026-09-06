@@ -67,15 +67,16 @@ CYPRESS_BASE_URL=https://spiffy-semifreddo-87751b.netlify.app npm run cy:run
 
 ### Expected result
 
-A clean run against `next dev` is **589 passing, 20 pending, 0 failing** out of
-609, in about 6 minutes on an idle machine (longer when other agents' dev
+A clean run against `next dev` is **603 passing, 20 pending, 0 failing** out of
+623, in about 6 minutes on an idle machine (longer when other agents' dev
 servers are sharing it). Pending is not a failure — see Known gaps for what
 those 20 are and why they are skipped.
 
-The browser-less tests are not in that total; `npm run test:unit` adds 87 more
+The browser-less tests are not in that total; `npm run test:unit` adds 101 more
 in about two seconds. See "What does not live here" below.
 
-Measured 2026-09-06, after `regions.cy.ts` was added. The 516 and 519 quoted
+Measured 2026-09-06, after `regions.cy.ts` and the map rework (that run needed
+no retries at all). The 516 and 519 quoted
 here previously were extrapolations that had drifted a long way from the real
 number; re-measure rather than adjusting the figure by hand.
 
@@ -87,7 +88,7 @@ number; re-measure rather than adjusting the figure by hand.
 | `navigation.cy.ts` | Desktop bar and mobile drawer: every link, active highlighting, hamburger open/close, backdrop, € shortcut |
 | `home.cy.ts` | Hero, responsive description, last-updated date, anchor pills, SEO sections and their internal links, tab switching, Dataset schema |
 | `bids-table.cy.ts` | One row per bid, every cell against `data.json`, deadline sorting, active/expired colouring, row links, search (case, trimming, clearing, empty state) |
-| `bids-map.cy.ts` | Leaflet mount, tiles, one marker per geocoded bid, marker colours, popup content, popup link, zoom controls, tab round-trip, mobile |
+| `bids-map.cy.ts` | Leaflet mount, tiles, the region clustering the country map opens with (one bubble per region, counts adding up, green ring where something is open, click-to-open), then — zoomed past the threshold — one marker per geocoded bid, colours (green/**grey**), radii matching `markerRadius`, popup content and link, hover tooltips, the "Tutti i bandi / Solo aperti" control (default, counts, highlight, filtering, and that it sits above the map), the legend, zoom controls, tab round-trip, mobile |
 | `bid-detail.cy.ts` | Every generated slug resolves (all 89 requested for real), hero, metadata, crest, licence count, deadline, status badge, official source link, regional-law block, map, internal links, GovernmentService schema, diacritic slugs, unknown slug → 404 (export only) |
 | `faq.cy.ts` | 17 FAQ items + 15 glossary terms, numbering, accordion open/close/one-at-a-time, answer bodies, section anchors, FAQPage schema |
 | `income-calculator.cy.ts` | Field defaults, labels, constraints, options, all 18 enum combinations checked against `lib/calculator.ts`, min/max workload, modal open/close, resource links, WebApplication schema |
@@ -137,6 +138,42 @@ Running `npm run test:e2e:static` turns the last three on. Running with
 On a dataset with something embargoed the count moves: `embargo.cy.ts` and
 `sitemap.cy.ts` both carry tests that skip when nothing is held back.
 
+### The map's two tripwires
+
+Two deliberate arrangements in `lib/mapMarkers.ts` will break specs when they
+trip, which is the point:
+
+- **`CANVAS_MARKER_THRESHOLD` (500).** Past that many markers `MapView` asks
+  Leaflet for a `<canvas>` renderer, and there is no longer one SVG `<path>`
+  per bando — so `sel.mapMarker`, and every count and colour assertion built on
+  it, stops matching. If `data/data.json` ever gets that big, the map specs
+  need rewriting against the canvas (or the threshold raising deliberately);
+  the failure is the notification.
+- **`CLUSTER_BELOW_ZOOM` (7).** The country map opens rolled up into one bubble
+  per region, so a spec that wants individual bandi has to zoom in first —
+  `showComuni()` in `bids-map.cy.ts`. Set the constant to 0 to turn clustering
+  off; the spec's own `should('exist')` on the cluster label then fails, which
+  is again the notification.
+
+### The map specs and Leaflet's animations
+
+`bids-map.cy.ts` occasionally needs one of Cypress's configured retries, and
+the reason is worth writing down rather than rediscovering:
+
+**Leaflet silently drops a zoom request while it is animating the previous
+one.** Two clicks on the zoom control in a row therefore did nothing the second
+time — the map stayed clustered and the test failed with no hint as to why.
+That is why `showComuni()` opens a region by clicking a cluster bubble (one
+`fitBounds`, the app's own affordance) instead, and why `openARegion()` retries
+a bounded number of times rather than assuming its click landed.
+
+A residual flake remains at roughly one run in three on a loaded machine, in
+the tests that click a marker after the map has moved. The sequence was traced
+three times end to end with tile-zoom probes and behaved correctly every time,
+so it is a timing artefact of the harness rather than a fault in `MapView` —
+the retry catches it. If it ever becomes constant, start by checking whether
+`zoomend` still fires in the browser Cypress is driving.
+
 ### `next dev` vs. the static export
 
 Two behaviours differ, and the suite is written to pass in both modes:
@@ -162,7 +199,7 @@ A test that never opens a page does not belong in a browser. Those live in
 above:
 
 ```bash
-npm run test:unit      # 87 tests, ~2s, no server, no build, no Electron
+npm run test:unit      # 101 tests, ~2s, no server, no build, no Electron
 ```
 
 | File | Covers |
@@ -170,6 +207,7 @@ npm run test:unit      # 87 tests, ~2s, no server, no build, no Electron
 | `test/embargo.test.ts` | The release rule itself (`lib/embargo.ts`) against fixed instants, with no dataset: the cutoff every half hour of a year, both DST transitions, day 6 vs day 7, the expiry exemption, `daysUntilRelease` never reaching 0, both stored `detectedat` shapes |
 | `test/data-integrity.test.ts` | `data.json` / `laws.json` / `faq.json` / the glossary: required fields, ISO deadlines that round-trip, a readable non-future `detectedat` on every row, positive integer amounts, absolute URLs, crest filenames, no crest shared between two comuni, coordinates inside Italy, unique ASCII slugs, trimmed locations, `crestUrl` thumbnailing — plus the three release-delay invariants over the real dataset |
 | `test/subscription.test.ts` | The Stripe links in `locales/it.json`: that they belong to the mode being built, carry `locale=it`, and that every price says "IVA inclusa" |
+| `test/map-markers.test.ts` | `lib/mapMarkers.ts`: the radius scale (monotonic, clamped at 6–18px, area- rather than radius-proportional, and separating a median bando from a big one), the palette (closed is grey, not red, and recedes), the cluster thresholds, and `spreadCoincident` — including that it moves no real bando off its comune |
 | `test/regions.test.ts` | `lib/regions.ts`: 20 regions, alphabetical, unique ids, the 107 plate codes each in exactly one region, a resizable Wikimedia crest and a bounding box inside Italy for each — then the rule itself (code, region name, coordinates, and the coordinates overruling an impossible code) and, over the real `data.json`, that every bando lands in exactly one region whose box its coordinates are actually in |
 
 Node 22 strips the TypeScript itself, so these import `../lib/embargo.ts` and

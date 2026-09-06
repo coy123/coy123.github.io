@@ -188,7 +188,7 @@ Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
 runs both, so both gate both deploys.
 
 **Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
-`node --test` — no framework, no dependency, ~2s for 87 tests. Node 22 strips
+`node --test` — no framework, no dependency, ~2s for 101 tests. Node 22 strips
 the TypeScript itself, so a test imports `../lib/embargo.ts` and
 `../cypress/support/site.ts` directly and checks the real modules:
 
@@ -205,6 +205,10 @@ the TypeScript itself, so a test imports `../lib/embargo.ts` and
   plus the three release-delay invariants over the real dataset
 - `test/subscription.test.ts` — the Stripe links in `locales/it.json`: right
   mode, `locale=it`, "IVA inclusa"
+- `test/map-markers.test.ts` — `lib/mapMarkers.ts`: the size scale (monotonic,
+  clamped at both ends, area-proportional, and actually separating the sizes
+  the dataset holds), the palette (grey not red, closed receding) and the
+  coincident-point spread. See "How the map draws itself"
 - `test/regions.test.ts` — `lib/regions.ts`: the catalogue (20 regions, 107
   plate codes each in exactly one of them, a resizable crest and an Italian
   bounding box apiece), the rule itself, and two invariants over the real
@@ -243,10 +247,11 @@ dies during binary verification with `Invalid regular expression flags`. On
 Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
-A clean Cypress run against `next dev` is 589 passing / 20 pending / 0 failing
-out of 609, with `npm run test:unit` adding 87 more in two seconds — measured
-2026-09-06, after `cypress/e2e/regions.cy.ts` and `test/regions.test.ts` were
-added for the Regioni tab. Wall-clock is about 6 minutes on an
+A clean Cypress run against `next dev` is 603 passing / 20 pending / 0 failing
+out of 623, with `npm run test:unit` adding 101 more in two seconds — measured
+2026-09-06, after the Regioni tab and the map rework added
+`cypress/e2e/regions.cy.ts`, `test/regions.test.ts` and
+`test/map-markers.test.ts`. Wall-clock is about 6 minutes on an
 idle machine; a run sharing the box with other agents' dev servers took 14:30,
 so treat the duration as load-dependent and the counts as the real signal.
 (The 516 quoted here for the previous year was an extrapolation, not a
@@ -361,6 +366,7 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   ├── calculator.ts           # Income calculator logic (enums, cost maps, calculateIncome)
 │   ├── crest.ts                # Coat-of-arms URL builder (Wikimedia thumb sizes)
 │   ├── data.ts                 # Data loader (reads data.json, converts lat/lng to numbers)
+│   ├── mapMarkers.ts           # Marker size/colour/clustering constants — imports nothing
 │   ├── regions.ts              # The 20 regions (crest, provinces, bbox) + regionOf() — imports nothing
 │   ├── slug.ts                 # toSlug(): ASCII-safe bid detail slugs
 │   ├── subscription.ts         # Stripe link guards (placeholder + locale=it)
@@ -385,6 +391,7 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   ├── data-integrity.test.ts  # data/*.json + glossary hygiene; the delay over the dataset
 │   ├── embargo-split.test.ts   # The paywall's partition against a fixture, never the live data
 │   ├── embargo.test.ts         # The seven-day release rule against fixed instants
+│   ├── map-markers.test.ts     # The marker size scale, the palette, the coincident-point spread
 │   ├── newsletter-templates.test.ts # Both email shells rendered against a fixture
 │   ├── regions.test.ts         # lib/regions.ts: the catalogue, the rule, the dataset
 │   └── subscription.test.ts    # Stripe links in locales/it.json: mode, locale, IVA
@@ -573,8 +580,9 @@ Array of `{ question: string, answer: string }` where answers contain markdown f
 - **Client component**, dynamically imported with `ssr: false`
 - Uses raw Leaflet API (not react-leaflet JSX) via `useRef` for map instance
 - OpenStreetMap tiles
-- Circle markers: green (#22c55e) for active deadlines, red (#f87171) for expired — same `hasExpired()` call the table uses
-- Popups show location, amount, deadline, and link to detail page
+- Circle markers, sized and coloured by `lib/mapMarkers.ts` — see "How the map draws itself" below. Green for open, **grey for expired** (not red), from the same `hasExpired()` call the table uses
+- Popups show location, amount, deadline, and link to detail page; a hover tooltip carries the comune and its licence count on pointer devices
+- Carries its own "Solo bandi aperti" checkbox and a legend
 - Auto-fits bounds to show all markers (max zoom 8)
 - Optional `focusBounds` (a `RegionBounds` from `lib/regions.ts`): frames that box instead, with every marker folded into it and a max zoom of 10. That is how the Regioni tab opens on a region rather than on its one pin. Pass a referentially stable object — an entry from `REGIONS`, never a fresh literal — or the framing effect re-runs on every repaint and restarts Leaflet's zoom animation
 
@@ -843,6 +851,65 @@ Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `M
 - `"Comune di Colle di Val d’Elsa (Toscana)"` → `"Comune-di-Colle-di-Val-d'Elsa-(Toscana)"`
 
 Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `test/data-integrity.test.ts` enforces this.
+
+## How the map draws itself (`lib/mapMarkers.ts`)
+
+Every number and colour the map uses lives in one import-free module, next to
+`lib/embargo.ts` and `lib/regions.ts` and for the same reason: plain Node has
+to be able to load it, so `test/map-markers.test.ts` and
+`cypress/support/site.ts` both read the real constants instead of copies.
+
+- **Size is `√licences`, clamped.** A circle is read by its area, so a radius
+  proportional to the count squares the difference — Milano's 450 against a
+  median of 3 would cover Lombardia. `markerRadius()` is
+  `clamp(6, round(4 + 1.8·√n), 18)`; the floor keeps a one-licence bando
+  tappable and the ceiling saturates the three bandi above ~70, whose exact
+  number is in the tooltip and the popup. It returns **whole pixels** because
+  Leaflet's SVG renderer rounds before it writes the arc, so the value the
+  function returns is the value on screen — which is what the spec compares a
+  real marker against.
+- **Open is drawn over closed, always.** Two `L.layerGroup`s added in that
+  order, because Leaflet paints in insertion order and an expired 300-licence
+  circle would otherwise bury the open one beside it — the only row the reader
+  could still act on.
+- **Closed is grey, not red.** The table paints a scaduto row grey, so red on
+  the map taught a second colour for one fact; and green-against-red is exactly
+  the pair a colour-vision deficiency erases, where green-against-grey differs
+  in lightness too. Closed markers are also thinner and more transparent, so
+  the archive recedes.
+- **The country map opens rolled up.** Below `CLUSTER_BELOW_ZOOM` (7) the bandi
+  become one bubble per region, placed on the mean of that region's own points
+  and labelled with the count. At the zoom the whole country fits in — 5 on
+  both desktop and mobile — the dataset has 64 pairs of markers closer together
+  than their own diameter, and proportional sizing makes that worse. Clicking a
+  bubble fits its region's bounds, which is past the threshold, so the comuni
+  appear. **`CLUSTER_BELOW_ZOOM = 0` turns the whole thing off** and nothing
+  else has to change.
+  - The bubble's **ring** is green when the region still holds an open bando
+    and grey when it is all archive. Rolling markers up must not cost the
+    reader the one question the site answers — "can I apply?" — so that fact
+    survives into the cluster.
+  - **A regional map never clusters**: `focusBounds` is what says "this is one
+    region already", and a bubble for the region you are looking at says
+    nothing.
+- **"Tutti i bandi / Solo aperti"** is a segmented control above both maps,
+  starting on *tutti* — the archive is most of the dataset and is deliberately
+  what the page shows. It was a right-aligned checkbox first and readers went
+  straight past it; it is now the same blue-pill shape the tab bar uses, on the
+  left, with the count each choice would leave on the map. Those counts wait
+  for `today`, so they appear together one frame after mount rather than one
+  popping in after the other.
+- **Coincident points are spread** onto a tiny ring by `spreadCoincident()`.
+  Nothing in `data/data.json` is exactly coincident today; when something is —
+  a comune posting twice, a provincia row over a comune row — the lower marker
+  is unclickable and nothing about the page looks wrong.
+- **`CANVAS_MARKER_THRESHOLD` (500) is a tripwire, not a tuning knob.**
+  `preferCanvas` removes the per-marker DOM node that `sel.mapMarker` selects,
+  so the map specs stop working the day a dataset crosses it. That is
+  deliberate at five times the current size; `cypress/README.md` records it.
+- The **bid detail map** (`app/bandi/[bid]/BidDetailMap.tsx`) stays blue and
+  fixed-size on purpose: one marker, and blue means "the bando you are looking
+  at" rather than a status the page already states in words.
 
 ## The Regioni tab (`lib/regions.ts`, `components/RegionsContent.tsx`)
 

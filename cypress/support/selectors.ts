@@ -81,6 +81,24 @@ export const sel = {
   mapPopupClose: '.leaflet-popup-close-button',
   mapZoomIn: '.leaflet-control-zoom-in',
   mapZoomOut: '.leaflet-control-zoom-out',
+  /**
+   * The count printed inside a cluster bubble. Its presence is what says the
+   * country map is currently rolled up by region (lib/mapMarkers.ts →
+   * CLUSTER_BELOW_ZOOM); a regional map never has one.
+   */
+  mapClusterLabel: '.map-cluster-label',
+  /** The hover tooltip on a single bando. Desktop only — see MapView. */
+  mapTooltip: '.leaflet-tooltip:not(.map-cluster-label)',
+  /**
+   * The "Tutti i bandi / Solo aperti" segmented control above the map. Scoped
+   * on its own class because `button[aria-pressed]` is also what the region
+   * picker uses, and a regional map renders inside that same panel.
+   */
+  mapFilter: '.map-filter',
+  /** Whichever of the two is currently the map's view. */
+  mapFilterSelected: '.map-filter button[aria-pressed="true"]',
+  /** The colour/size key under the map. */
+  mapLegend: '.map-legend',
 
   /* FAQ ---------------------------------------------------------------- */
   accordion: 'div.bg-gray-800.rounded-lg.border-2',

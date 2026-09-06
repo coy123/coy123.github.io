@@ -186,6 +186,22 @@ export const faqs: FaqEntry[] = faqJson as FaqEntry[]
 export const t = translations
 export { toSlug, crestUrl, CREST_WIDTHS, CREST_EAGER_ROWS }
 
+/**
+ * The map's drawing rules, re-exported so `bids-map.cy.ts` asserts against the
+ * palette and the size clamps the app actually uses rather than a copy of the
+ * hex codes.
+ */
+export {
+  CANVAS_MARKER_THRESHOLD,
+  CLUSTER_BELOW_ZOOM,
+  CLUSTER_STYLE,
+  MARKER_MAX_RADIUS,
+  MARKER_MIN_RADIUS,
+  MARKER_STYLE,
+  clusterRadius,
+  markerRadius,
+} from '../../lib/mapMarkers.ts'
+
 /** The crest `src` a table row is expected to render, at the size it uses. */
 export const tableCrest = (image: string) => crestUrl(image, CREST_SIZE_TABLE)
 /** The crest `src` a bid detail hero is expected to render. */

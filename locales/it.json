@@ -50,6 +50,21 @@
       "countdown": "Il prossimo si sblocca tra {days} giorni.",
       "countdownOne": "Il prossimo si sblocca domani."
     },
+    "map": {
+      "filterLabel": "Filtra i bandi sulla mappa",
+      "filterAll": "Tutti i bandi",
+      "filterOpen": "Solo aperti",
+      "noneOpen": "Nessun bando aperto in questo momento. Togli il filtro per vedere l'archivio.",
+      "legendOpen": "Bando aperto",
+      "legendClosed": "Bando scaduto",
+      "legendSize": "Il cerchio cresce con il numero di licenze, fino a una dimensione massima: il numero esatto è nel fumetto.",
+      "legendCluster": "Quando si vede tutta l'Italia i bandi sono raggruppati per regione. Fai clic su un gruppo per aprirlo, o ingrandisci la mappa.",
+      "markerTooltip": "{location} — {count} licenze",
+      "markerTooltipOne": "{location} — 1 licenza",
+      "clusterTooltip": "{region}: {bandi} bandi ({open} aperti), {licences} licenze",
+      "clusterTooltipOne": "{region}: 1 bando ({open} aperti), {licences} licenze",
+      "legendClusterOpen": "Il bordo verde segnala che nel gruppo c\u2019\u00e8 almeno un bando aperto."
+    },
     "regions": {
       "title": "Bandi NCC per regione",
       "intro": "Scegli una regione italiana per vedere solo i suoi bandi, in tabella e sulla mappa.",
