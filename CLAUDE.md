@@ -69,10 +69,14 @@ belong to this project. In particular `bandincc-crawler/coy123.github.io/` is a
 files are months out of date and must not be edited or used as a reference for
 how the site currently works. The live website repo is this root directory.
 
-The root `todo.md` supersedes `bandincc-crawler/coy123.github.io/todo.md`. That
-older file still holds three unresolved items (blog section, expanding the
-regional-laws page, testimonials) and is kept only as history — leave it where it
-is.
+`roadmap.md` in this root is the single planning document — the old root
+`todo.md` was merged into it on 2026-09-06 and deleted, so a reference to
+`todo.md` anywhere is stale. It supersedes
+`bandincc-crawler/coy123.github.io/todo.md`, whose three unresolved items —
+blog/news section, expanding the regional-laws page, testimonials — were all
+dropped on 2026-09-06 and are deliberately absent from `roadmap.md`. Do not
+re-propose them from that file; it is kept only as history, so leave it where
+it is.
 
 # Git and Deployment
 Read-only git commands are fine (`git status`, `git log`, `git diff`, `git show`, `git branch`, `git blame`) — use them freely.
