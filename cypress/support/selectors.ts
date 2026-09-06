@@ -22,9 +22,38 @@ export const sel = {
 
   /* Home dashboard ----------------------------------------------------- */
   mobileTabBar: 'div.sm\\:hidden.mb-2',
+  /**
+   * The search affordance in the mobile tab bar: the one plain <div> among the
+   * tab <button>s (it becomes the text input once expanded, so it cannot be a
+   * button). Anchored on the shape rather than on a position, because the tab
+   * bar grew a third tab and every `.eq(2)` in the specs went with it.
+   */
+  mobileSearchToggle: 'div.sm\\:hidden.mb-2 > div > div',
   desktopTabBar: 'div.hidden.sm\\:block.mb-4',
   searchInput: 'input[placeholder="Cerca località"]',
   anchorPills: 'a[href^="#section-"]',
+
+  /* Regions tab (components/RegionsContent.tsx) ------------------------- */
+  /**
+   * The desktop picker: twenty named buttons. Both grids are always in the
+   * DOM — one is display:none at any width — so every region assertion has to
+   * go through one of these two, never through `regionButton` on its own.
+   */
+  regionGrid: 'div.hidden.sm\\:grid[role="group"]',
+  /** The phone picker: the same twenty as crests only, four across. */
+  regionGridMobile: 'div.grid.sm\\:hidden[role="group"]',
+  /** One region button. `aria-pressed` is what makes it a toggle, and unique. */
+  regionButton: 'button[aria-pressed]',
+  /** The region currently chosen, within whichever grid it is scoped to. */
+  regionButtonSelected: 'button[aria-pressed="true"]',
+  /**
+   * The heading + table + map a chosen region reveals, and the element the
+   * picker scrolls to. Reached as a sibling of the picker because
+   * `scroll-mt-20` on its own also matches the home page's section anchors.
+   */
+  regionResults: 'div.grid.sm\\:hidden[role="group"] ~ div.scroll-mt-20',
+  /** The launch flag on the Regioni tab. Expires — see HomeContent.tsx. */
+  newBadge: '.tab-new-badge',
 
   /* Tables (bids + laws share the same row shell) ----------------------- */
   // `min-h-`, not `h-`: the locked placeholder rows are sized `h-[4.5rem]`

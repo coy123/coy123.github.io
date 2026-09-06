@@ -38,6 +38,57 @@ Four ordered actions in `stripe-worker/STATUS.md` → step 1, "→ On the OSS gr
   (L. 21/1992), same buyer, and it would fix the thin-supply churn risk. A
   separate site was chosen instead; revisit if the two lists overlap in practice.*
 - **Regional/provincial filter tab.** Per-province table + zoomed map. Can.
+  *Built at the **region** level on 2026-09-06 (`components/RegionsContent.tsx`,
+  `lib/regions.ts`, `CLAUDE.md` → "The Regioni tab"): a picker of all 20 regions
+  with crests and open/closed counts, the ordinary table filtered to one, and
+  the map framed on it. Per-**province** — 107 entries instead of 20 — is still
+  open, and probably wants a province picker nested inside the chosen region
+  rather than a flat list.*
+
+- **Map improvements.** The map is the weakest of the three views: 102 identical
+  dots, most of them red, all the same size whether the comune is offering one
+  licence or 450. In rough order of value:
+
+  1. **Size the dot by the number of licences.** A bando for 450 licences and one
+     for 1 should not look alike. Scale the **radius by √count**, not by count —
+     the eye reads area, so a linear radius exaggerates the big ones by the
+     square. Then **clamp it**: Milano's 450 would otherwise cover most of
+     Lombardia. Something like radius = clamp(5, 4 + 3·√count, 18) in pixels;
+     `L.circleMarker` takes pixels, so the dot keeps its size as you zoom, which
+     is what we want. Keep the floor at ~6px — a 1-licence bando still has to be
+     tappable on a phone.
+  2. **Draw the open ones on top.** Leaflet paints in insertion order, so today a
+     large expired circle can bury a small open one next to it — exactly the
+     wrong way round. Add the expired markers to one layer group and the open
+     ones to a second, added after it. Cheap, and it fixes the case that
+     prompted this (a huge Milano circle swallowing its neighbours).
+  3. **Grey for expired, not red.** The table paints a closed bando grey and the
+     map paints it red, so the two views teach different colours for the same
+     fact. Grey also fixes the red/green problem for the ~8% of men with a
+     colour-vision deficiency: the distinction becomes lightness, not hue. Do
+     this together with 2 — a receding grey layer under a saturated green one
+     reads correctly even where they overlap.
+  4. **A legend.** The moment dots differ in size, the reader needs a key:
+     colour = aperto/scaduto, size = number of licences. Three lines under the
+     map, no interaction.
+  5. **"Solo bandi aperti" toggle.** Most rows in the archive are expired, so the
+     default map is mostly noise for somebody looking for something to apply to.
+     One checkbox, defaulting to off so the archive stays visible.
+  6. **Handle overlap at country zoom.** Lombardia's comuni sit on top of each
+     other at zoom 6. Options, cheapest first: nudge exactly-coincident points
+     apart; a hover tooltip so the reader can scan without opening popups; real
+     clustering (`leaflet.markercluster`, ~30 KB — weigh it, the export ships
+     everything to every visitor). A nicer variant now that regions exist:
+     **one bubble per region at low zoom**, carrying the region's total, that
+     breaks into comuni as you zoom in.
+  7. **Hover tooltip on desktop.** `bindTooltip` with the comune name and the
+     licence count, so scanning the map does not mean clicking 102 popups.
+  8. **Canvas renderer if the dataset grows.** `preferCanvas: true` on the map,
+     once markers pass ~500. At 102 SVG is fine and keeps the popups simple.
+
+  Note that the map is a secondary view by design — the table carries the same
+  data and is what a screen reader and a keyboard get — so none of this should
+  buy interactivity at the cost of the table. Can.
 - **Paid tooling, €10–20/month.** Three problems, one budget: MailerLite's "sent
   by" banner (looks cheap to paying customers), the public GitHub repo (public
   `data.json` makes the 7-day embargo bypassable in theory), and free GitHub
@@ -217,7 +268,8 @@ release delay"; do not re-derive them here.
 | Research other bandi | 30.09.2026 | Davide |
 | Market research on affiliate business and monetisation | 30.09.2026 | Davide |
 | Configure Keliweb login | 30.09.2026 | Davide |
-| Implement regional filter tab | 30.09.2026 | Can |
+| Implement regional filter tab *(region level done 06.09.2026; per-province still open)* | 30.09.2026 | Can |
+| Map improvements (dot size, draw order, legend, open-only) | 30.09.2026 | Can |
 | Research bandi predictor | 30.10.2026 | Can |
 | Implement banditaxi.it | 30.10.2026 | Can |
 | Review and correct banditaxi.it | when Can's first version is ready | Davide |

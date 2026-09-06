@@ -27,6 +27,9 @@
     "tabs": {
       "table": "Tabella",
       "map": "Mappa",
+      "regions": "Regioni",
+      "regionsNew": "NUOVO",
+      "regionsNewLabel": "Nuova funzione",
       "search": "Cerca",
       "mapComingSoon": "La vista mappa sarà disponibile a breve."
     },
@@ -46,6 +49,28 @@
       "mapCta": "Scopri l'abbonamento →",
       "countdown": "Il prossimo si sblocca tra {days} giorni.",
       "countdownOne": "Il prossimo si sblocca domani."
+    },
+    "regions": {
+      "title": "Bandi NCC per regione",
+      "intro": "Scegli una regione italiana per vedere solo i suoi bandi, in tabella e sulla mappa.",
+      "selectLabel": "Scegli una regione",
+      "crestAlt": "Stemma {region}",
+      "prompt": "Seleziona una regione per vedere i bandi e la mappa.",
+      "count": "{count} bandi",
+      "countOne": "1 bando",
+      "countZero": "Nessun bando",
+      "open": "{count} aperti",
+      "openOne": "1 aperto",
+      "closed": "{count} scaduti",
+      "closedOne": "1 scaduto",
+      "buttonLabel": "{region}: {open}, {closed}",
+      "tableHeading": "Bandi in {region}",
+      "mapHeading": "Mappa dei bandi in {region}",
+      "empty": "Non ci sono ancora bandi pubblicati per questa regione. Prova con un'altra regione: i bandi appena verificati diventano pubblici dopo sette giorni.",
+      "clear": "Tutte le regioni",
+      "lockedNote": "{count} nuovi bandi in tutta Italia non sono ancora pubblici, quindi non compaiono in nessuna regione: gli abbonati li hanno già ricevuti via email.",
+      "lockedNoteOne": "1 nuovo bando in tutta Italia non è ancora pubblico, quindi non compare in nessuna regione: gli abbonati l'hanno già ricevuto via email.",
+      "lockedCta": "Scopri l'abbonamento →"
     }
   },
   "pages": {

@@ -6,10 +6,26 @@ import { TableData } from '@/types'
 import { getTranslations } from '@/lib/translations'
 import { toSlug } from '@/lib/slug'
 import { currentDay, hasExpired } from '@/lib/embargo'
+import { RegionBounds } from '@/lib/regions'
 import 'leaflet/dist/leaflet.css'
 
 interface MapViewProps {
   data: TableData[]
+  /**
+   * Open framed on this box instead of on the markers — the regional view
+   * passes the selected region's bounds, so the map is already zoomed into
+   * Molise rather than into the one pin Molise happens to have.
+   *
+   * The box is a floor, not a cap: whatever markers exist are folded into it
+   * before the fit, so a bando sitting outside its region's box (a rounded
+   * coordinate on a border, an island trimmed out of the box on purpose —
+   * see `REGIONS` in lib/regions.ts) is still on screen.
+   *
+   * Pass a value that is referentially stable across renders — an entry from
+   * `REGIONS`, not a fresh object literal — or the framing effect re-runs on
+   * every repaint and restarts Leaflet's zoom animation.
+   */
+  focusBounds?: RegionBounds
 }
 
 type WithCoordinates = TableData & { latitude: number; longitude: number }
@@ -29,7 +45,7 @@ const escapeHtml = (value: string) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
 
-export default function MapView({ data }: MapViewProps) {
+export default function MapView({ data, focusBounds }: MapViewProps) {
   const t = getTranslations()
   const locale = 'it-IT'
   const numberFormatter = useMemo(() => new Intl.NumberFormat('de-DE'), [])
@@ -91,12 +107,21 @@ export default function MapView({ data }: MapViewProps) {
       return
     }
 
-    if (positions.length) {
+    if (focusBounds) {
+      // The region's box first, then every marker folded in. `extend` mutates,
+      // which is why the bounds object is built fresh here rather than hoisted.
+      const bounds = L.latLngBounds(
+        L.latLng(focusBounds.south, focusBounds.west),
+        L.latLng(focusBounds.north, focusBounds.east)
+      )
+      positions.forEach((position) => bounds.extend(position))
+      mapInstanceRef.current.fitBounds(bounds, { padding: [24, 24], maxZoom: 10 })
+    } else if (positions.length) {
       mapInstanceRef.current.fitBounds(L.latLngBounds(positions), { padding: [24, 24], maxZoom: 8 })
     } else {
       mapInstanceRef.current.setView(center, 6)
     }
-  }, [positions, center])
+  }, [positions, center, focusBounds])
 
   useEffect(() => {
     // `today` is null until the mount effect above sets it. Painting during

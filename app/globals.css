@@ -451,6 +451,56 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* The "NUOVO" flag on the Regioni tab (components/HomeContent.tsx)      */
+/* ------------------------------------------------------------------ */
+
+/* A launch marker with an expiry date: `REGIONS_BADGE_UNTIL` in
+   HomeContent.tsx stops rendering it after 01.11.2026, and these rules go
+   with it. Everything is one moving gradient rather than a colour that
+   flashes on and off — the tab bar is the first thing on the page and a
+   blinking element there is hard to read past. */
+.tab-new-badge {
+  display: inline-block;
+  color: #0b1120;
+  background: linear-gradient(
+    100deg,
+    #fbbf24 0%,
+    #f472b6 25%,
+    #a78bfa 50%,
+    #f472b6 75%,
+    #fbbf24 100%
+  );
+  background-size: 300% 100%;
+  animation: tabNewShine 3.2s linear infinite;
+  box-shadow: 0 0 8px rgb(244 114 182 / 0.55);
+}
+
+/* The mobile tab bar has no room for the word, so the same gradient becomes a
+   dot beside the label. */
+.tab-new-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+@keyframes tabNewShine {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 300% 0;
+  }
+}
+
+/* The gradient still reads as a highlight when it stops moving, and the word
+   NUOVO says the rest. */
+@media (prefers-reduced-motion: reduce) {
+  .tab-new-badge {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Leaflet popups (components/MapView.tsx, app/bandi/[bid]/BidDetailMap) */
 /* ------------------------------------------------------------------ */
 

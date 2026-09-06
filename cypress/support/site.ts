@@ -18,6 +18,13 @@ import {
   releaseCutoff,
 } from '../../lib/embargo.ts'
 import {
+  REGIONS,
+  bidsInRegion,
+  countByRegion,
+  regionById,
+  regionOf,
+} from '../../lib/regions.ts'
+import {
   CREST_EAGER_ROWS,
   CREST_SIZE_DETAIL,
   CREST_SIZE_TABLE,
@@ -118,6 +125,62 @@ export const nearCutoff: RawBid[] = allBids.filter(
     detectionDay(bid.deadline) === currentDay() ||
     detectionDay(bid.deadline) === currentDay(Date.now() - DAY_MS)
 )
+/* ------------------------------------------------------------------ */
+/* Regions                                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The regions tab derives everything from `lib/regions.ts`, so the specs do
+ * too — adding a bando, or fixing a province code in `data/data.json`, never
+ * means editing a spec.
+ *
+ * Note the type: `regionOf` reads `latitude`/`longitude` as numbers, while a
+ * `RawBid` still holds the strings `data/data.json` stores. `asLocatable`
+ * applies the same conversion `lib/data.ts` does on read.
+ */
+export { REGIONS, bidsInRegion, countByRegion, regionById, regionOf }
+
+export const asLocatable = (bid: RawBid) => ({
+  location: bid.location,
+  latitude: bid.latitude ? Number(bid.latitude) : undefined,
+  longitude: bid.longitude ? Number(bid.longitude) : undefined,
+})
+
+/** The published bandi of one region, in the shape the region rule reads. */
+export const bidsOfRegion = (id: string) =>
+  bids.filter((bid) => regionOf(asLocatable(bid))?.id === id)
+
+/** Published bandi per region id. */
+export const regionCounts = (): Record<string, number> =>
+  countByRegion(bids.map(asLocatable))
+
+/**
+ * What the picker actually reports: open and closed bandi per region id.
+ * Built from the app's own two rules — `regionOf` and `isActive`, which is
+ * `hasExpired` — so the specs carry no second opinion about either.
+ */
+export const regionTallies = (at: number = Date.now()) => {
+  const byRegion: Record<string, { open: number; closed: number; total: number }> =
+    Object.fromEntries(REGIONS.map((region) => [region.id, { open: 0, closed: 0, total: 0 }]))
+  for (const bid of bids) {
+    const region = regionOf(asLocatable(bid))
+    if (!region) continue
+    const tally = byRegion[region.id]
+    tally.total += 1
+    if (isActive(bid, at)) tally.open += 1
+    else tally.closed += 1
+  }
+  return byRegion
+}
+
+/** A region that currently has bandi — specs pick one at runtime, as elsewhere. */
+export const anyPopulatedRegion = () =>
+  REGIONS.find((region) => bidsOfRegion(region.id).length > 0)
+
+/** A region with none, or undefined on the (unlikely) day every region has one. */
+export const anyEmptyRegion = () =>
+  REGIONS.find((region) => bidsOfRegion(region.id).length === 0)
+
 export const laws: RawLaw[] = lawsJson as RawLaw[]
 export const faqs: FaqEntry[] = faqJson as FaqEntry[]
 export const t = translations
