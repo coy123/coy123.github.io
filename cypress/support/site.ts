@@ -9,6 +9,7 @@ import faqJson from '../../data/faq.json' with { type: 'json' }
 import translations from '../../locales/it.json' with { type: 'json' }
 import { toSlug } from '../../lib/slug.ts'
 import { trimStrings } from '../../lib/trim.ts'
+import { withReleaseDays } from '../../lib/copy.ts'
 import {
   RELEASE_DELAY_DAYS,
   currentDay,
@@ -182,8 +183,18 @@ export const anyEmptyRegion = () =>
   REGIONS.find((region) => bidsOfRegion(region.id).length === 0)
 
 export const laws: RawLaw[] = lawsJson as RawLaw[]
-export const faqs: FaqEntry[] = faqJson as FaqEntry[]
-export const t = translations
+
+/**
+ * Copy, with `{releaseDays}` resolved exactly as the app resolves it —
+ * `lib/translations.ts` for the JSON, `app/faq/page.tsx` for the FAQ.
+ *
+ * Without this every spec that asserts a string containing the release delay
+ * would compare "{releaseDays} giorni" against the "7 giorni" on the page and
+ * fail. Resolving it here rather than in each spec keeps the promise this
+ * module exists for: adding copy never means editing a spec.
+ */
+export const faqs: FaqEntry[] = withReleaseDays(faqJson as FaqEntry[], RELEASE_DELAY_DAYS)
+export const t = withReleaseDays(translations, RELEASE_DELAY_DAYS)
 export { toSlug, crestUrl, CREST_WIDTHS, CREST_EAGER_ROWS }
 
 /**

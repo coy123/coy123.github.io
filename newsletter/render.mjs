@@ -31,6 +31,24 @@ export const trimStrings = (entry) =>
   )
 
 /**
+ * Mirrors `RELEASE_DELAY_DAYS` in lib/embargo.ts — the number of days a newly
+ * detected bando stays subscriber-only.
+ *
+ * A mirror for the same reason `hasExpired`, `trimStrings` and `slug` are
+ * mirrors: `scripts/send-newsletter.mjs` runs under bare `node` in Actions and
+ * does not import TypeScript. Unlike those three, this one cannot drift
+ * silently — `test/newsletter-templates.test.ts` imports the real constant and
+ * asserts the two are equal, so a change to `lib/embargo.ts` alone fails the
+ * unit suite, which gates both deploys and therefore the newsletter that chains
+ * off one.
+ *
+ * Every number of days an email states comes from here or from the real
+ * constant: the Worker passes `RELEASE_DELAY_DAYS` into `composeWelcome`, and
+ * `send-newsletter.mjs` fills the campaign shell's {{RELEASE_DAYS}} with this.
+ */
+export const RELEASE_DELAY_DAYS = 7
+
+/**
  * Mirrors `hasExpired` in lib/embargo.ts, and must keep mirroring it — the
  * same relationship `trimStrings` and `slug` have with their `lib/` originals,
  * and for the same reason: `scripts/send-newsletter.mjs` is run by bare `node`
@@ -164,6 +182,8 @@ const SLOTS = {
   note: 'NOTE',
   intro: 'INTRO',
   table: 'TABLE',
+  outro: 'OUTRO',
+  releaseDays: 'RELEASE_DAYS',
   footerLinks: 'FOOTER_LINKS',
 }
 
@@ -186,8 +206,9 @@ export const renderEmail = (shellTemplate, values) =>
     )
   )
 
-/** An `<tr>` carrying a block of copy above the table. Empty string if unused. */
-export const introBlock = (heading, paragraphs) => `<tr><td style="padding:20px 24px 4px 24px;">
+/** An `<tr>` carrying a heading and a run of paragraphs. */
+const copyBlock = (heading, paragraphs, { padding, rule = false }) =>
+  `<tr><td style="padding:${padding};${rule ? 'border-top:1px solid #374151;' : ''}">
 <div style="font:700 18px Arial,Helvetica,sans-serif;color:#E5E7EB;padding-bottom:10px;">${heading}</div>
 ${paragraphs
   .map(
@@ -197,6 +218,22 @@ ${paragraphs
   .join('\n')}
 </td></tr>`
 
+/** A block of copy above the table. Empty string if unused. */
+export const introBlock = (heading, paragraphs) =>
+  copyBlock(heading, paragraphs, { padding: '20px 24px 4px 24px' })
+
+/**
+ * A block of copy below the table, ruled off from it.
+ *
+ * The split is not decoration: what a reader needs *before* the table is why
+ * these bandi are in front of them, and what they need after it is how the
+ * thing they just bought behaves from here on. Stacking both above the table
+ * would push the bandi — the reason the email exists — under a screenful of
+ * explanation.
+ */
+export const outroBlock = (heading, paragraphs) =>
+  copyBlock(heading, paragraphs, { padding: '18px 24px 6px 24px', rule: true })
+
 /* ------------------------------------------------------------------------- */
 /* The welcome email                                                          */
 /* ------------------------------------------------------------------------- */
@@ -205,6 +242,39 @@ const plural = (n, one, many) => (n === 1 ? one : many)
 
 const link = (href, text) =>
   `<a href="${href}" style="color:#4b5563;text-decoration:underline;font:400 10px Arial,Helvetica,sans-serif;">${text}</a>`
+
+/**
+ * The block that closes every welcome email, in both variants.
+ *
+ * It exists because the support inbox kept getting the same three questions
+ * from people who had just paid: when does the next email come, why is the
+ * site showing less than the email, and where did the email go. All three are
+ * answerable in four sentences, so the email answers them itself rather than
+ * waiting to be asked.
+ *
+ * The spam paragraph is the load-bearing one: MailerLite sends from
+ * info@bandincc.it, a subscriber who never whitelists it can miss every
+ * subsequent campaign, and a missed campaign is the whole product not being
+ * delivered. It is worded for someone reading this message in their junk
+ * folder, because that is exactly who needs it.
+ */
+const HOW_IT_WORKS_HEADING = 'Come funziona da qui in avanti'
+
+const howItWorks = (releaseDays) => [
+  `Ogni volta che rileviamo e verifichiamo un nuovo bando NCC ti arriva una email con l\u2019elenco: comune, numero di licenze, scadenza e link al bando ufficiale. Sul sito pubblico gli stessi bandi compaiono ${releaseDays} giorni dopo \u2014 quella settimana di vantaggio \u00e8 l\u2019abbonamento.`,
+  'Non c\u2019\u00e8 un giorno fisso di invio: ti scriviamo quando i comuni pubblicano, non a calendario. Se per qualche giorno non ricevi nulla non \u00e8 un problema tecnico, vuol dire che non ci sono bandi nuovi.',
+  'Aggiungi info@bandincc.it ai tuoi contatti: \u00e8 l\u2019indirizzo da cui partono tutti i nostri invii, ed \u00e8 quello che evita che finiscano nello spam. Se hai trovato questa email nella posta indesiderata, segnala \u00abNon \u00e8 spam\u00bb: le prossime arriveranno in posta in arrivo.',
+  'Per qualsiasi dubbio rispondi a questa email o scrivi a info@bandincc.it. Ti risponde una persona.',
+]
+
+/** The same four paragraphs, with the address emphasised for the HTML shell. */
+const howItWorksHtml = (releaseDays) =>
+  howItWorks(releaseDays).map((p) =>
+    p.replaceAll('info@bandincc.it', '<strong style="color:#E5E7EB;">info@bandincc.it</strong>')
+  )
+
+const howItWorksText = (releaseDays) =>
+  `${HOW_IT_WORKS_HEADING.toUpperCase()}\n\n${howItWorks(releaseDays).join('\n\n')}\n`
 
 /**
  * Subject, header and copy for the email a new subscriber gets the moment
@@ -224,13 +294,18 @@ const link = (href, text) =>
  * Returns everything `renderEmail` needs, plus `subject` and `text` for the
  * sender to use.
  */
-export const composeWelcome = (bandi, { portalUrl = '', tableTemplate, releaseDays = 7 }) => {
+export const composeWelcome = (
+  bandi,
+  { portalUrl = '', tableTemplate, releaseDays = RELEASE_DELAY_DAYS }
+) => {
   const n = bandi.length
+  const one = n === 1
 
   const manage = portalUrl ? `${link(portalUrl, "Gestisci l'abbonamento")} · ` : ''
 
   const common = {
     date: itDate(new Date()),
+    outro: outroBlock(HOW_IT_WORKS_HEADING, howItWorksHtml(releaseDays)),
     // The footer prose is baked into welcome_template.html; only these links
     // vary — the live and test Workers point at different portals.
     //
@@ -253,15 +328,15 @@ export const composeWelcome = (bandi, { portalUrl = '', tableTemplate, releaseDa
       summary: 'Benvenuto tra gli abbonati',
       note: 'Appena rileviamo un nuovo bando, lo ricevi subito per email.',
       intro: introBlock('Grazie per l\u2019abbonamento', [
-        `In questo momento non ci sono bandi rilevati negli ultimi ${releaseDays} giorni da mostrarti: sul sito trovi gi\u00e0 tutto quello che abbiamo.`,
-        'Da adesso non devi pi\u00f9 aspettare: appena rileviamo un nuovo bando lo ricevi subito per email, ' +
-          `${releaseDays} giorni prima che compaia sul sito pubblico.`,
+        `In questo momento non c\u2019\u00e8 nessun bando riservato da mostrarti: non ne abbiamo rilevati negli ultimi ${releaseDays} giorni, quindi tutto quello che abbiamo \u00e8 gi\u00e0 pubblico e lo trovi sul sito.`,
+        '\u00c8 normale e non \u00e8 un problema tecnico: i comuni non pubblicano ogni settimana. Da adesso per\u00f2 non devi pi\u00f9 controllare tu \u2014 appena rileviamo un bando nuovo te lo mandiamo.',
       ]),
       table: '',
       text:
         'Grazie per l\u2019abbonamento a BandiNCC.\n\n' +
-        `In questo momento non ci sono bandi rilevati negli ultimi ${releaseDays} giorni da mostrarti. ` +
-        'Appena ne rileviamo uno lo ricevi subito per email, prima che compaia sul sito.\n',
+        `In questo momento non c\u2019\u00e8 nessun bando riservato da mostrarti: non ne abbiamo rilevati negli ultimi ${releaseDays} giorni, quindi tutto quello che abbiamo \u00e8 gi\u00e0 pubblico sul sito. ` +
+        '\u00c8 normale: i comuni non pubblicano ogni settimana.\n\n' +
+        howItWorksText(releaseDays),
     }
   }
 
@@ -269,20 +344,36 @@ export const composeWelcome = (bandi, { portalUrl = '', tableTemplate, releaseDa
 
   return {
     ...common,
-    subject: `Grazie! Ecco ${plural(n, 'il bando', `i ${n} bandi`)} NCC degli ultimi ${releaseDays} giorni`,
+    subject: one
+      ? 'Grazie! Ecco il bando NCC non ancora pubblico sul sito'
+      : `Grazie! Ecco i ${n} bandi NCC non ancora pubblici sul sito`,
     summary: `Benvenuto tra gli abbonati \u2014 ${count} in anteprima`,
-    note: `In anteprima per te: ${plural(n, 'questo bando non \u00e8 ancora visibile', 'questi bandi non sono ancora visibili')} sul sito pubblico.`,
-    intro: introBlock(`Ecco i bandi rilevati negli ultimi ${releaseDays} giorni`, [
-      `Grazie per l\u2019abbonamento. Qui sotto trovi ${count} che abbiamo rilevato negli ultimi ${releaseDays} giorni: ` +
-        `${plural(n, '\u00e8 riservato', 'sono riservati')} agli abbonati e sul sito pubblico ${plural(n, 'comparir\u00e0', 'compariranno')} solo nei prossimi giorni.`,
-      'Da adesso non devi pi\u00f9 aspettare: appena rileviamo un nuovo bando lo ricevi subito per email.',
-    ]),
+    note: `In anteprima per te: ${one ? 'questo bando non \u00e8 ancora visibile' : 'questi bandi non sono ancora visibili'} sul sito pubblico.`,
+    intro: introBlock(
+      one
+        ? 'Il bando che sul sito non \u00e8 ancora visibile'
+        : `I ${n} bandi che sul sito non sono ancora visibili`,
+      [
+        `Grazie per l\u2019abbonamento. Qui sotto trovi ${
+          one
+            ? 'l\u2019unico bando che in questo momento \u00e8 riservato agli abbonati'
+            : `tutti i ${n} bandi che in questo momento sono riservati agli abbonati`
+        }: ${one ? 'l\u2019abbiamo rilevato' : 'li abbiamo rilevati'} negli ultimi ${releaseDays} giorni e sul sito pubblico ${
+          one ? 'comparir\u00e0' : 'compariranno'
+        } solo nei prossimi. Tutto il resto \u00e8 gi\u00e0 pubblico e lo trovi sul sito.`,
+        `Per ogni bando trovi il comune, il numero di licenze, la scadenza e il link alla pagina ufficiale: il pulsante <strong style="color:#E5E7EB;">Visualizza</strong> apre la scheda su bandincc.it.`,
+      ]
+    ),
     table: renderTable(tableTemplate, bandi),
     text:
       'Grazie per l\u2019abbonamento a BandiNCC.\n\n' +
-      `Ecco ${count} rilevat${plural(n, 'o', 'i')} negli ultimi ${releaseDays} giorni, ` +
-      `${plural(n, 'non ancora visibile', 'non ancora visibili')} sul sito pubblico:\n\n` +
+      `Qui sotto ${one ? 'trovi l\u2019unico bando' : `trovi tutti i ${n} bandi`} che in questo momento ${
+        one ? '\u00e8 riservato' : 'sono riservati'
+      } agli abbonati: ${one ? 'rilevato' : 'rilevati'} negli ultimi ${releaseDays} giorni e non ancora ${
+        one ? 'visibile' : 'visibili'
+      } sul sito pubblico.\n\n` +
       bandoLines(bandi) +
-      '\n\nAppena rileviamo un nuovo bando lo ricevi subito per email.\n',
+      '\n\n' +
+      howItWorksText(releaseDays),
   }
 }

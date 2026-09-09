@@ -20,7 +20,14 @@ import { execFileSync } from 'node:child_process'
 // Row markup, slugs, date formatting and the placeholder fill are shared with
 // the welcome email the Stripe Worker sends (stripe-worker/src/welcome.ts), so
 // the two cannot drift apart.
-import { hasExpired, renderEmail, renderTable, itDate, trimStrings } from '../newsletter/render.mjs'
+import {
+  RELEASE_DELAY_DAYS,
+  hasExpired,
+  itDate,
+  renderEmail,
+  renderTable,
+  trimStrings,
+} from '../newsletter/render.mjs'
 // The sender identity is shared with the welcome email — one place to change
 // it, and it must stay an address MailerLite has verified.
 import { FROM, FROM_NAME } from '../newsletter/mailerlite.mjs'
@@ -137,10 +144,15 @@ const template = (name) =>
 // {$unsubscribe} link are fixed for this sender and live in the template. Only
 // the summary, the date and the table vary from send to send. The welcome email
 // is welcome_template.html and shares nothing but the table.
+//
+// `releaseDays` is the one number in that fixed prose, and it is filled rather
+// than written out so the email and the site can never disagree about how long
+// a bando stays subscriber-only. See RELEASE_DELAY_DAYS in newsletter/render.mjs.
 const html = renderEmail(template('email_template.html'), {
   summary,
   date: itDate(new Date()),
   table: renderTable(template('email_table.html'), fresh),
+  releaseDays: String(RELEASE_DELAY_DAYS),
 })
 
 if (DRY) {

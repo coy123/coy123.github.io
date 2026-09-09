@@ -2,9 +2,17 @@ import { Metadata } from 'next'
 import { getTranslations } from '@/lib/translations'
 import FAQAccordion from '@/components/FAQAccordion'
 import AuthorBox from '@/components/AuthorBox'
-import faqData from '@/data/faq.json'
+import rawFaqData from '@/data/faq.json'
+import { RELEASE_DELAY_DAYS } from '@/lib/embargo'
+import { withReleaseDays } from '@/lib/copy'
 import HeroCrest from '@/components/HeroCrest'
 import { jsonLd } from '@/lib/jsonLd'
+
+// The FAQ states the release delay in words, so it carries `{releaseDays}` like
+// the rest of the copy. `locales/it.json` is resolved inside `getTranslations()`;
+// data/faq.json has no such loader, so it is resolved here — and that covers the
+// FAQPage JSON-LD below too, which is built from this same array.
+const faqData = withReleaseDays(rawFaqData, RELEASE_DELAY_DAYS)
 
 export const metadata: Metadata = {
   title: 'FAQ e Glossario NCC',

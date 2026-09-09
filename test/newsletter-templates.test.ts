@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 
 import {
+  RELEASE_DELAY_DAYS as MIRRORED_RELEASE_DELAY_DAYS,
   composeWelcome,
   itDate,
   renderEmail,
@@ -86,17 +87,70 @@ const assertNoUnfilledSlots = (html: string, what: string) => {
 }
 
 describe('Newsletter email templates', () => {
+  it('mirrors the real release delay', () => {
+    // newsletter/render.mjs cannot import lib/embargo.ts — scripts/send-newsletter.mjs
+    // runs it under bare `node` in Actions — so it carries the constant as a
+    // copy, the way it already copies hasExpired, trimStrings and slug. This is
+    // the assertion that stops that copy drifting: change RELEASE_DELAY_DAYS on
+    // its own and the unit suite fails, which fails `test` in e2e.yml, which
+    // blocks both deploys and the newsletter that chains off one.
+    //
+    // Every day count an email prints resolves to one of these two: the Worker
+    // passes the real constant into composeWelcome, send-newsletter.mjs fills
+    // the campaign shell's {{RELEASE_DAYS}} from the mirror.
+    assert.equal(MIRRORED_RELEASE_DELAY_DAYS, RELEASE_DELAY_DAYS)
+  })
+
   describe('the daily campaign shell', () => {
+    it('states the delay as the constant, never as a written-out number', () => {
+      const html = renderEmail(shell.campaign, {
+        summary: '2 nuovi bandi NCC',
+        date: itDate(new Date()),
+        table: renderTable(shell.table, FIXTURE),
+        releaseDays: String(RELEASE_DELAY_DAYS),
+      })
+
+      assert.ok(
+        html.includes(`fra ${RELEASE_DELAY_DAYS} giorni`),
+        'the header note carries the resolved number'
+      )
+      assert.ok(
+        html.includes(`sul sito pubblico ${RELEASE_DELAY_DAYS} giorni dopo`),
+        'and so does the how-it-works block'
+      )
+      assert.ok(
+        !/sette giorni/i.test(html),
+        'nothing spells the delay out in words — it would go stale silently'
+      )
+    })
+
     it('renders with every slot filled', () => {
       const html = renderEmail(shell.campaign, {
         summary: '2 nuovi bandi NCC',
         date: itDate(new Date()),
         table: renderTable(shell.table, FIXTURE),
+        releaseDays: String(RELEASE_DELAY_DAYS),
       })
 
       assertNoUnfilledSlots(html, 'email_template.html')
       assert.ok(html.includes('Comune di Milano (MI)'), 'the table is actually in the shell')
       assert.ok(html.includes('2 nuovi bandi NCC'), 'the summary reached the document')
+    })
+
+    it('tells the reader which address to whitelist', () => {
+      // MailerLite sends from info@bandincc.it. A subscriber who never adds it
+      // to their contacts can lose every subsequent campaign to a spam folder,
+      // which is the product silently not being delivered — so both shells say
+      // it, not just the welcome email a reader sees once.
+      const html = renderEmail(shell.campaign, {
+        summary: '2 nuovi bandi NCC',
+        date: itDate(new Date()),
+        table: renderTable(shell.table, FIXTURE),
+        releaseDays: String(RELEASE_DELAY_DAYS),
+      })
+
+      assert.ok(html.includes('info@bandincc.it'), 'the sender address is in the footer')
+      assert.ok(html.includes('Come funziona'), 'so is the how-it-works block')
     })
 
     it('keeps MailerLite’s own unsubscribe token untouched', () => {
@@ -108,6 +162,7 @@ describe('Newsletter email templates', () => {
         summary: '1 nuovo bando NCC',
         date: itDate(new Date()),
         table: renderTable(shell.table, FIXTURE.slice(0, 1)),
+        releaseDays: String(RELEASE_DELAY_DAYS),
       })
 
       assert.ok(html.includes('{$unsubscribe}'), 'the unsubscribe token survived rendering')
@@ -149,6 +204,28 @@ describe('Newsletter email templates', () => {
         const composed = compose(bandi as typeof FIXTURE)
         assert.ok(composed.subject?.length, `${label}: subject is present`)
         assert.ok(composed.text?.length, `${label}: plain-text body is present`)
+      }
+    })
+
+    it('closes with the how-it-works block in both variants', () => {
+      // The three questions the support inbox actually receives — when the next
+      // email comes, why the site shows less than the email, and where the email
+      // went — are answered by the email itself. The empty variant needs them
+      // most: it arrives with no table at all, so without this block it reads as
+      // a subscription that bought nothing.
+      for (const [label, bandi] of [['with bandi', FIXTURE], ['empty', []]] as const) {
+        const composed = compose(bandi as typeof FIXTURE)
+        const html = renderEmail(shell.welcome, composed)
+
+        assert.ok(html.includes('Come funziona'), `${label}: heading rendered`)
+        assert.ok(
+          html.includes('info@bandincc.it'),
+          `${label}: the sender address to whitelist is in the HTML`
+        )
+        assert.ok(
+          composed.text.includes('info@bandincc.it'),
+          `${label}: and in the plain-text alternative`
+        )
       }
     })
 

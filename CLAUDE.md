@@ -188,7 +188,7 @@ Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
 runs both, so both gate both deploys.
 
 **Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
-`node --test` — no framework, no dependency, ~2s for 101 tests. Node 22 strips
+`node --test` — no framework, no dependency, ~2s for 110 tests. Node 22 strips
 the TypeScript itself, so a test imports `../lib/embargo.ts` and
 `../cypress/support/site.ts` directly and checks the real modules:
 
@@ -205,6 +205,11 @@ the TypeScript itself, so a test imports `../lib/embargo.ts` and
   plus the three release-delay invariants over the real dataset
 - `test/subscription.test.ts` — the Stripe links in `locales/it.json`: right
   mode, `locale=it`, "IVA inclusa"
+- `test/copy.test.ts` — the `{releaseDays}` substitution over the real
+  `locales/it.json` and `data/faq.json`: every token resolves, the number the
+  copy promises is the one `lib/embargo.ts` enforces, `{days}`/`{count}`/`{year}`
+  are left for their own fillers, and no string spells the delay out in words
+  again. See "The delay is written once"
 - `test/map-markers.test.ts` — `lib/mapMarkers.ts`: the size scale (monotonic,
   clamped at both ends, area-proportional, and actually separating the sizes
   the dataset holds), the palette (grey not red, closed receding) and the
@@ -248,7 +253,7 @@ Ubuntu/WSL it also needs a one-off `apt-get install` of the Electron system
 libraries — the exact command is in `cypress/README.md`.
 
 A clean Cypress run against `next dev` is 603 passing / 20 pending / 0 failing
-out of 623, with `npm run test:unit` adding 101 more in two seconds — measured
+out of 623, with `npm run test:unit` adding 110 more in two seconds — measured
 2026-09-06, after the Regioni tab and the map rework added
 `cypress/e2e/regions.cy.ts`, `test/regions.test.ts` and
 `test/map-markers.test.ts`. Wall-clock is about 6 minutes on an
@@ -364,6 +369,7 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   └── laws.json               # Regional law entries (location, image, url)
 ├── lib/                        # Utility modules
 │   ├── calculator.ts           # Income calculator logic (enums, cost maps, calculateIncome)
+│   ├── copy.ts                 # withReleaseDays(): fills {releaseDays} — imports nothing
 │   ├── crest.ts                # Coat-of-arms URL builder (Wikimedia thumb sizes)
 │   ├── data.ts                 # Data loader (reads data.json, converts lat/lng to numbers)
 │   ├── mapMarkers.ts           # Marker size/colour/clustering constants — imports nothing
@@ -388,6 +394,7 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   ├── preview-welcome.mjs     # Renders/sends the welcome email by hand (see below)
 │   └── send-newsletter.mjs     # The daily campaign (run by .github/workflows/newsletter.yml)
 ├── test/                       # Browser-less tests, run by `node --test`
+│   ├── copy.test.ts            # {releaseDays} resolves; nobody re-hardcodes "sette giorni"
 │   ├── data-integrity.test.ts  # data/*.json + glossary hygiene; the delay over the dataset
 │   ├── embargo-split.test.ts   # The paywall's partition against a fixture, never the live data
 │   ├── embargo.test.ts         # The seven-day release rule against fixed instants
@@ -1098,8 +1105,10 @@ properly.
 - **Copy is bound to the rule.** Anything claiming the site is "aggiornato ogni
   giorno" or carries "tutti i bandi" is now false for the free view; the home
   title, meta descriptions, Dataset JSON-LD, Chi Siamo, the newsletter ad,
-  `/abbonamento`, `/grazie` and a dedicated FAQ entry were rewritten to say
-  "sette giorni" plainly. Keep it that way when editing `locales/it.json`.
+  `/abbonamento`, `/grazie` and a dedicated FAQ entry all state the delay
+  instead. **They state it with the `{releaseDays}` token, never as a written-out
+  number** — see "The delay is written once" below. `test/copy.test.ts` fails on
+  a string that spells it "sette giorni".
 - **`cypress/e2e/embargo.cy.ts`** is the guard: no embargoed location, URL, slug
   or crest anywhere in the exported HTML or the sitemap, plus the locked-row
   behaviour, plus two tests holding the expiry exemption in both directions.
@@ -1110,6 +1119,44 @@ properly.
   a browser and cannot otherwise reach the CI log.
   `cypress/support/site.ts` mirrors the split — `bids` is published, `allBids`
   is everything, `embargoedBids` is what is held back.
+
+## The delay is written once (`lib/copy.ts`)
+
+`RELEASE_DELAY_DAYS` is the only place the seven days exist. Every sentence that
+states the delay — on the site and in both emails — carries a placeholder and is
+resolved from that constant, so changing it changes the product and the copy
+together.
+
+- **Site copy uses `{releaseDays}`.** `lib/copy.ts` → `withReleaseDays()` walks
+  a JSON tree and fills it. `lib/translations.ts` applies it to
+  `locales/it.json` once, at module load, so every consumer — page sections,
+  `Metadata` exports, the JSON-LD builders, all of which render through loops
+  that never touch an individual string — is already correct with no call-site
+  change. `app/faq/page.tsx` applies it to `data/faq.json`, which has no such
+  loader; that one substitution also covers the FAQPage JSON-LD built from the
+  same array. `cypress/support/site.ts` applies it to its `t` and `faqs` exports
+  so a spec still compares against what the page renders.
+- **The token is deliberately not `{days}`.** `dashboard.locked.countdown` has
+  been using `{days}` since the locked rows shipped, for a different number —
+  how long until the *next* release, filled in the browser by
+  `LockedRows.tsx`. A build-time substitution of `{days}` would freeze that
+  countdown at seven. `{count}` and `{year}` are likewise other people's.
+- **`lib/copy.ts` imports nothing**, for the same reason `lib/embargo.ts`,
+  `lib/regions.ts` and `lib/mapMarkers.ts` import nothing: plain Node loads it
+  through `cypress/support/site.ts`. The day count is therefore a parameter, not
+  an import — the caller passes `RELEASE_DELAY_DAYS`.
+- **The emails resolve the same constant.** The Worker passes
+  `RELEASE_DELAY_DAYS` into `composeWelcome`, which prints it. The daily
+  campaign's shell carries a `{{RELEASE_DAYS}}` slot filled by
+  `scripts/send-newsletter.mjs`. That script runs under bare `node` in Actions,
+  so it reads `RELEASE_DELAY_DAYS` from `newsletter/render.mjs` — **a mirror,
+  like `hasExpired`/`trimStrings`/`slug`, but the only one that cannot drift
+  silently**: `test/newsletter-templates.test.ts` imports the real constant and
+  asserts the two are equal.
+- **`test/copy.test.ts` holds both ends**: no `{releaseDays}` survives
+  substitution, the resolved copy states the real number, the other placeholders
+  are untouched, and no string in `locales/it.json` or `data/faq.json` spells the
+  delay out in words again.
 
 ## The welcome email (`stripe-worker/src/welcome.ts`)
 

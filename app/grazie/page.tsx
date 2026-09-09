@@ -72,7 +72,30 @@ export default function GraziePage() {
               </li>
             ))}
           </ol>
-          <p className="mt-3 text-xs text-gray-400">{page.spamNote}</p>
+          <p className="mt-3 text-sm text-gray-300">{page.cadenceNote}</p>
+        </div>
+
+        {/* The single most-asked question after a checkout, and the one with a
+            real cost attached: MailerLite sends from info@bandincc.it, and a
+            subscriber who never whitelists it can miss every later campaign —
+            the product not being delivered, reported as "I got nothing". So it
+            is a block with its own heading rather than the grey footnote it
+            used to be. The same advice closes both emails. */}
+        <div className="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-700">
+          <h3 className="text-lg font-semibold text-white mb-2">
+            {page.spamHeading}
+          </h3>
+          <p className="text-sm text-white mb-3">{page.spamNote}</p>
+          <ul className="space-y-2">
+            {page.spamTips.map((tip: string, index: number) => (
+              <li key={index} className="flex gap-2 text-sm text-gray-300">
+                <span aria-hidden="true" className="shrink-0 text-blue-400">
+                  •
+                </span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-700">

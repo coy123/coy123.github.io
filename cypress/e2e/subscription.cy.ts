@@ -204,6 +204,24 @@ describe('Grazie', () => {
     })
   })
 
+  it('tells a subscriber where the welcome email went', () => {
+    // The most-asked support question after a checkout, and the one that costs
+    // something: MailerLite sends from info@bandincc.it, and an address that
+    // never gets whitelisted misses every later campaign too — the product not
+    // being delivered, reported as "I got nothing". The advice is duplicated at
+    // the end of both emails (newsletter/render.mjs, email_template.html).
+    cy.contains(t.pages.grazie.spamHeading).should('be.visible')
+    ;(t.pages.grazie.spamTips as string[]).forEach((tip) => {
+      cy.contains(tip).should('be.visible')
+    })
+  })
+
+  it('explains that sends follow the comuni, not a calendar', () => {
+    // "I have not had an email in four days" is not a fault, and the page says
+    // so before anyone writes in about it.
+    cy.contains(t.pages.grazie.cadenceNote).should('be.visible')
+  })
+
   it('offers a way out for a subscriber the API cannot reactivate', () => {
     // MailerLite refuses to reactivate a previously-unsubscribed address, so
     // the grant silently strands a paying customer. Until the re-subscribe
