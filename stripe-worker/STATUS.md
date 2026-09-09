@@ -1,4 +1,4 @@
-# Payments — status and TODOs (last updated 2026-08-24)
+# Payments — status and TODOs (last updated 2026-09-07)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
@@ -17,15 +17,23 @@ is now the only thing outstanding and is on a clock.**
 
 ## ⚠️ Current state: registered for VAT, collecting none
 
-Verified directly against live Stripe on **2026-08-18**:
+**Re-verified against live Stripe on 2026-09-07 — nothing has changed except the
+size of the problem.** The owner reports the EU VAT number from the OSS
+registration is in hand.
 
-| Check | Value | Should be |
+| Check | Value (2026-09-07) | Should be |
 |---|---|---|
 | `/v1/tax/registrations` (live) | **count 0** | one `oss_non_union` registration |
 | `automatic_tax` on both live Payment Links | **false** | `true` |
-| `automatic_tax` on `sub_1U2ZuSGZN5xaIveHh8CoEhLw` | **false** | `true` |
-| `automatic_tax` on `sub_1U2wzVGZN5xaIveHGV2Dp783` | **false** | `true` |
+| `automatic_tax` on live subscriptions | **false on all 32** | `true` |
 | Tax settings | `active`, `inclusive`, `txcd_10503002` | unchanged, correct |
+
+The August table listed **two** subscriptions to fix. It is now **32** (20
+monthly, 12 annual), so item 3 below is a script or a dashboard session, not two
+clicks. Renewal dates, live: `sub_1U2ZuSGZN5xaIveHh8CoEhLw` on **9 Sept** and
+`sub_1U2wzVGZN5xaIveHGV2Dp783` on **10 Sept** (the two originals), then 12 more
+monthlies between **24 Sept and 7 Oct**, then the 12 annuals in Aug–Sept **2027**.
+Every renewal that runs with `automatic_tax: false` collects nothing.
 
 This is precisely the silent-failure state the doc has warned about since
 2026-08-07, only reached from the other direction: the registration exists in the
@@ -33,18 +41,26 @@ real world but not in Stripe, so **Stripe computes 0% on every invoice while we
 are legally registered.** Nothing errors, nothing alerts. See "On the OSS grant"
 below for the ordered fix.
 
-**Live sales so far** (read 2026-08-18):
+**Live sales so far** (read 2026-09-07, `/v1/charges` and `/v1/invoices`, whole
+account history 2026-08-08 → 2026-09-07):
 
-| Date | Charge | Country | Status |
+| | Invoices | Gross | Note |
 |---|---|---|---|
-| 2026-08-08 | `ch_3U27WgGZN5xaIveH1N9i0V2r` | AT | refunded — the owner's own step-12 test |
-| 2026-08-09 | `ch_3U2ZuQGZN5xaIveH1dUw2zfe` | **IT** | paid — first real supply |
-| 2026-08-10 | `ch_3U2wyvGZN5xaIveH16WAjo7p` | **IT** | paid |
+| IT, no VAT number (B2C) | 25 | €572.30 | OSS territory — VAT owed by us |
+| IT, valid `eu_vat` on the invoice (B2B) | 7 | €253.70 | reverse charge, outside OSS — confirm with the accountant |
+| AT | 1 | €5.90 | refunded — the owner's own step-12 test |
+| **Paid total** | **32** | **€826.00** | 8 further charges failed |
 
-Two `active` monthly subscriptions at €5.90, **renewing 9 and 10 September**.
-Both are Italian, so the back-payable VAT under plan A is Italy at 22% ≈ €1.06
-per charge — currently two charges, i.e. ~€2.12 owed out of margin. That number
-grows by one charge per subscriber per month until `automatic_tax` is on.
+**Plan A's bill, computed on those rows.** Prices are tax-**inclusive**, so the
+VAT comes out of the €5.90, not on top of it: at IT 22% that is
+`gross × 22/122`.
+
+- B2C only (the likely reading): **≈ €103.19**
+- If the accountant says the 7 B2B invoices belong in OSS too: **≈ €148.95**
+
+Nothing to reissue — every document already issued is correct, which was the
+whole point of plan A. The number grows by ~€1.06 per Italian B2C charge per
+month until `automatic_tax` is on.
 
 **Updated 2026-08-07 — steps 2 through 10 are DONE.** Live product and prices
 confirmed; tax-inclusive pricing and the newsletter tax code set as Stripe Tax
@@ -293,12 +309,24 @@ with no error raised anywhere.
    listed only the first:
    - both live Payment Links (`plink_1U0j3uGZN5xaIveHie2O8Gwc`,
      `plink_1U0j4BGZN5xaIveHdpqNXGQf`) — this covers **new** checkouts only;
-   - **both existing live subscriptions** (`sub_1U2ZuSGZN5xaIveHh8CoEhLw`,
-     `sub_1U2wzVGZN5xaIveHGV2Dp783`), which carry `automatic_tax: false` and
-     **renew on 9 and 10 September**. A Payment Link setting does not reach a
-     subscription that already exists — miss this and the only two paying
-     customers renew at 0% VAT indefinitely, silently. Do the same for the two
-     test links so staging stays a faithful rehearsal.
+   - **every existing live subscription — all 32 of them** (re-counted
+     2026-09-07; this list said "both" when there were two). A Payment Link
+     setting does not reach a subscription that already exists, so each one
+     needs `POST /v1/subscriptions/<id>` with `automatic_tax[enabled]=true`.
+     Miss this and 32 paying customers renew at 0% VAT indefinitely, silently.
+     Page `/v1/subscriptions?status=active&limit=100` and loop; the dashboard
+     can do it too, one subscription at a time. Do the same for the two test
+     links so staging stays a faithful rehearsal.
+   - **Expect a price cut, not a price rise.** Tax-inclusive means €5.90 stays
+     €5.90 and the VAT is carved out of it, so switching this on drops net
+     revenue on every Italian B2C row by ~18% (€5.90 → €4.84). That is the
+     correct outcome and it is already the liability we are accruing — but it
+     is an MRR change to see coming, and B2B rows with a VAT number keep the
+     full €5.90 under reverse charge.
+   - **A subscription update fails if the customer has no usable tax location.**
+     All 32 have an address (billing address collection is `required` on both
+     links, and every paid invoice carries a country), so this should be clean;
+     if one errors, fix the customer address rather than skipping the row.
 4. **Re-run the staging funnel.** A tax line appearing mid-checkout is a checkout
    change, and the Cypress suite cannot see inside Stripe's hosted page — it
    asserts hrefs only.

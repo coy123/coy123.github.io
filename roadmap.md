@@ -14,11 +14,15 @@ monthly renewals 9–10 Sept. Growth came from the locked rows, shipped ~23 Aug.
 
 ## ⚠️ Urgent — Stripe VAT
 
-The OSS registration came through on 2026-08-18, but **Stripe has not been
-told**: 0 tax registrations, and `automatic_tax` is `false` on both live
-Payment Links *and* on all 31 live subscriptions. We are registered for VAT and
-collecting none, silently. **The 9–10 September renewals are the deadline.**
-Four ordered actions in `stripe-worker/STATUS.md` → step 1, "→ On the OSS grant".
+The OSS registration came through on 2026-08-18 and the EU VAT number is in
+hand, but **Stripe has still not been told** — re-verified against live Stripe
+on 2026-09-07: 0 tax registrations, and `automatic_tax` is `false` on both live
+Payment Links *and* on all **32** live subscriptions. We are registered for VAT
+and collecting none, silently. **The 9–10 September renewals are the first
+deadline; 12 more monthlies follow between 24 Sept and 7 Oct.** Accrued so far:
+≈ €103 of Italian VAT on 25 B2C invoices (≈ €149 if the 7 B2B ones count too),
+back-payable out of margin under plan A. Four ordered actions in
+`stripe-worker/STATUS.md` → step 1, "→ On the OSS grant".
 
 ---
 
@@ -69,6 +73,13 @@ Four ordered actions in `stripe-worker/STATUS.md` → step 1, "→ On the OSS gr
   else is option B — Cloudflare Pages, repo private, GitHub stays on Free.**
   Hosting is €0, so the whole budget goes to MailerLite. Plan and reasoning:
   "Going private on Cloudflare Pages" below.
+  ✅ *MailerLite paid taken and the "sent by MailerLite" branding removed from
+  outgoing mail, 2026-09-07.* Nothing in this repo changed and nothing should:
+  the banner was injected by MailerLite at send time, not by
+  `newsletter/*.html`. **`{$unsubscribe}` still has to stay in both shells** —
+  it is a legal requirement and a MailerLite campaign requirement, not part of
+  the branding that was just dropped. The hosting half of this budget line is
+  still in flight (steps 4–7 below).
 - **Subscriber questionnaire.** A mayor contacted us directly — ask him and all
   subscribers, plus everyone who has emailed us, what they need. Davide writes,
   Can sends.
@@ -236,10 +247,10 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
   Cloudflare deployments **in a browser**, or through the Cloudflare API
   (`wrangler pages deployment list --project-name=bandincc`), never with curl
   from the dev machine.
-- **MailerLite paid is the other half of this budget and is still open.**
-  Hosting came in at €0, so the whole €10–20 is free for it. It is a card and a
-  few clicks — the deliverable is the "sent by MailerLite" banner disappearing
-  from what paying subscribers receive.
+- **MailerLite paid is done (2026-09-07)** — the other half of this budget.
+  Hosting came in at €0, so the whole €10–20 went to it, and the "sent by
+  MailerLite" banner is gone from what paying subscribers receive. No repo
+  change was needed or made; keep `{$unsubscribe}` in both email shells.
 
 ---
 
@@ -363,7 +374,7 @@ release delay"; do not re-derive them here.
 | EU OSS VAT | 08.09.2026 | Can |
 | Update finance Google Sheet | 08.09.2026 | Can |
 | Germany: automation start | 20.09.2026 | Can |
-| Research + implement paid service improvements (MailerLite, GitHub, hosting) | 20.09.2026 | Can |
+| Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting = steps 4–7 of the Cloudflare migration* | 20.09.2026 | Can |
 | Questionnaire | 30.09.2026 | Davide |
 | Germany law/market research | 30.09.2026 | Davide |
 | Research company location country for tax | 30.09.2026 | Davide |
