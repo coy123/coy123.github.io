@@ -1083,9 +1083,10 @@ kept only so it is not re-litigated:
   consumer, and we keep the VAT difference rather than passing it on.
 - **No free trial** at this price point; it mostly attracts card testing.
 - **Cloudflare Worker as the host.** GH Pages is static, Netlify is staging-only.
-  **DNS stays at IONOS** — that zone carries the MailerLite DKIM/SPF records and
-  the DMARC policy, and moving it for a prettier hostname risks newsletter
-  deliverability for nothing.
+  The Worker keeps its `*.workers.dev` hostname. (The `bandincc.it` zone moved
+  from IONOS to Cloudflare on 2026-09-10 for the hosting migration, mail records
+  carried over — a hostname for the Worker was never the reason, and still is
+  not.)
 - ~~**Live MailerLite group for testing, no test group**~~ — **reversed
   2026-08-05.** It held while testing meant a handful of manual `stripe trigger`
   calls against addresses already on the list. It stops holding now that staging
