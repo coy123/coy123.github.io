@@ -263,9 +263,18 @@ describe('Newsletter email templates', () => {
     it('renders one row per bando', () => {
       const html = renderTable(shell.table, FIXTURE)
       assert.equal(
-        (html.match(/https:\/\/www\.bandincc\.it\/bandi\//g) ?? []).length,
+        (html.match(/https:\/\/bandincc\.it\/bandi\//g) ?? []).length,
         FIXTURE.length
       )
+    })
+
+    it('links the apex, never www', () => {
+      // www.bandincc.it only 301s to the apex (a Cloudflare Redirect Rule), so a
+      // www link costs every click a hop on top of MailerLite's own tracking
+      // redirect — and, as above, a redirect in an email is a deliverability
+      // signal.
+      const html = renderTable(shell.table, FIXTURE)
+      assert.ok(!html.includes('www.bandincc.it'), 'no www link in the table')
     })
   })
 })

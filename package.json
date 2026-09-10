@@ -1,7 +1,7 @@
 {
   "name": "bandincc",
   "version": "1.0.0",
-  "homepage": "https://www.bandincc.it",
+  "homepage": "https://bandincc.it",
   "description": "Bandi NCC Italia — le licenze Noleggio Con Conducente pubblicate dai comuni italiani",
   "main": "dist/index.js",
   "scripts": {

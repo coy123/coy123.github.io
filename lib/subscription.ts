@@ -25,10 +25,10 @@ export const hasItalianLocale = (href: string): boolean =>
 // ---------------------------------------------------------------------------
 // Test mode vs live mode
 //
-// Staging (Netlify) needs to exercise the whole funnel — page → Payment Link →
-// checkout → redirect → Worker → MailerLite — without moving real money, so it
-// builds against Stripe's *test-mode* links and a throwaway MailerLite group.
-// Production (GitHub Pages) builds against the live ones.
+// Staging (a Cloudflare Pages preview) needs to exercise the whole funnel —
+// page → Payment Link → checkout → redirect → Worker → MailerLite — without
+// moving real money, so it builds against Stripe's *test-mode* links and a
+// throwaway MailerLite group. Production builds against the live ones.
 //
 // The site is `output: 'export'`, so there is no server to branch on a hostname
 // at request time: the choice is made once, at build time, from `STRIPE_MODE`.

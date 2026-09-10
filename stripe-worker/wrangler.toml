@@ -80,9 +80,9 @@ id = "5281f3d3d63c4e6db9f19f0a365896c8"
 # Staging / test mode  —  `npm run deploy:test`, `npm run tail:test`
 #
 # Deploys a SECOND Worker, `bandincc-stripe-test.<subdomain>.workers.dev`, wired
-# to the Stripe TEST account and a throwaway MailerLite group. The Netlify
-# staging build points its Payment Links at test mode (see
-# .github/workflows/netlify-deploy.yml), and those checkouts have to land
+# to the Stripe TEST account and a throwaway MailerLite group. The staging
+# build (a Cloudflare Pages preview) points its Payment Links at test mode (see
+# .github/workflows/staging-deploy.yml), and those checkouts have to land
 # somewhere that is not the live subscriber list.
 #
 # Two Workers rather than one that branches: a Stripe webhook endpoint is

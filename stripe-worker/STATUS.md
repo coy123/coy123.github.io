@@ -71,6 +71,42 @@ with every checkout; run the script.
 6. **For the accountant:** how the reverse-charge B2B revenue gets declared, and
    whether the wording below is right.
 
+### Open: point Stripe at the apex, not www (found 2026-09-10)
+
+`bandincc.it` is the one canonical host; since the 2026-09-10 DNS move
+`www.bandincc.it` only 301s to it through a Cloudflare Redirect Rule (~70 ms,
+measured). Nothing below is broken — every `www` link still arrives — it is one
+hop removed from the moment right after someone pays. The repo side is done: the
+email's `bidUrl` in `newsletter/render.mjs` and `scripts/preview-embargoed.mjs`
+link the apex, and `test/newsletter-templates.test.ts` fails on a `www` link.
+What is left can only be done by hand:
+
+1. **The two live Payment Links** → Dashboard, live mode → Payment Links →
+   each link → Edit → After payment → Redirect → `https://bandincc.it/grazie/`
+   (keep the trailing slash). Monthly `plink_1U0j3uGZN5xaIveHie2O8Gwc`, annual
+   `plink_1U0j4BGZN5xaIveHdpqNXGQf`; both read `https://www.bandincc.it/grazie/`
+   on 2026-09-10. Tried from the dev machine and refused: neither the Stripe MCP
+   key nor the Stripe CLI's live key (`rk_live_…ZAyg`) has
+   `payment_links_write`. Editing two links by hand is simpler than widening a
+   key for it.
+2. **Public details → privacy policy URL** → Settings → Business → Public
+   details: `https://bandincc.it/privacy-policy/`. Set to the `www` form by the
+   runbook step above; Dashboard-only for your own account. It is printed on
+   every receipt, so the hop is on every receipt link.
+3. **Redeploy both Workers** — `npm run deploy` and `npm run deploy:test` in
+   `stripe-worker/`. `welcome.ts` imports `newsletter/render.mjs`, which is
+   bundled at deploy time, so the welcome email keeps linking `www` until then.
+   The daily campaign needs nothing: it runs from a fresh checkout in Actions.
+4. **The two test Payment Links** are a different problem — they redirect to the
+   Netlify staging site, not to `www`, and must wait for the first Cloudflare
+   staging deploy. Tracked in `roadmap.md` → "Going private on Cloudflare
+   Pages", step 6.
+
+Checked and needing nothing: the customer-portal configurations in both modes
+carry no site URL (`privacy_policy_url`, `terms_of_service_url` and
+`default_return_url` are all null), and the Worker's webhook endpoints are on
+`*.workers.dev`.
+
 ### Reverse charge on B2B invoices: done 2026-09-10
 
 **State, verified through the API on 2026-09-10:** every customer with a
@@ -181,7 +217,7 @@ hostname: the choice is made at build time from **`STRIPE_MODE`**.
 | | Stripe | JSON key | Worker | MailerLite group | Workflow |
 |---|---|---|---|---|---|
 | Production | live | `href` | `bandincc-stripe` | real subscribers | `deploy.yml` (`stripe-mode: live`) |
-| Staging | test | `hrefTest` | `bandincc-stripe-test` | throwaway | `netlify-deploy.yml` (`stripe-mode: test`) |
+| Staging | test | `hrefTest` | `bandincc-stripe-test` | throwaway | `staging-deploy.yml` (`stripe-mode: test`; `netlify-deploy.yml` before 2026-09-10) |
 
 - `lib/subscription.ts` → `stripeHref(link, mode)` picks the URL;
   `currentStripeMode()` defaults to **`live`**, and that direction is deliberate.
@@ -800,7 +836,8 @@ the customer's only confirmation of purchase.**
   (`dashboard.stripe.com/settings/business`) → **Public details → Edit**. Four
   fields are compliance-required on every receipt, so fill all four: legal
   business name, support address, **support email → info@bandincc.it**, and
-  privacy policy URL → `https://www.bandincc.it/privacy-policy/`. This does not
+  privacy policy URL → `https://bandincc.it/privacy-policy/` (the apex; it was
+  set to the `www` form first — see "Open: point Stripe at the apex"). This does not
   change the login or where Stripe notifies the owner — those stay personal.
 - **Branding** (`dashboard.stripe.com/settings/branding`) → *Email receipts* tab.
   Receipts and every billing email inherit it. Square PNG, min 128×128, ≤512KB.
@@ -966,7 +1003,10 @@ info@bandincc.it, which is the colleague's address.
 
 **Payment Link redirects (2026-08-04)** — both the test and the live links now
 use **After payment → Redirect** to `https://www.bandincc.it/grazie/` instead of
-Stripe's hosted confirmation page.
+Stripe's hosted confirmation page. *(Corrected 2026-09-10: only the live pair
+did. Read from Stripe that day, both test links redirect to the Netlify staging
+site, `https://spiffy-semifreddo-87751b.netlify.app/grazie/` — and the live
+pair's `www` is now a redirect hop. See "Open: point Stripe at the apex".)*
 
 **Promotion of the newsletter across the site (2026-08-04)** — the three ad
 slots that were commented out now carry `NewsletterAd`: the home banner, the two

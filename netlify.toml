@@ -1,6 +1,12 @@
-# Only used if the Netlify site is linked to this repo and builds it itself.
-# The CI deploy in .github/workflows/netlify-deploy.yml does NOT read this file
-# — it uploads the already-tested `out/` with `netlify deploy --dir=out`.
+# DEAD CONFIG, kept on purpose until the Netlify site is deleted.
+#
+# Since 2026-09-10 no workflow deploys to Netlify: staging is a Cloudflare Pages
+# preview published by .github/workflows/staging-deploy.yml. The Netlify site
+# still exists and still serves its last build. This file is only ever read if
+# that site is linked to this repo and builds it itself — and if it is, this is
+# what keeps such a build publishing `out/` in Stripe test mode rather than
+# something broken. Delete it together with the site: roadmap.md → "Going
+# private on Cloudflare Pages", step 6.
 #
 # next.config.mjs sets `output: 'export'`, so the build writes a fully static
 # `out/`. Publishing `.next` through @netlify/plugin-nextjs (as this file used
@@ -9,15 +15,9 @@
   command   = "npm run build"
   publish   = "out"
 
-# This file only ever applies to the STAGING site — production is GitHub Pages
-# and never reads it — so the Stripe test account is the right answer here
-# unconditionally.
-#
-# The CI path already sets this (netlify-deploy.yml passes `stripe-mode: test`
-# to e2e.yml, which puts STRIPE_MODE on both the build and the test run). This
-# covers the other path: a deploy triggered from the Netlify UI, which runs the
-# command above with none of that environment. Without it such a build falls
-# back to `live`, and staging quietly reverts to showing "Attivazione a breve"
-# instead of the test-mode checkout.
+# This file only ever applied to the STAGING site, so the Stripe test account
+# is the right answer here unconditionally. A build run from the Netlify side
+# has none of CI's environment; without this it falls back to `live`, and the
+# site shows "Attivazione a breve" instead of the test-mode checkout.
 [build.environment]
   STRIPE_MODE = "test"

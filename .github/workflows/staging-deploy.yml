@@ -1,4 +1,4 @@
-name: Deploy to Netlify
+name: Deploy staging to Cloudflare Pages
 
 on:
   push:
@@ -10,8 +10,11 @@ on:
 # PR test runs get a lane per pull request; pushes to staging share the
 # "production" lane. Without the split, a PR run could cancel an in-flight
 # deploy, leaving the site un-updated with no visible error.
+#
+# The prefix must not be `pages-`: concurrency groups are repo-wide, and that
+# one belongs to deploy.yml's production lane.
 concurrency:
-  group: netlify-staging-${{ github.event_name == 'pull_request' && github.head_ref || 'production' }}
+  group: staging-${{ github.event_name == 'pull_request' && github.head_ref || 'production' }}
   cancel-in-progress: true
 
 jobs:
@@ -21,7 +24,7 @@ jobs:
     name: Build and test
     uses: ./.github/workflows/e2e.yml
     with:
-      artifact-name: static-export-netlify
+      artifact-name: static-export-staging
       # Staging exercises the full funnel — page → Payment Link → checkout →
       # /grazie/ → Worker → MailerLite — against Stripe's test account and a
       # throwaway MailerLite group, so no real card is ever charged and no real
@@ -30,7 +33,20 @@ jobs:
 
   # Pull requests stop after `test`. Only a push to staging (or a manual
   # dispatch) is allowed to publish.
+  #
+  # Staging is a PREVIEW deployment of the same `bandincc` Pages project that
+  # deploy.yml publishes production to. Pages decides production vs preview by
+  # branch name alone: the project's production branch is `master`, so
+  # `--branch=staging` can never touch bandincc.it. Every staging deploy is
+  # reachable at the stable branch alias https://staging.bandincc.pages.dev
+  # (plus a per-deployment <hash>.bandincc.pages.dev URL), and Pages sends
+  # `X-Robots-Tag: noindex` on every preview deployment by default.
+  #
+  # Until 2026-09-10 this was netlify-deploy.yml, publishing to a Netlify site.
+  # That site still serves its last deploy until it is deleted — see roadmap.md,
+  # "Going private on Cloudflare Pages", step 6.
   deploy:
+    name: Deploy to Cloudflare Pages (preview)
     needs: test
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -40,7 +56,7 @@ jobs:
     - name: Download tested static export
       uses: actions/download-artifact@v4
       with:
-        name: static-export-netlify
+        name: static-export-staging
         path: out
 
     - name: Setup Node.js
@@ -48,41 +64,45 @@ jobs:
       with:
         node-version: 22
 
-    # Missing secrets used to be invisible: the old netlify/actions/cli action
-    # swallowed the CLI's exit code, so an empty token produced a green run and
-    # an un-updated site. Fail here instead, with a message that names the cause.
-    - name: Check Netlify credentials are present
+    # Deliberately NOT gated on `vars.CLOUDFLARE_ACCOUNT_ID != ''` the way
+    # deploy.yml's `cloudflare` job is. There, Cloudflare was a second host being
+    # stood up beside a working one, so a missing variable had to be a no-op.
+    # Here it is the only host: a skipped job would look like success while
+    # staging silently stopped updating — exactly the failure the old Netlify
+    # action produced for months. Fail instead, naming the cause.
+    - name: Check Cloudflare credentials are present
       env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       run: |
         missing=0
-        [ -n "$NETLIFY_AUTH_TOKEN" ] || { echo "::error::secrets.NETLIFY_AUTH_TOKEN is empty"; missing=1; }
-        [ -n "$NETLIFY_SITE_ID" ]    || { echo "::error::secrets.NETLIFY_SITE_ID is empty"; missing=1; }
+        [ -n "$CLOUDFLARE_API_TOKEN" ]  || { echo "::error::secrets.CLOUDFLARE_API_TOKEN is empty (scope: Cloudflare Pages:Edit)"; missing=1; }
+        [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "::error::vars.CLOUDFLARE_ACCOUNT_ID is empty"; missing=1; }
         [ -d out ] && [ -f out/index.html ] || { echo "::error::downloaded artifact has no out/index.html"; missing=1; }
         exit $missing
 
-    # Run the CLI directly rather than through netlify/actions/cli@master: that
-    # action pipes `netlify` through a command substitution and then ends on an
-    # `::set-output` echo (a workflow command GitHub removed in 2023), so the
-    # step exited 0 whatever the CLI did and printed none of its output.
-    # A plain `run:` propagates the exit code and shows the deploy log.
-    #
-    # `--no-build` is required, not cosmetic: since netlify-cli v20 building is
-    # the DEFAULT for `deploy`. Without it the CLI pulls the site's build
-    # settings from the Netlify UI and runs `npm run build` here — in a job with
-    # no checkout and therefore no package.json. We deploy the tested `out/`
-    # from the artifact and must never rebuild it.
-    - name: Deploy to Netlify
+    # The job has no checkout, so wrangler cannot read the commit from git;
+    # passing it explicitly labels the deployment in the Pages dashboard, the
+    # way `netlify deploy --message` used to.
+    - name: Deploy to Cloudflare Pages
       env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        COMMIT_MESSAGE: ${{ github.workflow }} #${{ github.run_number }}
       run: |
-        npx --yes netlify-cli@27 deploy \
-          --dir=out \
-          --prod \
-          --no-build \
-          --message "${{ github.sha }} — ${{ github.workflow }} #${{ github.run_number }}"
+        npx wrangler@4 pages deploy out \
+          --project-name=bandincc \
+          --branch=staging \
+          --commit-hash="$GITHUB_SHA" \
+          --commit-message="$COMMIT_MESSAGE"
+
+    - name: Link staging in the run summary
+      run: |
+        {
+          echo "### Staging deployed"
+          echo
+          echo "<https://staging.bandincc.pages.dev/> — Stripe test mode, \`noindex\`."
+        } >> "$GITHUB_STEP_SUMMARY"
 
   # Writes the bandi still inside their seven-day window into the run summary,
   # each linking to the detail page that is now live on staging. Those pages are
@@ -103,8 +123,8 @@ jobs:
   # KV; this step needs nothing.
   #
   # A separate job rather than a step on `deploy`, because `deploy` has no
-  # checkout and must keep it: that absence is the belt to `--no-build`'s
-  # braces above. This job gets its own sparse checkout instead.
+  # checkout and must keep it: what ships is the tested artifact and nothing
+  # else. This job gets its own sparse checkout instead.
   preview-urls:
     name: List embargoed preview URLs
     needs: deploy

@@ -1,7 +1,7 @@
 # Project Description
 This is a project for showing the latest Italian NCC (Noleggio Con Conducente / Hire With Driver) licenses on a table and a map. The website aggregates publicly available NCC bid/license data from Italian municipalities and presents it in a searchable, filterable interface. The website language is Italian but talk to me in English.
 
-Domain: www.bandincc.it
+Domain: bandincc.it — the apex is the one canonical host; `www.bandincc.it` only 301s to it. Link to the apex everywhere we control (emails, Stripe redirects, scripts).
 
 # Decisions a review already tried to overturn
 
@@ -92,7 +92,7 @@ Do not run or build the application for its own sake (no `npm run dev`, `npm run
 `npm run test:e2e:static` after a `npm run build`. The build and the dev server
 those commands start are part of running the tests, so they are fine; what stays
 off-limits is starting the app to poke at it by hand, and deploying.
-There are two branches: staging and master. Development is done on staging. Staging is connected to Netlify for deployment. **Master deploys to GitHub Pages *and* Cloudflare Pages at the same time** — a deliberate, temporary state while hosting migrates. **Since 2026-09-10 `bandincc.it` is on Cloudflare DNS and served by Cloudflare Pages**; GitHub Pages still receives every deploy and keeps its custom domain until resolvers holding the old IONOS delegation have aged out, and goes for good when the repo goes private. The end state is Cloudflare only, with a private repo and no Netlify: the ordered steps, what is done and what is left, are in `roadmap.md` → "Going private on Cloudflare Pages". **Read that before changing anything about deployment.** `*.pages.dev` hung from the dev machine's ISP on 2026-09-06 but answered normally on 2026-09-10; if it hangs again, verify in a browser. The domain is `bandincc.it`; `www` 301s to it through a Cloudflare Redirect Rule
+There are two branches: staging and master. Development is done on staging. **Staging deploys to a Cloudflare Pages preview at `https://staging.bandincc.pages.dev`** (since 2026-09-10 — it was Netlify before, and that Netlify site stays up, no longer updated by CI, until it is deleted; see `roadmap.md` step 6). **Master deploys to GitHub Pages *and* Cloudflare Pages at the same time** — a deliberate, temporary state while hosting migrates. **Since 2026-09-10 `bandincc.it` is on Cloudflare DNS and served by Cloudflare Pages**; GitHub Pages still receives every deploy and keeps its custom domain until resolvers holding the old IONOS delegation have aged out, and goes for good when the repo goes private. The end state is Cloudflare only, with a private repo and no Netlify: the ordered steps, what is done and what is left, are in `roadmap.md` → "Going private on Cloudflare Pages". **Read that before changing anything about deployment.** `*.pages.dev` hung from the dev machine's ISP on 2026-09-06 but answered normally on 2026-09-10; if it hangs again, verify in a browser. The domain is `bandincc.it`; `www` 301s to it through a Cloudflare Redirect Rule
 
 ## You are working exclusively in this worktree
 
@@ -170,11 +170,11 @@ there.
 ## CI/CD Pipelines (`.github/workflows/`)
 - **`e2e.yml`**: Reusable (`workflow_call`) build-and-test gate shared by both deploy workflows. Installs the Electron system libs from `cypress/README.md`, caches `~/.cache/Cypress`, runs `npm run lint` (cheapest gate, so it goes first), runs `npm run test:unit` (browser-less, fails in seconds; carries `STRIPE_MODE` too), typechecks the Stripe Worker (its own package, its own lockfile — the root `tsconfig.json` excludes it), builds, runs `npm run test:e2e:static` against the built `out/`, then uploads `out/` as an artifact (name via the `artifact-name` input) plus Cypress screenshots on failure. The Cypress half is gated on a `run-e2e` input (default true): `deploy.yml` passes false on its nightly `schedule:` run only, because that rebuild ships the same commit and the same `data/data.json` as the push run that already went green — the only input that moved is the date, and it can move a row embargoed → published but never back. Lint, `test:unit` and the build (with `assertReadableDeadline`) still run every night. Worth ~3.5 min per nightly run per site once the repo is private and Actions minutes are metered. It never sets `CYPRESS_checkExternalLinks`, so the opt-in specs that hit the real internet stay skipped and third-party outages cannot fail a deploy.
 - **`deploy.yml`**: Triggers on push/PR to `master` + `workflow_dispatch` + a daily `schedule:` at 05:00 UTC. The cron is load-bearing, not housekeeping: the seven-day release delay is evaluated at build time, so a rebuild is what actually makes a bando public. Jobs: `test` (calls `e2e.yml`) → `package` → `deploy`, plus `cloudflare` and `publish-data`. `package` downloads the tested `out/` artifact instead of rebuilding, adds `.nojekyll`, and hands it to GitHub Pages. **`cloudflare` deploys that same artifact to Cloudflare Pages** (`wrangler pages deploy`, direct upload, project `bandincc`, production branch `master`) — master currently publishes to *both* hosts on purpose — Cloudflare is production since the 2026-09-10 DNS move, GitHub Pages the fallback until the repo goes private; see `roadmap.md` → "Going private on Cloudflare Pages". **`publish-data` writes `data/data.json` into the `BANDI` KV namespace** that the Worker's welcome email reads (see "The welcome email"). It is `needs: deploy` so the key never runs ahead of the site, and `continue-on-error` so a KV problem cannot fail a live deploy — which also means **a green run is not evidence it wrote anything**; check the row count in KV if it matters. Both jobs are gated on `vars.CLOUDFLARE_ACCOUNT_ID != ''` and use the `CLOUDFLARE_API_TOKEN` secret (scopes: Cloudflare Pages:Edit, Workers KV Storage:Edit).
-- **`netlify-deploy.yml`**: Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml`) → `deploy`, which downloads the tested `out/` and runs `npx netlify-cli@27 deploy --dir=out --prod --no-build` in a plain `run:` step. **`--no-build` is load-bearing**: since netlify-cli v20 `deploy` builds by default, so without it the CLI reads the site's build settings from the Netlify UI and runs `npm run build` in a job that has no checkout. Uses `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets, and fails fast with a named error if either is empty. **Do not go back to `netlify/actions/cli@master`** — its `entrypoint.sh` captures the CLI in a command substitution and ends on an `::set-output` echo (removed by GitHub in 2023), so the step exits 0 no matter what the CLI did and prints none of its output. That is why staging deploys looked green for months while the site never updated.
+- **`staging-deploy.yml`** (workflow name "Deploy staging to Cloudflare Pages"): Triggers on push/PR to `staging` + `workflow_dispatch`. Jobs: `test` (calls `e2e.yml` with `stripe-mode: test`) → `deploy` → `preview-urls`. `deploy` downloads the tested `out/` and runs `wrangler pages deploy out --project-name=bandincc --branch=staging` — a **preview** deployment of the same Pages project production uses. Pages picks production vs preview by branch name alone and the project's production branch is `master`, so this can never reach `bandincc.it`. Staging lives at the stable branch alias **`https://staging.bandincc.pages.dev`**; Pages sends `X-Robots-Tag: noindex` on every preview by default, and previews are public unless an Access policy is enabled on the project. Same `CLOUDFLARE_API_TOKEN` secret and `CLOUDFLARE_ACCOUNT_ID` variable as `deploy.yml`, but deliberately **not** gated on the variable the way `deploy.yml`'s `cloudflare` job is: this is staging's only host, so a missing credential fails the run by name instead of skipping into a green run over a stale site. `preview-urls` writes the embargoed bandi's staging links into the run summary (`scripts/preview-embargoed.mjs --markdown`). Until 2026-09-10 this was `netlify-deploy.yml`, deploying to Netlify; retiring that site is `roadmap.md` → "Going private on Cloudflare Pages", step 6.
 - **`newsletter.yml`**: Subscriber newsletter. Chains off `deploy.yml` via `workflow_run` (gated on `conclusion == 'success'` + `head_branch == 'master'`), never on the push — the campaign links to `/bandi/<slug>/` pages that exist only once the export is live, and a push trigger both outran the build and sent even when the suite failed. `scripts/send-newsletter.mjs` diffs `data/data.json` against the **last commit actually mailed**, tracked by a moving lightweight tag **`newsletter-sent`**. The workflow force-updates that tag to `HEAD` only when the script writes `up_to_date=true` to `$GITHUB_OUTPUT`, which it does solely after a real send or a successful "nothing new" diff — never on a dry run or when the base was unknown/unreadable. So a batch missed by a failed deploy or a failed send is retried automatically by the next successful run. If the tag is ever deleted, the workflow bootstraps from the last successful `deploy.yml` run. **Don't repoint or delete `newsletter-sent` casually** — moving it forward silently skips every unmailed bando behind it. New to the diff is not the same as mailable: a row whose deadline has already passed (an archive backfill) is logged and dropped, and if every new row was expired no campaign is sent at all — but the marker still advances, because those rows are accounted for by the deliberate decision not to mail them.
 - **Deploy gating**: every deploy job carries `if: github.event_name != 'pull_request'`, so a PR runs the suite only. Merging produces a `push`, which runs the suite again and then deploys. A failing suite fails `test`, and the dependent jobs never run.
-- **Concurrency**: both workflows key their group on the event (`pages-…` / `netlify-staging-…`), so PR test runs get a lane per branch and can never cancel or evict a production deploy.
-- **`netlify.toml`**: Only read if the Netlify site is linked to the repo and builds it itself — the CI deploy ignores it and uploads the tested `out/` via `--dir=out`. Publishes `out` (not `.next`) with no `@netlify/plugin-nextjs`: `next.config.mjs` sets `output: 'export'`, and the plugin fails on a publish dir with no SSR build output.
+- **Concurrency**: both workflows key their group on the event (`pages-…` / `staging-…`), so PR test runs get a lane per branch and can never cancel or evict a production deploy.
+- **`netlify.toml`**: Dead config since 2026-09-10 — no workflow deploys to Netlify. Kept only until the Netlify site is deleted, because if that site is linked to the repo and builds it itself, this file is what makes such a build publish `out/` in Stripe test mode. It goes with the site (`roadmap.md` step 6); do not delete it ahead of that, and do not add anything to it.
 
 # Bash Commands
 - `npm run dev`: build and run the project locally (uses Turbopack)
@@ -189,7 +189,7 @@ there.
 
 # Testing
 Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
-`netlify-deploy.yml` both call before they publish anything (see CI/CD above) —
+`staging-deploy.yml` both call before they publish anything (see CI/CD above) —
 runs both, so both gate both deploys.
 
 **Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
@@ -687,7 +687,7 @@ Add an entry to `data/data.json`. Required fields:
 
 **`data/README.md` is the colleague-facing version of this section** — how to add
 a row, what the embargo does to it, and the two ways to reach its (unlisted)
-detail page before release: the link list `netlify-deploy.yml` writes into the
+detail page before release: the link list `staging-deploy.yml` writes into the
 staging run summary, or `node scripts/preview-embargoed.mjs` locally. That script
 imports the real `lib/embargo.ts`, `lib/slug.ts` and `lib/trim.ts` rather than
 mirroring them; keep it that way.
@@ -869,7 +869,7 @@ Bid detail page slugs come from `toSlug()` in `lib/slug.ts`, used by `Table`, `M
 - `"Comune di Forlì (FC)"` → `"Comune-di-Forli-(FC)"`
 - `"Comune di Colle di Val d’Elsa (Toscana)"` → `"Comune-di-Colle-di-Val-d'Elsa-(Toscana)"`
 
-Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Netlify. `test/data-integrity.test.ts` enforces this.
+Static export writes one directory per slug, so slugs must stay ASCII to be portable across GitHub Pages and Cloudflare Pages. `test/data-integrity.test.ts` enforces this.
 
 ## How the map draws itself (`lib/mapMarkers.ts`)
 
@@ -1296,7 +1296,7 @@ a host, so that segment is the only discriminator a static build has.
 
 **The gate is the Cypress suite, not the build.** `e2e.yml` takes a
 `stripe-mode` input and puts `STRIPE_MODE` on *both* the build step and the test
-step; `deploy.yml` passes `live`, `netlify-deploy.yml` passes `test`.
+step; `deploy.yml` passes `live`, `staging-deploy.yml` passes `test`.
 `subscription.cy.ts` resolves the links for that mode and then asserts those
 exact hrefs in the DOM, so a mode/link mismatch — or the two steps disagreeing —
 fails the suite before either deploy job runs. That is why `stripeHref` is a

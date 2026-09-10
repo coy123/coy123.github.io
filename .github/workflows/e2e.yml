@@ -24,7 +24,7 @@ on:
       stripe-mode:
         description: >-
           Which Stripe account the export is built against: `live` (production,
-          GitHub Pages) or `test` (staging, Netlify). Defaults to `live`, and
+          `deploy.yml`) or `test` (staging, `staging-deploy.yml`). Defaults to `live`, and
           that direction is deliberate — a caller that forgets to pass `test`
           ships the placeholder state to staging, which is visible and harmless,
           whereas the reverse would put a test-mode checkout on the real domain.
