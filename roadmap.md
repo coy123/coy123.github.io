@@ -126,12 +126,13 @@ each one at 0%; the VAT on all of it is back-payable out of margin under plan A.
 
 ## Going private on Cloudflare Pages (decision B, 2026-09-06)
 
-> **→ Resume here.** Steps 1–3 are done and live as of 2026-09-07: the nightly
-> cron skips Cypress, the Worker reads `data.json` from KV instead of the public
-> repo, and `master` deploys to Cloudflare Pages alongside GitHub Pages. **Next
-> is step 4, the DNS cutover** — read its record snapshot first, it is the one
-> step that can break email rather than just the website. Steps 5–7 follow in
-> order and cannot be reordered.
+> **→ Resume here.** Steps 1–4 are done: the nightly cron skips Cypress, the
+> Worker reads `data.json` from KV, and since **2026-09-10 `bandincc.it` is on
+> Cloudflare DNS and served by Cloudflare Pages**, every mail record carried
+> over. **One piece of step 4 is left: remove the custom domain in GitHub →
+> Settings → Pages, no earlier than the evening of 2026-09-12** — why is under
+> step 4. Then step 5, the repo going private. Steps 5–7 follow in order and
+> cannot be reordered.
 
 **Why.** The driver is not the embargo — `CLAUDE.md` already records that the
 seven-day delay is a publishing convention, not access control, and guessable
@@ -173,9 +174,8 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
    parallel; verify on `bandincc.pages.dev` before touching DNS.
    *Done. Project created 2026-09-06 (production branch `master`), token and
    variable set, and run #143 produced a Production deployment from `master`.
-   Note `*.pages.dev` is unreachable on at least one Italian ISP — DNS resolves
-   but the connection is refused on both 80 and 443 — so verify in a browser on
-   Cloudflare DNS, not with curl from the dev machine.*
+   `*.pages.dev` hung from the dev machine's ISP at the time (see Notes); by
+   2026-09-10 it answered normally.*
 3. **[x] Replace the Worker's `raw.githubusercontent` fetch with KV.** This is
    the hard dependency on a public repo, and it must land *before* step 5.
    `deploy.yml` → `publish-data` writes `data/data.json` into the namespace
@@ -187,7 +187,9 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
    wrote 103 rows — one more than the hand-seeded 102 — which is the proof CI
    is doing the writing, since the job is `continue-on-error` and would have
    gone green having written nothing.*
-4. **[ ] Cut DNS over.** Move `bandincc.it` from the IONOS nameservers to
+4. **[x] Cut DNS over.** *Done 2026-09-10, except dropping the custom domain
+   from GitHub Pages — see "What was done" at the end of this step.* The plan
+   as written beforehand: move `bandincc.it` from the IONOS nameservers to
    Cloudflare (free, and it gives apex CNAME flattening), then add both
    hostnames to the Pages project. Verify, then drop the custom domain from
    GitHub Pages settings.
@@ -198,8 +200,10 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
    address `/grazie/` tells previously-unsubscribed subscribers to write to, and
    the deliverability of every campaign we send. Cloudflare's import scan is
    good but not guaranteed complete, so **compare against this snapshot after
-   the move, before changing the nameservers at IONOS if possible**. Taken
-   2026-09-07:
+   the move, before changing the nameservers at IONOS if possible**. The first
+   ten rows were read from public DNS on 2026-09-07; the last four were missing
+   from that read and only turned up in the IONOS panel on 2026-09-10, which
+   lists all 18:
 
    | Name | Type | Value |
    |---|---|---|
@@ -213,15 +217,79 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
    | `mail` | TXT | `v=spf1 a mx include:_spf.mlsend.com ~all` |
    | `_dmarc` | TXT | `v=DMARC1; p=none; fo=1` |
    | `litesrv._domainkey` | CNAME | `litesrv._domainkey.mlsend.com` (MailerLite DKIM) |
+   | `s1-ionos._domainkey` | CNAME | `s1.dkim.ionos.com` (IONOS DKIM — mail sent from info@) |
+   | `s2-ionos._domainkey` | CNAME | `s2.dkim.ionos.com` (IONOS DKIM) |
+   | `s42582890._domainkey` | CNAME | `s42582890.dkim.ionos.com` (IONOS DKIM) |
+   | `dl3kfp3smfnz` | CNAME | `gv-m5y5v7ily377td.dv.googlehosted.com` (Google domain verification, likely Search Console) |
 
    Only the four apex A records and the `www` CNAME should change. Everything
    else must survive byte-for-byte; a dropped DKIM or SPF record does not break
    anything visibly, it just quietly sends the newsletter to spam.
+
+   **What was done, 2026-09-10:**
+
+   - Zone `bandincc.it` added (Free plan) to the Cloudflare account that holds
+     the `bandincc` Pages project — an apex custom domain has to be a zone on
+     the project's own account. Nameservers **`hunts.ns.cloudflare.com`** and
+     **`megan.ns.cloudflare.com`**. IONOS had no DNSSEC (no DS record), so
+     there was nothing to disable first.
+   - **Cloudflare's scan missed four of the 18 records** — the three IONOS DKIM
+     keys and the Google verification, exactly the rows public DNS had not
+     shown either. Added by hand. The comparison has to be against the IONOS
+     panel, never against the scan or a public lookup.
+   - Every record went in as **DNS only**. The `mail` A record is MailerLite's
+     and must stay that way.
+   - After the nameserver switch, all 18 records were read back from `hunts`
+     and `megan` directly — authoritative answers, no cache in between — and
+     matched IONOS exactly.
+   - **Apex:** `bandincc.it` added as a custom domain on the Pages project,
+     which replaced the four GitHub A records. Served by Cloudflare,
+     byte-identical to `bandincc.pages.dev`; a missing path gets a real 404
+     (the export ships `404.html`, so Pages does not fall back to SPA mode) and
+     a slashless path a 308 to the slashed one.
+   - **www:** the `coy123.github.io` CNAME became `A www 192.0.2.1`,
+     **proxied** — a placeholder that is never reached; it exists so Cloudflare
+     sees the request — plus a Redirect Rule (Rules → Redirect Rules):
+     `https://www.bandincc.it/*` → `https://bandincc.it/${1}`, 301, query
+     string preserved. The wildcard field insists on a protocol, so the rule
+     only matches https; **SSL/TLS → Edge Certificates → Always Use HTTPS** is
+     on to get http there first. `www` is deliberately *not* a Pages custom
+     domain: the canonical host is the apex (`metadataBase`), so `www` only ever
+     redirects — the same thing GitHub did before.
+   - Verified: `https://www.bandincc.it/faq/?a=1` → 301
+     `https://bandincc.it/faq/?a=1`; `http://www…` → 301 to https `www`, then
+     301 to the apex; `http://bandincc.it/…` → 301 to https.
+
+   **Left: remove the custom domain in GitHub → Settings → Pages, not before
+   the evening of 2026-09-12.** IONOS still answers authoritatively for the old
+   zone, GitHub IPs included, and a resolver that cached the IONOS delegation
+   keeps asking it for up to a day — Google's resolver was still handing out
+   the GitHub A records after the apex had moved. Until then GitHub Pages is
+   the live site for those visitors, which costs nothing: every deploy
+   publishes the same artifact to both hosts. Leave the IONOS DNS records alone
+   for the same reason.
+
+   **Rollback**, should it ever be needed before step 5: put the four A records
+   and the `www` CNAME back in Cloudflare, DNS only. Cloudflare warns that
+   pointing DNS away from Pages and back causes prolonged errors, so decide
+   once rather than flip-flopping.
 5. **[ ] Flip the repo private**, and only then. On GitHub Free a private repo
    **unpublishes its Pages site**, so step 4 must be complete and verified
    first. Then delete the `package`/`deploy` jobs from `deploy.yml` — and
    repoint `publish-data` from `needs: deploy` to `needs: cloudflare`, or the
    KV write silently stops running with them.
+
+   **Land that `deploy.yml` edit before the flip, not after.** Once the repo is
+   private the `deploy` job fails, the run concludes `failure`, and
+   `newsletter.yml` — gated on `conclusion == 'success'` — sends nothing; the
+   KV write stops too. With the jobs already gone there is no such window, and
+   GitHub Pages just keeps serving its last deployment on `coy123.github.io`
+   until the flip unpublishes it. The order is: GitHub custom domain removed →
+   `deploy.yml` edit merged and green → repo private.
+
+   **Keep `name: Deploy to GitHub Pages`**, or change `newsletter.yml`'s
+   `workflows: [...]` in the same commit. `newsletter.yml` matches the workflow
+   by that exact string, so renaming it alone silently stops the newsletter.
 6. **[ ] Retire Netlify.** Staging becomes a Cloudflare Pages preview
    deployment (`--branch=staging`), which drops `netlify.toml`, the
    `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID` secrets and a whole vendor. Staging
@@ -245,12 +313,13 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
 - The Pages site stays publicly visible either way — going private hides the
   source and the history, never the deployed HTML. The build-time embargo split
   is still what keeps withheld rows out of the export.
-- **`*.pages.dev` is unreachable from at least one Italian ISP.** DNS resolves
-  and the Cloudflare IPs are right, but both 80 and 443 hang — including with
-  curl pinned straight to those IPs, so it is not a resolver problem. Verify
-  Cloudflare deployments **in a browser**, or through the Cloudflare API
-  (`wrangler pages deployment list --project-name=bandincc`), never with curl
-  from the dev machine.
+- **`*.pages.dev` hung from the dev machine's ISP on 2026-09-06.** DNS
+  resolved and the Cloudflare IPs were right, but 80 and 443 both hung — even
+  with curl pinned straight to those IPs, so it was not a resolver problem.
+  **On 2026-09-10 it answered normally** from the same machine (200 in about
+  0.1s), and so does `bandincc.it` through the Cloudflare proxy. The cause was
+  never found. If it recurs, verify in a browser or with
+  `wrangler pages deployment list --project-name=bandincc`.
 - **MailerLite paid is done (2026-09-07)** — the other half of this budget.
   Hosting came in at €0, so the whole €10–20 went to it, and the "sent by
   MailerLite" banner is gone from what paying subscribers receive. No repo
@@ -378,7 +447,7 @@ release delay"; do not re-derive them here.
 | EU OSS VAT | 08.09.2026 | Can |
 | Update finance Google Sheet | 08.09.2026 | Can |
 | Germany: automation start | 20.09.2026 | Can |
-| Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting = steps 4–7 of the Cloudflare migration* | 20.09.2026 | Can |
+| Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting: step 4 (DNS) done 10.09.2026 bar the GitHub custom-domain removal (from 12.09), steps 5–7 left* | 20.09.2026 | Can |
 | Questionnaire | 30.09.2026 | Davide |
 | Germany law/market research | 30.09.2026 | Davide |
 | Research company location country for tax | 30.09.2026 | Davide |

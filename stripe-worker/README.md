@@ -19,10 +19,12 @@ in the existing deploy to put a live endpoint. A Worker is free at this volume
 (100k requests/day), has nothing to patch, and keeps a production payment path
 off the staging deploy.
 
-**DNS stays at IONOS.** The `*.workers.dev` hostname is a perfectly good webhook
-endpoint, and `bandincc.it`'s zone carries the MailerLite DKIM/SPF records plus
-the DMARC policy. Moving the zone to Cloudflare for a prettier URL would put
-newsletter deliverability at risk for no functional gain.
+**The Worker keeps its `*.workers.dev` hostname.** It is a perfectly good
+webhook endpoint, and a custom hostname buys nothing functional. (The
+`bandincc.it` zone itself did move from IONOS to Cloudflare on 2026-09-10, for
+the hosting migration — `roadmap.md` → "Going private on Cloudflare Pages" —
+with every mail record carried over. A prettier Worker URL was never the reason
+to move it, and still is not a reason to give the Worker one.)
 
 ## First-time setup
 
@@ -286,7 +288,7 @@ the customer-portal link beside it is the gentler door to the same room.
 
 MailerLite's API sends **campaigns**, to groups or segments — there is no
 transactional endpoint. (Their transactional product is MailerSend: a separate
-account, separate domain verification, three more DNS records at IONOS and a
+account, separate domain verification, three more DNS records on `bandincc.it` and a
 third processor in the privacy policy.) So `newsletter/mailerlite.mjs` builds a
 one-off out of what the campaign API does have:
 
