@@ -28,6 +28,11 @@ they will be re-filed by the next reviewer unless the reasoning stays somewhere:
   for a person to check, so "crawler-fed, therefore untrusted" is not a valid
   argument for anything. The `</script>` escaping in `lib/jsonLd.ts` is kept as
   construction-over-attention, not as a live-threat mitigation.
+- **`automatic_tax` is off everywhere and Stripe has no tax registration, on
+  purpose.** OSS VAT is filed by hand every quarter from `oss_report.py`,
+  which runs on the crawler's server (decided 2026-09-10). Stripe charging 0% is the
+  design, not the silent failure `stripe-worker/STATUS.md` used to warn about.
+  See its "Current state".
 
 `SideAdBanner.tsx` is likewise unused but deliberately kept — it may be needed
 again.

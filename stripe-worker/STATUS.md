@@ -2,8 +2,8 @@
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
-next, and what not to re-litigate". Delete it once the tax wiring below is
-finished — **not yet**.
+next, and what not to re-litigate". Delete it once the by-hand OSS setup below
+is finished — **not yet**.
 
 **LAUNCHED 2026-08-08.** `dev` merged to `master`, the deploy went green, and
 the live funnel was exercised end to end with a real card: checkout → `/grazie/`
@@ -12,58 +12,92 @@ behaved. `/abbonamento/` is selling on www.bandincc.it.
 
 **OSS REGISTRATION IS DONE — reported by the owner 2026-08-18.** That closes the
 legal half of step 1, and it landed inside the notification window (first supply
-9 August → deadline 10 September). **It also opens the engineering half, which
-is now the only thing outstanding and is on a clock.**
+9 August → deadline 10 September). What follows it is the quarterly return,
+filed by hand; see "Current state".
 
-## ⚠️ Current state: registered for VAT, collecting none
+## Current state: OSS filed by hand, Stripe Tax deliberately off (decided 2026-09-10)
 
-**Re-verified against live Stripe on 2026-09-10 — unchanged.** The owner reports
-the EU VAT number from the OSS registration is in hand, and is doing the Stripe
-side personally.
+**Stripe states no VAT, and that is on purpose.** On 2026-09-10 the owner chose
+to file the non-Union OSS return by hand instead of through Stripe Tax: every
+customer so far is Italian, the quarterly sum is simple, and Stripe Tax charges
+per calculated transaction. So there is **no** Stripe tax registration, and
+`automatic_tax` stays **false** on the Payment Links and on every subscription.
+Until that date this file called exactly that state a silent failure. It is not
+one any more, provided the quarterly return is filed.
 
-| Check | Value (2026-09-10) | Should be |
-|---|---|---|
-| `/v1/tax/registrations` (live) | **none** | one `oss_non_union` registration |
-| `automatic_tax` on both live Payment Links | **false** | `true` |
-| `automatic_tax` on live subscriptions | **false on every one** | `true` |
-| Tax settings (read 2026-09-07) | `active`, `inclusive`, `txcd_10503002` | unchanged, correct |
+- **Registration: Ireland, with effect from 2026-08-09**, the date of the first
+  supply, so every sale since launch is inside OSS. The `EU372…` number itself
+  has not been retrieved yet: Revenue's site was down for maintenance on
+  2026-09-10.
+- **The VAT comes out of the price.** Prices are tax-inclusive, so the VAT on a
+  sale is `gross × 22/122` (≈ €1.06 per €5.90, ≈ €10.64 per €59). Taking 22% of
+  the gross overpays. B2B sales with a VIES-verified VAT number are reverse
+  charge and not on the OSS return at all.
+- **Deadlines:** the return *and* the payment are due by the last day of the
+  month after the quarter: Q1 → 30 April, Q2 → 31 July, Q3 → 31 October,
+  Q4 → 31 January. A quarter with no sales still needs a nil return. The first
+  return is **2026-Q3, due 31 October 2026**, and covers every sale from
+  9 August. That is what "plan A's bill" below turned into.
+- **The figures come from `oss_report.py` in `bandincc-crawler`**, never from
+  a number written here. It reads live Stripe, classifies each paid invoice,
+  handles refunds and corrections to earlier quarters, flags what it cannot
+  decide, and totals the Stripe fees for the income-tax books. It runs on the
+  crawler's server, not in GitHub Actions: this repo is going private, and its
+  Actions minutes with it. `run_oss_report.sh` is the cron entry. It runs at
+  09:00 Rome on the 1st of January, April, July and October, in the crawler's
+  own container, and mails the report to `ossReportTo` over the crawl's SMTP.
+  The rules and their reasons are in the script's docstring, and
+  `test/test_oss_report.py` pins them. The setup is in the crawler's
+  `CLAUDE.md` → "Side job: the OSS VAT report".
 
-**No subscriber counts are kept in this file** — they drift with every checkout,
-and a written-down count goes stale within days. Read them live; this prints the
-active subscriptions and how many still lack `automatic_tax`:
+**No subscriber counts or revenue figures are kept in this file.** They drift
+with every checkout; run the script.
 
-```
-stripe get /v1/subscriptions --live -d status=active -d limit=100 2>/dev/null | python3 -c '
-import json,sys; d=json.load(sys.stdin)
-print(len(d["data"]), "active,", sum(not s["automatic_tax"]["enabled"] for s in d["data"]), "without automatic_tax, has_more:", d["has_more"])'
-```
+### Open: the by-hand setup
 
-Item 3 below is therefore a script or a dashboard session, not a couple of
-clicks. Monthly renewals began on 2026-09-09 and now fall every few days; the
-annuals first renew in August 2027. Every renewal that runs with
-`automatic_tax: false` collects nothing.
+1. **A restricted live key for the report**, with READ on Invoices, Customers,
+   Charges and Balance and nothing else, as `stripeReportKey` in the server's
+   `/root/bandincc-crawler/.env`. Not the CLI's key and not the Worker's: this
+   one only reads, so a leaked copy cannot act.
+2. **`ossReportTo`**, the owner's address, in the same `.env`. The SMTP
+   settings are the crawl's and already there.
+3. **The crontab line** on the server (the crawler's `README.md` → *Cron*),
+   then **a first run by hand for `2026-Q3`** once the crawler commit is
+   deployed. Check the email against the Stripe Dashboard, then file and pay Q3
+   by 31 October.
+4. **The `EU372…` number as an `eu_oss_vat` account tax ID on invoices.** This
+   is action 5 of the superseded list below.
+5. **Reverse-charge wording on B2B invoices.** See the next section.
+6. **For the accountant:** how the reverse-charge B2B revenue gets declared, and
+   whether the wording below is right.
 
-This is precisely the silent-failure state the doc has warned about since
-2026-08-07, only reached from the other direction: the registration exists in the
-real world but not in Stripe, so **Stripe computes 0% on every invoice while we
-are legally registered.** Nothing errors, nothing alerts. See "On the OSS grant"
-below for the ordered fix.
+### Reverse charge on B2B invoices: free, and not done yet
 
-**Plan A's bill — compute it when the return is due, don't copy a figure.**
-Prices are tax-**inclusive**, so the VAT comes out of the price, not on top of
-it: at IT 22% that is `gross × 22/122` (≈ €1.06 per €5.90, ≈ €10.64 per €59).
-Work it out from live `/v1/invoices` over every paid invoice issued before
-`automatic_tax` went on, split three ways:
+With `automatic_tax` off, Stripe prints no reverse-charge note, and an Italian
+business needs one on the invoice to account for the VAT itself. Two settings
+fix it. Both are free, and neither involves Stripe Tax:
 
-- **IT, no VAT number (B2C)** — OSS territory, VAT owed by us.
-- **IT, valid `eu_vat` on the invoice (B2B)** — reverse charge, outside OSS on
-  the likely reading; confirm with the accountant.
-- **Other countries** — at that member state's rate. The refunded AT invoice of
-  2026-08-08 is the owner's own step-12 test and owes nothing.
-
-Nothing to reissue — every document already issued is correct, which was the
-whole point of plan A. The bill grows with every Italian B2C charge, renewals
-included, until `automatic_tax` is on.
+- **Tax status "Reverse charge"** on each customer with a VIES-verified
+  `eu_vat` tax ID (the Customer field `tax_exempt=reverse`). Stripe then prints
+  "Reverse charge" on their invoice and receipt PDFs.
+- **An invoice template with the Italian legal wording as its footer.** Create
+  it under Settings → Billing → Invoices → Templates → "+ Create template"
+  (templates exist only in the Dashboard), then attach it in each B2B
+  customer's invoice settings. A template attached to a customer applies to
+  every future invoice, subscription renewals included. A plain customer-level
+  footer without a template can only be set through the API.
+- **Invoices already finalized cannot be changed.** Stripe's invoicing guide
+  says a finalized invoice's footer and custom fields can no longer be updated.
+  Until 2026-09-10 this file said the paid B2B invoices could be backfilled;
+  that came from the API reference and was wrong. The B2B invoices issued so far
+  stay as they are. Ask the accountant whether they need a separate document.
+- **New B2B customers** need both settings by hand each time. The Worker could
+  set them in `checkout.session.completed`, but only for renewals: the first
+  invoice is already finalized by then. Not built.
+- **Proposed wording, for the accountant to confirm:** "Operazione soggetta a
+  inversione contabile (reverse charge) ai sensi dell'art. 196 della Direttiva
+  2006/112/CE e dell'art. 17, comma 2, del DPR 633/1972: l'IVA è dovuta dal
+  committente."
 
 **Updated 2026-08-07 — steps 2 through 10 are DONE.** Live product and prices
 confirmed; tax-inclusive pricing and the newsletter tax code set as Stripe Tax
@@ -280,10 +314,10 @@ subscriber base is zero, and the failure is loud rather than silent.
 ## → Resume here — the go-live runbook
 
 **This is the answer to "what is left to do?".** As of **2026-08-18** steps 2–13
-are closed and the OSS registration in step 1 is granted. **What is left is step
-1's Stripe half — the four actions under "On the OSS grant" below.** Check
-nothing else is stale before answering; the "Current state" table at the top of
-this file was read from live Stripe and is the thing to re-verify.
+are closed and the OSS registration in step 1 is granted. **What is left is the
+by-hand OSS setup: "Open: the by-hand setup" under "Current state" at the top.**
+The Stripe Tax route below was dropped on 2026-09-10. Check nothing else is
+stale before answering.
 
 Steps 2–13 are kept below because they record *why* the account is configured the
 way it is. They are history, not work.
@@ -293,21 +327,30 @@ way it is. They are history, not work.
 **1. Non-Union OSS registration. ~~Registration~~ DONE 2026-08-18 — the Stripe
 half is NOT.**
 
-### → On the OSS grant — do these four, in this order
+### ~~On the OSS grant~~: SUPERSEDED 2026-09-10, kept for the reasoning
+
+**Not the plan any more.** On 2026-09-10 the owner chose to file OSS by hand
+(see "Current state" at the top): no Stripe registration, and `automatic_tax`
+off for good. The list below is what the Stripe Tax route would take if it ever
+comes back. Only item 5 still applies, and it is in the list at the top too.
+If the route does come back, note that the Stripe CLI's live key cannot create a
+registration: it is a restricted key without *Tax Settings, Registrations —
+Write*, and `POST /v1/tax/registrations` returns `more_permissions_required`.
 
 **This is the entire remaining backlog.** Items 2 and 3 must happen **in the same
 sitting**: a registration in Stripe with `automatic_tax` still off means Stripe
 calculates nothing while we are registered — liability for VAT never collected,
 with no error raised anywhere.
 
-1. **Get the *effective date* from the registration paperwork**, not just "it's
-   filed". Stripe's `active_from` accepts only `now` or a **future** timestamp —
-   **there is no backdating** (verified against the API reference 2026-08-07). If
-   the effective date has already passed, use `now`; the sales before it stay at
-   0% permanently and are settled under plan A (see below).
-2. **Create the Stripe tax registration:**
-   `country_options[<state of identification>][type]=oss_non_union`, `active_from`
-   as above. Live registrations are currently **0**.
+1. ~~**Get the *effective date* from the registration paperwork.**~~ **Known:
+   Ireland, with effect from 2026-08-09.** Stripe's `active_from` accepts only
+   `now` or a **future** timestamp — **there is no backdating** (verified against
+   the API reference 2026-08-07) — so it is `now`; the sales between 9 August and
+   the Stripe registration stay at 0% permanently and are settled under plan A
+   (see below).
+2. **Create the Stripe tax registration:** `country=IE`,
+   `country_options[ie][type]=oss_non_union`, `active_from=now`. Live
+   registrations are currently **0**.
 3. **Turn on `automatic_tax` in all four places** — and note the doc previously
    listed only the first:
    - both live Payment Links (`plink_1U0j3uGZN5xaIveHie2O8Gwc`,
@@ -334,6 +377,13 @@ with no error raised anywhere.
 4. **Re-run the staging funnel.** A tax line appearing mid-checkout is a checkout
    change, and the Cypress suite cannot see inside Stripe's hosted page — it
    asserts hrefs only.
+5. **Put the OSS number on the invoices — OPEN, waiting on Revenue.** Stripe
+   does not need the number to calculate anything; it only prints it. Once the
+   `EU372…` number is fetched from ROS, add it as an account tax ID of type
+   `eu_oss_vat` (Dashboard → business tax details, or
+   `POST /v1/tax_ids -d type=eu_oss_vat -d value=EU372… -d owner[type]=self`)
+   and enable it on the invoice template. Invoices issued before that carry no
+   seller VAT number; that does not change the tax on them.
 
 **Then settle plan A**: every Italian charge made before `automatic_tax` went on
 was invoiced with no VAT line, correctly, under plan A. The VAT (~€1.06 per €5.90
@@ -377,9 +427,9 @@ Two things were tried and both pointed the same way:
 **Member state of identification was still open at the time** — Austria and
 Ireland both valid (a non-EU business may choose any). Ireland's form at least
 loaded and is in English; Austria's blocker was a login problem, not a rule.
-**Which one was used is not recorded here — read it off the registration
-paperwork before creating the Stripe tax registration, since
-`country_options[<state>]` needs it.**
+**Outcome: Ireland.** Revenue's authorisation reads "with effect from
+09/08/2026" — the date of the first supply — so every sale since launch falls
+inside OSS (owner-reported 2026-09-10).
 
 **Accepted risk at the time: process latency inside the deadline window.**
 Registering only after the first sale meant the *entire* registration —

@@ -13,16 +13,15 @@ monthly renewals began on 9 Sept.
 
 ---
 
-## ⚠️ Urgent — Stripe VAT
+## ⚠️ Next deadline — OSS VAT, 31 October 2026
 
-The OSS registration came through on 2026-08-18 and the EU VAT number is in
-hand, but **Stripe has still not been told** — re-verified against live Stripe
-on 2026-09-10: no tax registrations, and `automatic_tax` is `false` on both live
-Payment Links *and* on every live subscription. We are registered for VAT and
-collecting none, silently. Renewals began on 9 Sept and now land every few days,
-each one at 0%; the VAT on all of it is back-payable out of margin under plan A.
-**Can is doing the Stripe side.** Four ordered actions in
-`stripe-worker/STATUS.md` → step 1, "→ On the OSS grant".
+Registered for non-Union OSS in **Ireland, with effect from 2026-08-09**. Decided
+2026-09-10: the return is filed **by hand**, not through Stripe Tax, so
+`automatic_tax` stays off on purpose and Stripe states no VAT. The VAT is carved
+out of the tax-inclusive price once a quarter: `oss_report.py` computes it from
+live Stripe on the crawler's server and mails it on the 1st of each quarter.
+The first return, **2026-Q3, is due with its payment by 31 October 2026**.
+What is still open → `stripe-worker/STATUS.md` → "Current state".
 
 ---
 
@@ -30,7 +29,7 @@ each one at 0%; the VAT on all of it is back-payable out of margin under plan A.
 
 ### Doing now
 
-- **EU OSS VAT.** As above. Can. → `stripe-worker/STATUS.md` step 1
+- **EU OSS VAT, by hand.** As above. Can. → `stripe-worker/STATUS.md` → "Current state"
 - **Germany.** Go. German municipalities switch licence availability on and off,
   so the product is a **traffic-light** one: table green / yellow (waiting list)
   / red, plus a map with traffic lights, plus an alert when a city turns
@@ -375,7 +374,10 @@ release delay"; do not re-derive them here.
 
 | Description | Deadline | Who |
 |---|---|---|
-| EU OSS VAT | 08.09.2026 | Can |
+| OSS by hand: `stripeReportKey` + `ossReportTo` in the crawler server's `.env`, the crontab line, a first run for 2026-Q3 | 30.09.2026 | Can |
+| File and pay the 2026-Q3 OSS return | 31.10.2026 | Can |
+| Reverse charge on B2B customers: tax status "Reverse charge" + an invoice template with the footer, wording checked by the accountant | 30.09.2026 | Can |
+| Fetch the `EU372…` OSS number from Revenue (ROS was down for maintenance on 10.09.2026), then add it to Stripe as an `eu_oss_vat` account tax ID shown on invoices — `stripe-worker/STATUS.md` → "Open: the by-hand setup", item 4 | when ROS is back | Can |
 | Update finance Google Sheet | 08.09.2026 | Can |
 | Germany: automation start | 20.09.2026 | Can |
 | Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting = steps 4–7 of the Cloudflare migration* | 20.09.2026 | Can |
