@@ -6,9 +6,10 @@ from it that was still open is below, everything that had shipped was dropped.
 The stale `bandincc-crawler/coy123.github.io/todo.md` is history only — do not
 edit it (see `CLAUDE.md` → Autonomy).
 
-**State at the meeting** (live Stripe): 30 active subscriptions (18 monthly,
-12 annual), MRR €165.20, €820 collected since 8 Aug, 0 churn yet — first
-monthly renewals 9–10 Sept. Growth came from the locked rows, shipped ~23 Aug.
+Subscriber and revenue figures are deliberately not written down here — they
+drift daily. Read them from live Stripe (`stripe-worker/STATUS.md` → "Current
+state" has the command). Growth came from the locked rows, shipped ~23 Aug;
+monthly renewals began on 9 Sept.
 
 ---
 
@@ -16,12 +17,11 @@ monthly renewals 9–10 Sept. Growth came from the locked rows, shipped ~23 Aug.
 
 The OSS registration came through on 2026-08-18 and the EU VAT number is in
 hand, but **Stripe has still not been told** — re-verified against live Stripe
-on 2026-09-07: 0 tax registrations, and `automatic_tax` is `false` on both live
-Payment Links *and* on all **32** live subscriptions. We are registered for VAT
-and collecting none, silently. **The 9–10 September renewals are the first
-deadline; 12 more monthlies follow between 24 Sept and 7 Oct.** Accrued so far:
-≈ €103 of Italian VAT on 25 B2C invoices (≈ €149 if the 7 B2B ones count too),
-back-payable out of margin under plan A. Four ordered actions in
+on 2026-09-10: no tax registrations, and `automatic_tax` is `false` on both live
+Payment Links *and* on every live subscription. We are registered for VAT and
+collecting none, silently. Renewals began on 9 Sept and now land every few days,
+each one at 0%; the VAT on all of it is back-payable out of margin under plan A.
+**Can is doing the Stripe side.** Four ordered actions in
 `stripe-worker/STATUS.md` → step 1, "→ On the OSS grant".
 
 ---
@@ -106,12 +106,16 @@ back-payable out of margin under plan A. Four ordered actions in
 - **Google AdSense.** Repeatedly rejected as "low value content", and the CPM on
   a small Italian niche site was never going to be worth it. The subscription is
   the monetisation path; the old AdSense checklist is closed.
+- **Leading with the annual plan on `/abbonamento`.** Proposed as "€59 so you
+  don't miss the one that matters", with monthly de-emphasised. Dropped
+  2026-09-10: the page works as it is, monthly first. Do not re-propose it.
+  Renewal and cancellation numbers are still worth watching — just not as
+  evidence for this.
 
 ### Deferred, with a trigger
 
 | Item | Revisit when |
 |---|---|
-| **Lead the annual plan on `/abbonamento`** — ~11 bandi/month nationally is thin as a monthly habit but a strong annual purchase framed as insurance (median window 18 days, 10% land with ≤7 days left): "€59 so you don't miss the one that matters". Reframe the annual note from discount to coverage, put the runway numbers in the copy, and consider de-emphasising monthly — against the deliberate comment at `app/abbonamento/page.tsx:126`, which keeps monthly first on purpose. The risk is real: someone clicking a locked row wants *this* bando now, and leading with €59 could cut conversions even while raising LTV | **end of September 2026** — the first monthly renewals fall on 9–10 Sept, so the cancellation numbers are the deciding evidence |
 | **Marketplace** — realistic now given a loyal paying base; still a must-do | after Germany |
 | **Free mailing list** — 7-day-old bandi to harvest emails from 16k visitors. Captures everyone who clicks a lock but will not pay yet; infrastructure is mostly there (MailerLite + the Worker), and `/grazie/` already owes a re-subscribe form | when paid newsletter growth stalls |
 | **Pratica assistita** (€49–99 per-bando document pack) | after we have applied ourselves and gained real experience |
@@ -344,7 +348,7 @@ Before it shipped, 91% of 16,600 monthly visitors hit the homepage and only 124
 offer converted; almost nobody saw it. A locked row is a CTA at the exact moment
 of demand, on the homepage, and it removes the substitute behaviour: checking
 the site every 2-3 days used to be strictly better than paying, and now it
-proves there is something you are missing. 2 subscribers → 30.
+proves there is something you are missing.
 
 Data behind the numbers (measured 2026-08, from `data/data.json` + git history):
 new bandi ~11/month; **median runway 18 days** to deadline when a bando lands;

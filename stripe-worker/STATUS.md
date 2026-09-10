@@ -1,4 +1,4 @@
-# Payments — status and TODOs (last updated 2026-09-07)
+# Payments — status and TODOs (last updated 2026-09-10)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
@@ -17,23 +17,31 @@ is now the only thing outstanding and is on a clock.**
 
 ## ⚠️ Current state: registered for VAT, collecting none
 
-**Re-verified against live Stripe on 2026-09-07 — nothing has changed except the
-size of the problem.** The owner reports the EU VAT number from the OSS
-registration is in hand.
+**Re-verified against live Stripe on 2026-09-10 — unchanged.** The owner reports
+the EU VAT number from the OSS registration is in hand, and is doing the Stripe
+side personally.
 
-| Check | Value (2026-09-07) | Should be |
+| Check | Value (2026-09-10) | Should be |
 |---|---|---|
-| `/v1/tax/registrations` (live) | **count 0** | one `oss_non_union` registration |
+| `/v1/tax/registrations` (live) | **none** | one `oss_non_union` registration |
 | `automatic_tax` on both live Payment Links | **false** | `true` |
-| `automatic_tax` on live subscriptions | **false on all 32** | `true` |
-| Tax settings | `active`, `inclusive`, `txcd_10503002` | unchanged, correct |
+| `automatic_tax` on live subscriptions | **false on every one** | `true` |
+| Tax settings (read 2026-09-07) | `active`, `inclusive`, `txcd_10503002` | unchanged, correct |
 
-The August table listed **two** subscriptions to fix. It is now **32** (20
-monthly, 12 annual), so item 3 below is a script or a dashboard session, not two
-clicks. Renewal dates, live: `sub_1U2ZuSGZN5xaIveHh8CoEhLw` on **9 Sept** and
-`sub_1U2wzVGZN5xaIveHGV2Dp783` on **10 Sept** (the two originals), then 12 more
-monthlies between **24 Sept and 7 Oct**, then the 12 annuals in Aug–Sept **2027**.
-Every renewal that runs with `automatic_tax: false` collects nothing.
+**No subscriber counts are kept in this file** — they drift with every checkout,
+and a written-down count goes stale within days. Read them live; this prints the
+active subscriptions and how many still lack `automatic_tax`:
+
+```
+stripe get /v1/subscriptions --live -d status=active -d limit=100 2>/dev/null | python3 -c '
+import json,sys; d=json.load(sys.stdin)
+print(len(d["data"]), "active,", sum(not s["automatic_tax"]["enabled"] for s in d["data"]), "without automatic_tax, has_more:", d["has_more"])'
+```
+
+Item 3 below is therefore a script or a dashboard session, not a couple of
+clicks. Monthly renewals began on 2026-09-09 and now fall every few days; the
+annuals first renew in August 2027. Every renewal that runs with
+`automatic_tax: false` collects nothing.
 
 This is precisely the silent-failure state the doc has warned about since
 2026-08-07, only reached from the other direction: the registration exists in the
@@ -41,26 +49,21 @@ real world but not in Stripe, so **Stripe computes 0% on every invoice while we
 are legally registered.** Nothing errors, nothing alerts. See "On the OSS grant"
 below for the ordered fix.
 
-**Live sales so far** (read 2026-09-07, `/v1/charges` and `/v1/invoices`, whole
-account history 2026-08-08 → 2026-09-07):
+**Plan A's bill — compute it when the return is due, don't copy a figure.**
+Prices are tax-**inclusive**, so the VAT comes out of the price, not on top of
+it: at IT 22% that is `gross × 22/122` (≈ €1.06 per €5.90, ≈ €10.64 per €59).
+Work it out from live `/v1/invoices` over every paid invoice issued before
+`automatic_tax` went on, split three ways:
 
-| | Invoices | Gross | Note |
-|---|---|---|---|
-| IT, no VAT number (B2C) | 25 | €572.30 | OSS territory — VAT owed by us |
-| IT, valid `eu_vat` on the invoice (B2B) | 7 | €253.70 | reverse charge, outside OSS — confirm with the accountant |
-| AT | 1 | €5.90 | refunded — the owner's own step-12 test |
-| **Paid total** | **32** | **€826.00** | 8 further charges failed |
-
-**Plan A's bill, computed on those rows.** Prices are tax-**inclusive**, so the
-VAT comes out of the €5.90, not on top of it: at IT 22% that is
-`gross × 22/122`.
-
-- B2C only (the likely reading): **≈ €103.19**
-- If the accountant says the 7 B2B invoices belong in OSS too: **≈ €148.95**
+- **IT, no VAT number (B2C)** — OSS territory, VAT owed by us.
+- **IT, valid `eu_vat` on the invoice (B2B)** — reverse charge, outside OSS on
+  the likely reading; confirm with the accountant.
+- **Other countries** — at that member state's rate. The refunded AT invoice of
+  2026-08-08 is the owner's own step-12 test and owes nothing.
 
 Nothing to reissue — every document already issued is correct, which was the
-whole point of plan A. The number grows by ~€1.06 per Italian B2C charge per
-month until `automatic_tax` is on.
+whole point of plan A. The bill grows with every Italian B2C charge, renewals
+included, until `automatic_tax` is on.
 
 **Updated 2026-08-07 — steps 2 through 10 are DONE.** Live product and prices
 confirmed; tax-inclusive pricing and the newsletter tax code set as Stripe Tax
@@ -76,9 +79,9 @@ the checkout-options change.
 refunded, and Stripe's customer emails configured.
 
 Selling before the OSS registration was an accepted, costed decision (**plan A**,
-see "If we do sell before OSS lands"). It worked as designed: three sales landed
-in the gap, the notification deadline was met, and the only cost is the VAT to be
-back-paid on the two Italian charges.
+see "If we do sell before OSS lands"). It worked as designed: the first sales
+landed in the gap, the notification deadline was met, and the cost is the VAT to
+be back-paid on every Italian B2C charge made before `automatic_tax` goes on.
 
 ---
 
@@ -309,11 +312,12 @@ with no error raised anywhere.
    listed only the first:
    - both live Payment Links (`plink_1U0j3uGZN5xaIveHie2O8Gwc`,
      `plink_1U0j4BGZN5xaIveHdpqNXGQf`) — this covers **new** checkouts only;
-   - **every existing live subscription — all 32 of them** (re-counted
-     2026-09-07; this list said "both" when there were two). A Payment Link
-     setting does not reach a subscription that already exists, so each one
-     needs `POST /v1/subscriptions/<id>` with `automatic_tax[enabled]=true`.
-     Miss this and 32 paying customers renew at 0% VAT indefinitely, silently.
+   - **every existing live subscription** — list them live at the time (see
+     "Current state" for the command), never from a count written here. A
+     Payment Link setting does not reach a subscription that already exists, so
+     each one needs `POST /v1/subscriptions/<id>` with
+     `automatic_tax[enabled]=true`. Miss one and that customer renews at 0% VAT
+     indefinitely, silently.
      Page `/v1/subscriptions?status=active&limit=100` and loop; the dashboard
      can do it too, one subscription at a time. Do the same for the two test
      links so staging stays a faithful rehearsal.
@@ -324,16 +328,17 @@ with no error raised anywhere.
      is an MRR change to see coming, and B2B rows with a VAT number keep the
      full €5.90 under reverse charge.
    - **A subscription update fails if the customer has no usable tax location.**
-     All 32 have an address (billing address collection is `required` on both
+     Every customer should have one (billing address collection is `required` on both
      links, and every paid invoice carries a country), so this should be clean;
      if one errors, fix the customer address rather than skipping the row.
 4. **Re-run the staging funnel.** A tax line appearing mid-checkout is a checkout
    change, and the Cypress suite cannot see inside Stripe's hosted page — it
    asserts hrefs only.
 
-**Then settle plan A**: the 2026-08-09 and 2026-08-10 Italian charges were
-invoiced with no VAT line, correctly, under plan A. The VAT (~€1.06 each at IT
-22%) is back-paid out of margin on the first OSS return. Nothing to reissue —
+**Then settle plan A**: every Italian charge made before `automatic_tax` went on
+was invoiced with no VAT line, correctly, under plan A. The VAT (~€1.06 per €5.90
+at IT 22%) is back-paid out of margin on the first OSS return, computed from live
+invoices at the time (see "Current state"). Nothing to reissue —
 every document already issued stays correct. That was the whole point of choosing
 plan A over plan B; do not re-derive it.
 
@@ -384,8 +389,8 @@ reported done 2026-08-18. The risk was real and it did not bite.
 
 **Bounded worst case — did not occur.** Had the deadline been missed,
 pre-registration supplies would have fallen outside OSS and needed direct VAT
-registration in each member state where a customer sat. Both paying customers are
-Italian (`billing_address_collection` is `required`, so this is known rather than
+registration in each member state where a customer sat. The paying customers of
+that window were all Italian (`billing_address_collection` is `required`, so this is known rather than
 guessed), so the exposure would have been **one direct Italian registration**.
 Moot now.
 
@@ -459,9 +464,9 @@ apart unless it is told to ask. Do all of this **before** step 4 locks the links
   because a registration added while `automatic_tax` is off means Stripe
   calculates nothing while we are registered — liability for VAT never collected,
   **with no error raised anywhere**; (b) the staging funnel re-test lands now too,
-  which is the worse moment for it, exactly as predicted. Re-read 2026-08-18:
-  `false` on both live Payment Links **and on both live subscriptions** — see step
-  1, the subscription half is the part this bullet originally missed.
+  which is the worse moment for it, exactly as predicted. Re-read 2026-09-10:
+  `false` on both live Payment Links **and on every live subscription** — see
+  step 1, the subscription half is the part this bullet originally missed.
 - ~~**Owed now, not at OSS time:** one test checkout on staging to re-prove
   checkout → `/grazie/` → Worker → MailerLite.~~ **DONE 2026-08-07.** Required
   billing address plus a tax ID field *is* a checkout change, and the Cypress
@@ -590,8 +595,8 @@ arrives. That is step 12's job.
 line listed "live MailerLite webhook" as outstanding, another said webhook
 `194877758477698574` and its secret were already correct. **Effectively settled
 by evidence rather than by a check:** the 2026-08-08 launch test exercised
-grant *and* revoke end to end against production, and the two live subscribers
-from 9–10 August were granted through the same path. The unsubscribe direction
+grant *and* revoke end to end against production, and the first live
+subscribers from 9–10 August were granted through the same path. The unsubscribe direction
 specifically requires the MailerLite webhook to be live and correctly signed.
 
 **Never explicitly verified, and cheap to close:** confirm the webhook targets
@@ -915,32 +920,26 @@ Nothing outstanding.
 
 ## Remaining
 
-**As of 2026-08-18: steps 2–13 are closed and step 1's registration is granted.
-What is left is step 1's Stripe half, and it is time-sensitive.**
+**As of 2026-09-10: steps 2–13 are closed, the OSS registration is granted and
+the welcome email is live. What is left is step 1's Stripe half — the owner is
+doing it — and the follow-ups it triggers.**
 
 In priority order:
 
 1. **Create the Stripe tax registration and turn on `automatic_tax`** — the four
-   actions under "→ On the OSS grant" in step 1. Registrations are still 0 and
-   `automatic_tax` is `false` on both live Payment Links **and both live
-   subscriptions** (read from live Stripe 2026-08-18). Until this is done we are
-   registered for VAT and collecting none, silently.
-   **The 9/10 September renewals are the deadline that matters** — after them,
-   every month adds two more zero-VAT invoices.
+   actions under "→ On the OSS grant" in step 1. **Owner is handling this.**
+   Until it is done we are registered for VAT and collecting none, silently:
+   every new Italian checkout *and every renewal* is invoiced at 0%. Renewals
+   began on 2026-09-09, so this is no longer a future deadline — each week it
+   waits adds invoices to the plan-A bill. Re-read the "Current state" table from
+   live Stripe before assuming it is still open.
 2. **Re-run the staging funnel** once `automatic_tax` is on. A tax line
    mid-checkout is a checkout change the Cypress suite cannot see.
-3. **Settle the plan-A back-payment** on the two Italian charges (~€1.06 each) on
-   the first OSS return. Nothing to reissue.
-4. **Deploy both Workers so the welcome email starts sending** (added
-   2026-08-24). On `checkout.session.completed` the Worker now mails the new
-   subscriber the bandi still inside their seven-day window — the ones they just
-   paid to see and cannot find on the site. It needs **no new configuration**:
-   it is a MailerLite campaign aimed at a throwaway group of one
-   (`newsletter/mailerlite.mjs`), so it reuses `MAILERLITE_API_KEY` and the
-   already-verified sender. A deploy is all it takes. Afterwards: rehearse with
-   `node scripts/preview-welcome.mjs --send <your address>`, then backfill the
-   two existing subscribers the same way — they predate this email and never got
-   one.
+3. **Settle the plan-A back-payment** on the first OSS return: the VAT on every
+   Italian B2C invoice issued before `automatic_tax` went on, computed from live
+   invoices at the time (see "Current state"). Nothing to reissue.
+4. **Ask the accountant** how reverse-charge B2B revenue is declared alongside
+   the OSS return — the one question still open from step 1.
 5. **Low stakes:** explicitly verify the MailerLite production webhook + group id
    (step 8), and align the test portal config with live if staging is ever going
    to rehearse the portal (step 5).
@@ -949,6 +948,13 @@ Closed standing items:
 
 - ~~Verify unsubscribe → cancel~~ — done 2026-08-05 on staging. ~~Redeploy both
   Workers~~ — both shipped 2026-08-05 with the `resource_missing` fix.
+- ~~Deploy both Workers so the welcome email starts sending~~ — live. The first
+  `welcome_sent_at` on a live customer is 2026-08-25, and both Workers were
+  redeployed 2026-09-06 with the `BANDI` KV binding (`roadmap.md` → "Going
+  private on Cloudflare Pages", step 3). Everyone who subscribed before it
+  existed was **welcomed by hand by the owner** (reported 2026-09-10). To check
+  nobody has slipped through since, compare active subscriptions against the
+  customers' `welcome_sent_at` metadata.
 
 And the reasoning behind runbook step 11 — **the merge happened 2026-08-08**;
 kept only so it is not re-litigated:
@@ -1038,8 +1044,8 @@ kept only so it is not re-litigated:
   exist.** The link setting governs *new* checkouts. A subscription created while
   the link had `automatic_tax: false` keeps `automatic_tax: false` on the
   subscription object and renews with no tax computed — for ever, silently, no
-  matter what the link says later. Found 2026-08-18: both live subscriptions carry
-  `false`. **Whenever tax config changes, enumerate live subscriptions and update
+  matter what the link says later. Found 2026-08-18: the live subscriptions
+  carried `false`. **Whenever tax config changes, enumerate live subscriptions and update
   each one**, don't assume the link covers them:
   `stripe subscriptions list --live` then check `automatic_tax.enabled` per row.
 - **The Stripe CLI's live key on this machine is read-only.** `stripe login`
@@ -1050,6 +1056,18 @@ kept only so it is not re-litigated:
   `plan_write`. So live-mode changes go through the Dashboard unless those scopes
   are granted deliberately. Reads are fine and are the right way to *verify* what
   the Dashboard actually saved.
+- **Two payment method configurations both read `is_default: true` — that is
+  normal, not a conflict.** `pmc_1TwjL1GZN5xaIveH0OzAckf1` is the account's own
+  default, and it is what the Payment Links use: every live checkout session
+  that records a configuration in `payment_method_configuration_details` names
+  this one. `pmc_1U0JLCGZN5xaIveHsKaHQ9gO` carries
+  `application: ca_KzcD7ScuZmOh9pqmCDJ7ASJsyvjzVXJS` and a `parent` — it is the
+  child configuration Stripe gives an account for each Connect platform it is
+  connected to, here **MailerLite**, and it governs only payments that platform
+  creates on the account. None has ever been created: no live charge carries an
+  `application` (checked 2026-09-10). One default per owner, hence two. To change
+  what the site's checkout offers (PayPal etc.), edit the first; leave the
+  MailerLite one alone. The inactive third one, named "paypal", is unused.
 - **`stripe <resource> list 2>&1 | python3 -` breaks**: the CLI writes a notice to
   stderr, and merging it corrupts the JSON. Use `2>/dev/null` when piping, and
   `2>&1` only when you want to read an error body.
