@@ -193,7 +193,7 @@ Tests come in two layers, and `e2e.yml` — the reusable job `deploy.yml` and
 runs both, so both gate both deploys.
 
 **Unit tests: `test/*.test.ts`, run by `npm run test:unit`.** Plain
-`node --test` — no framework, no dependency, ~2s for 110 tests. Node 22 strips
+`node --test` — no framework, no dependency, ~2s for 122 tests. Node 22 strips
 the TypeScript itself, so a test imports `../lib/embargo.ts` and
 `../cypress/support/site.ts` directly and checks the real modules:
 
@@ -230,6 +230,12 @@ the TypeScript itself, so a test imports `../lib/embargo.ts` and
   built — for `welcome_template.html` that is inside the Worker, whose
   `sendWelcomeEmail` swallows errors by design, so the break costs a paying
   subscriber their welcome email with no trace but a log line
+- `test/reverse-charge.test.ts` — `stripe-worker/src/reverseCharge.ts`, the
+  Worker's rule for switching a customer to reverse charge: only a
+  VIES-verified EU VAT number sets it, nothing unsets it, a customer already
+  set is not written again, and a mode with no template still gets the tax
+  status. The module imports only Stripe types, which is what lets plain Node
+  load it with no SDK installed
 
 These were Cypress specs until 2026-09-03 and only ever because the suite is
 what gates the deploys. **Anything that is a pure call into `lib/` or a check on
@@ -406,6 +412,7 @@ been lying about), and an unused import in `cypress/e2e/embargo.cy.ts`.
 │   ├── map-markers.test.ts     # The marker size scale, the palette, the coincident-point spread
 │   ├── newsletter-templates.test.ts # Both email shells rendered against a fixture
 │   ├── regions.test.ts         # lib/regions.ts: the catalogue, the rule, the dataset
+│   ├── reverse-charge.test.ts  # stripe-worker/src/reverseCharge.ts: when a B2B customer turns reverse charge
 │   └── subscription.test.ts    # Stripe links in locales/it.json: mode, locale, IVA
 ├── types.ts                    # TypeScript interfaces (TableData, LawData)
 ├── eslint.config.mjs           # ESLint 9 flat config (eslint-config-next via FlatCompat)

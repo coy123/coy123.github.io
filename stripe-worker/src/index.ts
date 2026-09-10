@@ -5,6 +5,10 @@
 // (.github/workflows/newsletter.yml) knows nothing about Stripe and needs no
 // edit. Everything downstream keys off group membership alone.
 //
+// One side job rides on the same endpoint: a customer whose EU VAT number VIES
+// verifies is switched to reverse charge (src/reverseCharge.ts), because Stripe
+// Tax is off by decision and nothing else in Stripe would do it.
+//
 // Two routes, one Worker:
 //   POST /            Stripe -> MailerLite  (entitlement: grant / revoke)
 //   POST /mailerlite  MailerLite -> Stripe  (unsubscribe cancels the subscription)
@@ -17,6 +21,7 @@
 
 import Stripe from 'stripe'
 
+import { applyReverseCharge } from './reverseCharge'
 import { sendWelcomeEmail, type WelcomeEnv } from './welcome'
 
 // WelcomeEnv is what the welcome email reads. Every field is optional there —
@@ -31,6 +36,10 @@ export interface Env extends WelcomeEnv {
   // REQUIRED: a deploy that predates the secret must keep the Stripe path
   // working rather than 500 every entitlement event.
   MAILERLITE_WEBHOOK_SECRET?: string
+  // The invoice template carrying the reverse-charge footer, per Stripe mode.
+  // Optional for the same reason: unset, a verified B2B customer still gets
+  // `tax_exempt: 'reverse'`, just without the footer, and the log says so.
+  REVERSE_CHARGE_TEMPLATE?: string
 }
 
 // Stripe's endpoint is registered at the root and stays there; the unsubscribe
@@ -483,7 +492,19 @@ const handle = async (event: Stripe.Event, stripe: Stripe, env: Env): Promise<vo
       return
     }
 
-    // Reachable only if the Stripe endpoint is subscribed to more than the three
+    // A customer's EU VAT number was added, or VIES answered for it. Once it is
+    // verified the customer is switched to reverse charge (src/reverseCharge.ts).
+    // Both events, because the answer usually arrives as an `updated` but may
+    // already be in the `created`. Idempotent, so a redelivery is a no-op; a
+    // Stripe failure throws into the 500 below and Stripe retries.
+    case 'customer.tax_id.created':
+    case 'customer.tax_id.updated': {
+      const taxId = event.data.object as Stripe.TaxId
+      console.log(`Reverse charge: ${await applyReverseCharge(stripe, taxId, env.REVERSE_CHARGE_TEMPLATE)}`)
+      return
+    }
+
+    // Reachable only if the Stripe endpoint is subscribed to more than the five
     // events this Worker handles.
     default:
       console.log(`Ignoring unhandled event type ${event.type}`)

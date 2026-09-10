@@ -6,8 +6,8 @@
   "description": "Stripe -> MailerLite entitlement webhook for bandincc.it",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "tail": "wrangler tail",
+    "deploy": "wrangler deploy --env=\"\"",
+    "tail": "wrangler tail --env=\"\"",
     "deploy:test": "wrangler deploy --env test",
     "tail:test": "wrangler tail --env test",
     "typecheck": "tsc --noEmit"

@@ -21,7 +21,8 @@ Registered for non-Union OSS in **Ireland, with effect from 2026-08-09**. Decide
 out of the tax-inclusive price once a quarter: `oss_report.py` computes it from
 live Stripe on the crawler's server and mails it on the 1st of each quarter.
 The first return, **2026-Q3, is due with its payment by 31 October 2026**.
-What is still open → `stripe-worker/STATUS.md` → "Current state".
+Setup finished 2026-09-10 (cron, OSS number on invoices, reverse charge on B2B
+customers) → `stripe-worker/STATUS.md` → "Current state".
 
 ---
 
@@ -374,10 +375,7 @@ release delay"; do not re-derive them here.
 
 | Description | Deadline | Who |
 |---|---|---|
-| OSS by hand: the crontab line on the crawler server (key, `.env` and a first run by hand done 10.09.2026) | 30.09.2026 | Can |
 | File and pay the 2026-Q3 OSS return | 31.10.2026 | Can |
-| Reverse charge on B2B customers: tax status "Reverse charge" + an invoice template with the footer, wording checked by the accountant | 30.09.2026 | Can |
-| Fetch the `EU372…` OSS number from Revenue (ROS was down for maintenance on 10.09.2026), then add it to Stripe as an `eu_oss_vat` account tax ID shown on invoices — `stripe-worker/STATUS.md` → "Open: the by-hand setup", item 4 | when ROS is back | Can |
 | Update finance Google Sheet | 08.09.2026 | Can |
 | Germany: automation start | 20.09.2026 | Can |
 | Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting = steps 4–7 of the Cloudflare migration* | 20.09.2026 | Can |

@@ -26,9 +26,8 @@ Until that date this file called exactly that state a silent failure. It is not
 one any more, provided the quarterly return is filed.
 
 - **Registration: Ireland, with effect from 2026-08-09**, the date of the first
-  supply, so every sale since launch is inside OSS. The `EU372…` number itself
-  has not been retrieved yet: Revenue's site was down for maintenance on
-  2026-09-10.
+  supply, so every sale since launch is inside OSS. The `EU372…` number was
+  retrieved from ROS on 2026-09-10.
 - **The VAT comes out of the price.** Prices are tax-inclusive, so the VAT on a
   sale is `gross × 22/122` (≈ €1.06 per €5.90, ≈ €10.64 per €59). Taking 22% of
   the gross overpays. B2B sales with a VIES-verified VAT number are reverse
@@ -59,20 +58,39 @@ with every checkout; run the script.
    **`ossReportTo`** in the server's `/root/bandincc-crawler/.env`.~~ **DONE
    2026-09-10**: a run by hand for 2026-Q3 (the quarter so far) built the
    report on the server and the email arrived.
-2. **The crontab line** on the server (the crawler's `README.md` → *Cron*), if
-   it is not in yet. The first scheduled run is 1 October 2026, with the full
-   Q3. File and pay Q3 by 31 October.
+2. ~~**The crontab line** on the server.~~ **DONE 2026-09-10.** The first
+   scheduled run is 1 October 2026, with the full Q3.
 3. **Gotcha found on the first run:** `git pull` on the server does not change
    what runs. The code is baked into the image, so a new script needs
    `docker compose pull` (or `deploy.sh`, or `docker compose build`) before
    `docker compose run` can see it.
-4. **The `EU372…` number as an `eu_oss_vat` account tax ID on invoices.** This
-   is action 5 of the superseded list below.
-5. **Reverse-charge wording on B2B invoices.** See the next section.
+4. ~~**The `EU372…` number as an `eu_oss_vat` account tax ID on invoices.**~~
+   **DONE 2026-09-10**, verified through the API.
+5. ~~**Reverse-charge wording on B2B invoices.**~~ **DONE 2026-09-10.** See the
+   next section.
 6. **For the accountant:** how the reverse-charge B2B revenue gets declared, and
    whether the wording below is right.
 
-### Reverse charge on B2B invoices: free, and not done yet
+### Reverse charge on B2B invoices: done 2026-09-10
+
+**State, verified through the API on 2026-09-10:** every customer with a
+VIES-verified `eu_vat` and a subscription (six, one of them past due) has
+`tax_exempt=reverse` and the `Reverse charge B2B` template
+(`inrtem_1UEDD9GZN5xaIveHeIHk08y0`). The two unverified numbers were left
+alone: the report counts them as B2C, by decision.
+
+**New B2B customers are handled by the Worker** (`src/reverseCharge.ts`, built
+2026-09-10): on `customer.tax_id.created` / `.updated`, a verified EU VAT number
+switches its customer to `tax_exempt=reverse` plus the template in
+`REVERSE_CHARGE_TEMPLATE`. It never reverts, and it cannot reach the first
+invoice, which is finalized before VIES answers, so it covers renewals only.
+**Deployed and verified live 2026-09-10.** Both Workers are deployed, and both
+webhook endpoints carry the two events. A live test on the spare G.R.T.T. record
+(`cus_VBEbZPg0qlInM2`) deleted its VAT number and re-added it: `created`
+(pending) at 21:28:45, `updated` (verified) at 21:28:58, and the customer went
+from `tax_exempt: none` with no template to `reverse` plus the template. The one
+optional leftover: a test-mode template for `[env.test.vars]`. Until it exists,
+the test Worker sets the tax status only.
 
 With `automatic_tax` off, Stripe prints no reverse-charge note, and an Italian
 business needs one on the invoice to account for the VAT itself. Two settings
@@ -92,9 +110,9 @@ fix it. Both are free, and neither involves Stripe Tax:
   Until 2026-09-10 this file said the paid B2B invoices could be backfilled;
   that came from the API reference and was wrong. The B2B invoices issued so far
   stay as they are. Ask the accountant whether they need a separate document.
-- **New B2B customers** need both settings by hand each time. The Worker could
-  set them in `checkout.session.completed`, but only for renewals: the first
-  invoice is already finalized by then. Not built.
+- **New B2B customers** get both settings from the Worker, for renewals only:
+  the first invoice is already finalized by the time VIES answers. See the
+  paragraph above.
 - **Proposed wording, for the accountant to confirm:** "Operazione soggetta a
   inversione contabile (reverse charge) ai sensi dell'art. 196 della Direttiva
   2006/112/CE e dell'art. 17, comma 2, del DPR 633/1972: l'IVA è dovuta dal

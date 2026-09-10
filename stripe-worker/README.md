@@ -105,11 +105,16 @@ npm run tail      # live logs
 ```
 
 Then in the Stripe dashboard add the endpoint (`https://bandincc-stripe.<subdomain>.workers.dev`)
-subscribed to **exactly** these three events:
+subscribed to **exactly** these five events:
 
 - `checkout.session.completed`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
+- `customer.tax_id.created` and `customer.tax_id.updated`: a customer whose EU
+  VAT number VIES verifies is switched to reverse charge, with the
+  `REVERSE_CHARGE_TEMPLATE` from `wrangler.toml` (`src/reverseCharge.ts`).
+  Added 2026-09-10; an endpoint registered before then carries only the first
+  three, so add these two to it by hand, in both modes.
 
 Stripe prints the signing secret when the endpoint is created — that is the
 `STRIPE_WEBHOOK_SECRET` for the deployed Worker, and it is **different** from the

@@ -50,6 +50,14 @@ STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/cNi14namu0kOaTH4fXfEk00?
 # campaign name with [test]; that prefix is the only way to tell them apart.
 DEPLOY_MODE = "live"
 
+# --- Reverse charge on B2B customers (src/reverseCharge.ts) -----------------
+# The invoice template whose footer carries the Italian reverse-charge wording,
+# attached to every customer whose EU VAT number VIES verifies. NOT a secret: an
+# id, and per Stripe mode. Templates can only be created in the Dashboard
+# (Settings → Billing → Invoices → Templates). Unset, the Worker still sets the
+# tax status and logs that the template was skipped.
+REVERSE_CHARGE_TEMPLATE = "inrtem_1UEDD9GZN5xaIveHeIHk08y0"
+
 # --- data/data.json for the welcome email (src/welcome.ts) ------------------
 # Written by .github/workflows/deploy.yml after every successful production
 # deploy, read by the welcome email to build its table of currently-embargoed
@@ -115,6 +123,13 @@ MAILERLITE_GROUP_ID = "194986214311330839"
 # differ from production.
 STRIPE_PORTAL_URL = "https://billing.stripe.com/p/login/test_cNi14namu0kOaTH4fXfEk00?locale=it"
 DEPLOY_MODE = "test"
+
+# Test mode has no reverse-charge template (checked 2026-09-10): templates are
+# per mode and Dashboard-only. Create one there in test mode and put its id here.
+# Until then the test Worker sets the tax status only, which is still a faithful
+# rehearsal of everything but the footer. Empty rather than absent: wrangler
+# warns about a top-level var missing here, and the code reads "" as unset.
+REVERSE_CHARGE_TEMPLATE = ""
 
 # Repeated, not inherited — as with vars above, a named environment takes no
 # bindings from the top level. Same namespace id: one copy of the data, read by
