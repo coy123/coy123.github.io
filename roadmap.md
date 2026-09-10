@@ -374,7 +374,7 @@ release delay"; do not re-derive them here.
 
 | Description | Deadline | Who |
 |---|---|---|
-| OSS by hand: `stripeReportKey` + `ossReportTo` in the crawler server's `.env`, the crontab line, a first run for 2026-Q3 | 30.09.2026 | Can |
+| OSS by hand: the crontab line on the crawler server (key, `.env` and a first run by hand done 10.09.2026) | 30.09.2026 | Can |
 | File and pay the 2026-Q3 OSS return | 31.10.2026 | Can |
 | Reverse charge on B2B customers: tax status "Reverse charge" + an invoice template with the footer, wording checked by the accountant | 30.09.2026 | Can |
 | Fetch the `EU372…` OSS number from Revenue (ROS was down for maintenance on 10.09.2026), then add it to Stripe as an `eu_oss_vat` account tax ID shown on invoices — `stripe-worker/STATUS.md` → "Open: the by-hand setup", item 4 | when ROS is back | Can |

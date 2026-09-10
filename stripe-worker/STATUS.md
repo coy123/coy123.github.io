@@ -55,16 +55,17 @@ with every checkout; run the script.
 
 ### Open: the by-hand setup
 
-1. **A restricted live key for the report**, with READ on Invoices, Customers,
-   Charges and Balance and nothing else, as `stripeReportKey` in the server's
-   `/root/bandincc-crawler/.env`. Not the CLI's key and not the Worker's: this
-   one only reads, so a leaked copy cannot act.
-2. **`ossReportTo`**, the owner's address, in the same `.env`. The SMTP
-   settings are the crawl's and already there.
-3. **The crontab line** on the server (the crawler's `README.md` → *Cron*),
-   then **a first run by hand for `2026-Q3`** once the crawler commit is
-   deployed. Check the email against the Stripe Dashboard, then file and pay Q3
-   by 31 October.
+1. ~~**A restricted live key for the report** (`stripeReportKey`) and
+   **`ossReportTo`** in the server's `/root/bandincc-crawler/.env`.~~ **DONE
+   2026-09-10**: a run by hand for 2026-Q3 (the quarter so far) built the
+   report on the server and the email arrived.
+2. **The crontab line** on the server (the crawler's `README.md` → *Cron*), if
+   it is not in yet. The first scheduled run is 1 October 2026, with the full
+   Q3. File and pay Q3 by 31 October.
+3. **Gotcha found on the first run:** `git pull` on the server does not change
+   what runs. The code is baked into the image, so a new script needs
+   `docker compose pull` (or `deploy.sh`, or `docker compose build`) before
+   `docker compose run` can see it.
 4. **The `EU372…` number as an `eu_oss_vat` account tax ID on invoices.** This
    is action 5 of the superseded list below.
 5. **Reverse-charge wording on B2B invoices.** See the next section.
