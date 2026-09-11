@@ -1,4 +1,4 @@
-# Payments — status and TODOs (last updated 2026-09-10)
+# Payments — status and TODOs (last updated 2026-09-11)
 
 Working notes for the Stripe leg (`bandincc-crawler/UNIFICATION_BRAINSTORM.md`
 §8i). Setup mechanics live in `README.md`; this file is "what's done, what's
@@ -71,7 +71,16 @@ with every checkout; run the script.
 6. **For the accountant:** how the reverse-charge B2B revenue gets declared, and
    whether the wording below is right.
 
-### Open: point Stripe at the apex, not www (found 2026-09-10)
+### ~~Open:~~ point Stripe at the apex, not www (found 2026-09-10) — DONE 2026-09-11
+
+**All four items below were done by the owner on 2026-09-11.** Read back the
+same morning: both live Payment Links redirect to `https://bandincc.it/grazie/`
+(Stripe API); both Workers were redeployed at 05:44 UTC (`wrangler deployments
+list`); staging's `/abbonamento/` links the test Payment Links and its
+`/grazie/` answers 200. Not read back, because nothing reachable from the dev
+machine can: the Public details privacy URL (Dashboard-only) and the test
+links' redirect target (the Stripe connector here is live-mode only). The text
+below is the record as written beforehand.
 
 `bandincc.it` is the one canonical host; since the 2026-09-10 DNS move
 `www.bandincc.it` only 301s to it through a Cloudflare Redirect Rule (~70 ms,

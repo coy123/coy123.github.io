@@ -64,12 +64,12 @@ jobs:
       with:
         node-version: 22
 
-    # Deliberately NOT gated on `vars.CLOUDFLARE_ACCOUNT_ID != ''` the way
-    # deploy.yml's `cloudflare` job is. There, Cloudflare was a second host being
-    # stood up beside a working one, so a missing variable had to be a no-op.
-    # Here it is the only host: a skipped job would look like success while
-    # staging silently stopped updating — exactly the failure the old Netlify
-    # action produced for months. Fail instead, naming the cause.
+    # Deliberately NOT gated on `vars.CLOUDFLARE_ACCOUNT_ID != ''`. deploy.yml's
+    # `cloudflare` job carried that gate while Cloudflare was a second host being
+    # stood up beside GitHub Pages, and dropped it when it became the only one.
+    # Here it has always been the only host: a skipped job would look like
+    # success while staging silently stopped updating — exactly the failure the
+    # old Netlify action produced for months. Fail instead, naming the cause.
     - name: Check Cloudflare credentials are present
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

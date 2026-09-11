@@ -1,3 +1,8 @@
+# The name is load-bearing and deliberately out of date. newsletter.yml chains
+# off this workflow with `workflow_run: workflows: ["Deploy to GitHub Pages"]`,
+# matching this exact string: rename it here alone and the newsletter silently
+# stops. Nothing deploys to GitHub Pages any more — rename both in one commit,
+# or neither.
 name: Deploy to GitHub Pages
 
 on:
@@ -19,11 +24,11 @@ on:
     - cron: '0 5 * * *'
 
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Nothing here writes to the repo or needs an OIDC token: the Cloudflare jobs
+# authenticate with CLOUDFLARE_API_TOKEN. `pages: write` and `id-token: write`
+# went with the GitHub Pages jobs.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -53,10 +58,22 @@ jobs:
       # PR or a manual dispatch is still gated on Cypress.
       run-e2e: ${{ github.event_name != 'schedule' }}
 
-  # Pull requests stop after `test`. Only a push to master (or a manual
-  # dispatch) is allowed to publish.
-  package:
-    name: Package for Pages
+  # ── Cloudflare Pages: bandincc.it ──────────────────────────────────────────
+  # The production deploy, and the only one. Until 2026-09 this ran beside a
+  # `package` → `deploy` pair publishing the same artifact to GitHub Pages;
+  # those were removed before the repo went private, because on GitHub Free a
+  # private repo cannot run a Pages deploy — the job would fail, the run would
+  # conclude `failure`, and newsletter.yml (gated on success) would stop
+  # sending. See roadmap.md, "Going private on Cloudflare Pages", step 5.
+  #
+  # Pull requests stop after `test`. Only a push to master, the nightly cron or
+  # a manual dispatch is allowed to publish.
+  #
+  # Direct upload, not Cloudflare's git integration: CI already builds and
+  # tests, the repo is private, and uploading the artifact keeps the "what
+  # ships is what was tested" guarantee.
+  cloudflare:
+    name: Deploy to Cloudflare Pages
     needs: test
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -69,95 +86,62 @@ jobs:
         name: static-export-pages
         path: out
 
-    - name: Add .nojekyll file
-      run: touch out/.nojekyll
-
-    - name: Setup Pages
-      uses: actions/configure-pages@v5
-
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: ./out
-
-  deploy:
-    needs: package
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-
-  # ── Cloudflare Pages ───────────────────────────────────────────────────────
-  # Runs beside the GitHub Pages jobs above, deploying the SAME tested artifact
-  # to a second host, so the migration can be verified on *.pages.dev before any
-  # DNS moves. Once bandincc.it points at Cloudflare, `package` and `deploy`
-  # above are deleted and this becomes the only deploy — see roadmap.md,
-  # "Going private on Cloudflare Pages".
-  #
-  # Direct upload, not Cloudflare's git integration: CI already builds and
-  # tests, the repo is about to be private, and uploading the artifact keeps the
-  # "what ships is what was tested" guarantee that `package` has.
-  #
-  # Gated on the CLOUDFLARE_ACCOUNT_ID *variable* (not a secret — an account id
-  # identifies, it does not authorise) so this job simply does not exist until
-  # the Pages project does. Setting the variable turns it on; nothing here goes
-  # red in the meantime.
-  cloudflare:
-    name: Deploy to Cloudflare Pages
-    needs: test
-    if: github.event_name != 'pull_request' && vars.CLOUDFLARE_ACCOUNT_ID != ''
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download tested static export
-      uses: actions/download-artifact@v4
-      with:
-        name: static-export-pages
-        path: out
-
-    - name: Fail fast if the API token is missing
+    # Deliberately NOT gated on `vars.CLOUDFLARE_ACCOUNT_ID != ''` any more.
+    # That gate made sense while Cloudflare was a second host being stood up
+    # beside a working one. It is the only host now: a skipped job would leave
+    # the run green, newsletter.yml would mail links to /bandi/ pages that were
+    # never deployed, and the daily release would silently stop. Fail instead,
+    # naming the cause — the same check staging-deploy.yml makes.
+    - name: Check Cloudflare credentials are present
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       run: |
-        if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-          echo "::error::CLOUDFLARE_API_TOKEN is empty. Add it as a repository secret" \
-               "(scope: Cloudflare Pages:Edit)."
-          exit 1
-        fi
+        missing=0
+        [ -n "$CLOUDFLARE_API_TOKEN" ]  || { echo "::error::secrets.CLOUDFLARE_API_TOKEN is empty (scopes: Cloudflare Pages:Edit, Workers KV Storage:Edit)"; missing=1; }
+        [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "::error::vars.CLOUDFLARE_ACCOUNT_ID is empty"; missing=1; }
+        [ -d out ] && [ -f out/index.html ] || { echo "::error::downloaded artifact has no out/index.html"; missing=1; }
+        exit $missing
 
     # --branch=master makes this a PRODUCTION deployment: Pages treats any other
     # branch name as a preview. The project's production branch must match.
+    #
+    # The job has no checkout, so wrangler cannot read the commit from git;
+    # passing it explicitly labels the deployment in the Pages dashboard.
     - name: Deploy to Cloudflare Pages
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-      run: npx wrangler@4 pages deploy out --project-name=bandincc --branch=master
+        COMMIT_MESSAGE: ${{ github.workflow }} #${{ github.run_number }} (${{ github.event_name }})
+      run: |
+        npx wrangler@4 pages deploy out \
+          --project-name=bandincc \
+          --branch=master \
+          --commit-hash="$GITHUB_SHA" \
+          --commit-message="$COMMIT_MESSAGE"
 
   # ── data.json → KV, for the welcome email ──────────────────────────────────
   # stripe-worker/src/welcome.ts builds a new subscriber's table of
   # currently-embargoed bandi from this key. It used to read data/data.json off
   # raw.githubusercontent.com, which only worked while the repo was public.
   #
-  # `needs: deploy` deliberately: the key must not move ahead of the site. A
+  # `needs: cloudflare` deliberately: the key must not move ahead of the site. A
   # subscriber who checks out just after a deploy should be shown exactly the
   # rows the live site is still hiding, and writing this first would briefly
-  # promise rows the site had not yet released.
+  # promise rows the site had not yet released. (It was `needs: deploy`, the
+  # GitHub Pages job, until that job was removed — pointing it anywhere that no
+  # longer exists would stop the write without an error.)
+  #
+  # No variable gate of its own: if the credentials are missing, `cloudflare`
+  # fails first and this never starts.
   #
   # continue-on-error, because the site being live matters more than the email
   # being current: a failure here leaves the previous value in place, which is
   # stale by at most one deploy, and the run summary still shows it red.
   publish-data:
     name: Publish data.json to KV
-    needs: deploy
-    if: github.event_name != 'pull_request' && vars.CLOUDFLARE_ACCOUNT_ID != ''
+    needs: cloudflare
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     continue-on-error: true
 

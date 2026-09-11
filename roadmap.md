@@ -129,14 +129,16 @@ customers) → `stripe-worker/STATUS.md` → "Current state".
 > **→ Resume here.** Steps 1–4 are done: the nightly cron skips Cypress, the
 > Worker reads `data.json` from KV, and since **2026-09-10 `bandincc.it` is on
 > Cloudflare DNS and served by Cloudflare Pages**, every mail record carried
-> over. **One piece of step 4 is left: remove the custom domain in GitHub →
-> Settings → Pages, no earlier than the evening of 2026-09-12** — why is under
-> step 4. Then step 5, the repo going private. Steps 5–7 follow in order and
-> cannot be reordered — with one exception: **step 6's first half, moving
-> staging from Netlify to a Cloudflare Pages preview, depends on nothing in
-> step 5 and was done ahead of it on 2026-09-10.** It is in the working tree,
-> not yet merged; it needs a first green `staging` run to verify, and only
-> then is Netlify itself retired (the rest of step 6).
+> over. **Step 6's first half is done too** — staging is a Cloudflare Pages
+> preview, verified 2026-09-11, and the test Payment Links point at it.
+>
+> **Next, in this order (planned for the evening of 2026-09-13):**
+> 1. Remove the custom domain in GitHub → Settings → Pages (end of step 4).
+> 2. Merge the `deploy.yml` edit for step 5 — **already written, in the
+>    working tree on `dev`, not merged** — and wait for a green `master` run.
+> 3. Flip the repo private (step 5).
+>
+> Then retire Netlify (step 6, second half) and the doc sweep (step 7).
 
 **Why.** The driver is not the embargo — `CLAUDE.md` already records that the
 seven-day delay is a publishing convention, not access control, and guessable
@@ -273,6 +275,16 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
    publishes the same artifact to both hosts. Leave the IONOS DNS records alone
    for the same reason.
 
+   *Measured 2026-09-11, 05:48 UTC, so the wait need not be re-derived:* the
+   .it registry's delegation TTL is 3600 s; IONOS still answers
+   authoritatively with the GitHub A records at 3600 s, and its NS set carried
+   86400 s. The dev machine's own resolver was still returning GitHub
+   (`server: GitHub.com`) with ~8.4 h left on a cached IONOS NS set. So the
+   worst case for a TTL-respecting resolver is ~25 h after the nameserver
+   switch, i.e. the evening of 2026-09-11 — the 2026-09-12 date above is
+   margin, not arithmetic. Removing the domain before then turns the site into
+   GitHub's "There isn't a GitHub Pages site here" 404 for those visitors.
+
    **Rollback**, should it ever be needed before step 5: put the four A records
    and the `www` CNAME back in Cloudflare, DNS only. Cloudflare warns that
    pointing DNS away from Pages and back causes prolonged errors, so decide
@@ -294,12 +306,50 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
    **Keep `name: Deploy to GitHub Pages`**, or change `newsletter.yml`'s
    `workflows: [...]` in the same commit. `newsletter.yml` matches the workflow
    by that exact string, so renaming it alone silently stops the newsletter.
+
+   **The `deploy.yml` edit is written — 2026-09-11, working tree on `dev`, not
+   merged.** What it does:
+   - deletes `package` and `deploy`; the job graph is now
+     `test` → `cloudflare` → `publish-data`;
+   - `publish-data` is `needs: cloudflare`;
+   - permissions drop to `contents: read` (`pages: write` / `id-token: write`
+     were only for GitHub Pages);
+   - `cloudflare` and `publish-data` are **no longer gated on
+     `vars.CLOUDFLARE_ACCOUNT_ID != ''`**. That gate existed so the job was a
+     no-op while Cloudflare was being stood up beside a working host. As the
+     only host, a skipped job would conclude green and `newsletter.yml` would
+     mail links to pages that were never deployed. `cloudflare` now checks the
+     token, the variable and `out/index.html` and fails by name, the same step
+     `staging-deploy.yml` has;
+   - `wrangler pages deploy` gets `--commit-hash`/`--commit-message`, as on
+     staging, so the Production deployment in the Pages dashboard names its
+     commit;
+   - the name stays "Deploy to GitHub Pages", with a comment saying why.
+
+   `CLAUDE.md` (Git and Deployment, the `deploy.yml` and `staging-deploy.yml`
+   bullets, "One rule for scaduto", "The welcome email"), `stripe-worker/README.md`
+   and the `staging-deploy.yml` comment on the variable gate were updated in the
+   same change, since all of them become false the moment it merges.
+   `actionlint` 1.7.7 is clean over all four workflows.
+
+   **Verify on the first `master` run after merging:** three jobs, all green;
+   the Pages dashboard's Production deployment carries that commit hash;
+   `newsletter.yml` fires after it; `publish-data` wrote the current row count
+   to KV (it is `continue-on-error`, so green proves nothing).
 6. **[ ] Move staging to Cloudflare Pages, then retire Netlify.** Two halves,
    in that order. Staging must keep `STRIPE_MODE=test` throughout. Keep the
    `preview-urls` job — its comment about the public run summary needs
    rewriting at step 5, not the job.
 
-   **First half — move staging. Written 2026-09-10; not yet merged or run.**
+   **[x] First half — move staging. Written 2026-09-10, verified 2026-09-11.**
+   Run #1 of "Deploy staging to Cloudflare Pages" was green;
+   `staging.bandincc.pages.dev` answers 200 with `x-robots-tag: noindex`, its
+   `/abbonamento/` shows the amber "Ambiente di prova" banner and links the two
+   `buy.stripe.com/test_…` Payment Links, and its `/grazie/` answers 200. The
+   test Payment Links were repointed to it the same morning (by the owner, in
+   the Dashboard — test mode is not readable from the dev machine's Stripe
+   connector, so that part is reported rather than read back). What follows
+   is the record as written beforehand.
    `netlify-deploy.yml` became `.github/workflows/staging-deploy.yml`
    ("Deploy staging to Cloudflare Pages"): the same `test` → `deploy` →
    `preview-urls` jobs and the same `stripe-mode: test`, but `deploy` runs
@@ -523,7 +573,7 @@ release delay"; do not re-derive them here.
 | File and pay the 2026-Q3 OSS return | 31.10.2026 | Can |
 | Update finance Google Sheet | 08.09.2026 | Can |
 | Germany: automation start | 20.09.2026 | Can |
-| Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting: step 4 (DNS) done 10.09.2026 bar the GitHub custom-domain removal (from 12.09); staging moved to a Cloudflare preview 10.09.2026 (unmerged, first run unverified); Netlify retirement, steps 5 and 7 left* | 20.09.2026 | Can |
+| Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting: step 4 (DNS) done 10.09.2026 bar the GitHub custom-domain removal (planned 13.09); staging on a Cloudflare preview, verified 11.09.2026; step 5's `deploy.yml` edit written 11.09 (unmerged); then repo private, Netlify retirement, step 7* | 20.09.2026 | Can |
 | Questionnaire | 30.09.2026 | Davide |
 | Germany law/market research | 30.09.2026 | Davide |
 | Research company location country for tax | 30.09.2026 | Davide |
