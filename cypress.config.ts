@@ -2,7 +2,7 @@ import { defineConfig } from 'cypress'
 
 // The site is a static export served on a plain HTTP server, so the tests only
 // need a base URL. Override with CYPRESS_BASE_URL when running against a
-// preview deployment (e.g. the Netlify staging URL) instead of localhost.
+// preview deployment (e.g. https://staging.bandincc.pages.dev) instead of localhost.
 const baseUrl = process.env.CYPRESS_BASE_URL ?? 'http://localhost:3000'
 
 export default defineConfig({

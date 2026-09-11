@@ -1028,5 +1028,15 @@
         "latitude": "44.50",
         "longitude": "10.947",
         "detectedat": "2026-09-04"
+    },
+    {
+        "location": "Ponte Buggianese",
+        "deadline": "2026-10-31",
+        "url": "https://comune.ponte-buggianese.pt.it/novita/approvazione-del-bando-di-concorso-rettificato-e-del-relativo-modello-di-domanda-per-lassegnazione-di-n-6-autorizzazioni-di-noleggio-con-conducente-n-c-c-tramite-autovettura/",
+        "amount": 6,
+        "image": "https://upload.wikimedia.org/wikipedia/it/5/55/Ponte_Buggianese-Stemma.png?utm_source=it.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+        "latitude": "43.840833333333",
+        "longitude": "10.7475",
+        "detectedat": "2026-09-11"
     }
 ]

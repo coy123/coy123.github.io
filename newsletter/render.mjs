@@ -94,7 +94,9 @@ export const slug = (location) =>
 export const itDate = (d) =>
   new Date(d).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })
 
-export const bidUrl = (location) => `https://www.bandincc.it/bandi/${slug(location)}/`
+// The apex, not www: www only 301s to it (a Cloudflare Redirect Rule), and
+// every click here already goes through MailerLite's tracking redirect first.
+export const bidUrl = (location) => `https://bandincc.it/bandi/${slug(location)}/`
 
 /** Same order as the home page table (components/Table.tsx): latest scadenza first. */
 const byDeadlineDesc = (a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()

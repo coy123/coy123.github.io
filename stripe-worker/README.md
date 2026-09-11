@@ -14,8 +14,10 @@ It lives in this repo but is **not** part of the site build — its own
 
 ## Why a separate host at all
 
-GitHub Pages is static and the Netlify site is staging-only, so there is nowhere
-in the existing deploy to put a live endpoint. A Worker is free at this volume
+The site is a static export on every host it runs on — Cloudflare Pages (and
+GitHub Pages until the repo goes private) in production, a Cloudflare Pages
+preview on staging — so there is nowhere in the site deploy to put a live
+endpoint. A Worker is free at this volume
 (100k requests/day), has nothing to patch, and keeps a production payment path
 off the staging deploy.
 
@@ -132,8 +134,8 @@ Because a signing secret is per mode and one Worker can hold only one
 
 | | Worker | Stripe | MailerLite group | Built by |
 |---|---|---|---|---|
-| Production | `bandincc-stripe` | live | the real subscriber group | `deploy.yml` → GitHub Pages |
-| Staging | `bandincc-stripe-test` | test | a throwaway group | `netlify-deploy.yml` → Netlify |
+| Production | `bandincc-stripe` | live | the real subscriber group | `deploy.yml` → Cloudflare Pages (+ GitHub Pages until the repo goes private) |
+| Staging | `bandincc-stripe-test` | test | a throwaway group | `staging-deploy.yml` → Cloudflare Pages preview, `staging.bandincc.pages.dev` |
 
 ```sh
 npm run deploy:test   # wrangler deploy --env test

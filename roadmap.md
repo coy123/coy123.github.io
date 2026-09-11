@@ -132,7 +132,11 @@ customers) → `stripe-worker/STATUS.md` → "Current state".
 > over. **One piece of step 4 is left: remove the custom domain in GitHub →
 > Settings → Pages, no earlier than the evening of 2026-09-12** — why is under
 > step 4. Then step 5, the repo going private. Steps 5–7 follow in order and
-> cannot be reordered.
+> cannot be reordered — with one exception: **step 6's first half, moving
+> staging from Netlify to a Cloudflare Pages preview, depends on nothing in
+> step 5 and was done ahead of it on 2026-09-10.** It is in the working tree,
+> not yet merged; it needs a first green `staging` run to verify, and only
+> then is Netlify itself retired (the rest of step 6).
 
 **Why.** The driver is not the embargo — `CLAUDE.md` already records that the
 seven-day delay is a publishing convention, not access control, and guessable
@@ -290,14 +294,86 @@ cannot leave GitHub Pages until Cloudflare is serving the same export.
    **Keep `name: Deploy to GitHub Pages`**, or change `newsletter.yml`'s
    `workflows: [...]` in the same commit. `newsletter.yml` matches the workflow
    by that exact string, so renaming it alone silently stops the newsletter.
-6. **[ ] Retire Netlify.** Staging becomes a Cloudflare Pages preview
-   deployment (`--branch=staging`), which drops `netlify.toml`, the
-   `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID` secrets and a whole vendor. Staging
-   must keep `STRIPE_MODE=test`. Keep the `preview-urls` job — its comment about
-   the public run summary needs rewriting, not the job.
+6. **[ ] Move staging to Cloudflare Pages, then retire Netlify.** Two halves,
+   in that order. Staging must keep `STRIPE_MODE=test` throughout. Keep the
+   `preview-urls` job — its comment about the public run summary needs
+   rewriting at step 5, not the job.
+
+   **First half — move staging. Written 2026-09-10; not yet merged or run.**
+   `netlify-deploy.yml` became `.github/workflows/staging-deploy.yml`
+   ("Deploy staging to Cloudflare Pages"): the same `test` → `deploy` →
+   `preview-urls` jobs and the same `stripe-mode: test`, but `deploy` runs
+   `wrangler pages deploy out --project-name=bandincc --branch=staging`. That
+   is a *preview* deployment of the production project — Pages decides by
+   branch name, and the production branch is `master` — served at the branch
+   alias `https://staging.bandincc.pages.dev`, which Cloudflare marks
+   `X-Robots-Tag: noindex` by default. It reuses `CLOUDFLARE_API_TOKEN` and
+   `CLOUDFLARE_ACCOUNT_ID`, so there is nothing to configure; unlike
+   `deploy.yml`'s `cloudflare` job it fails loudly rather than skipping if
+   either is missing, because it is staging's only host.
+   `scripts/preview-embargoed.mjs`, `data/README.md`, `cypress/README.md`,
+   `stripe-worker/README.md` and `CLAUDE.md` all point at the new URL.
+
+   **The two test Payment Links still redirect to the Netlify site** —
+   `https://spiffy-semifreddo-87751b.netlify.app/grazie/` on both
+   (`plink_1U0JGeGZN5xaIveHulMQjs4r` monthly, `plink_1U0JHMGZN5xaIveHxHKxXfGu`
+   annual; read from Stripe 2026-09-10). `stripe-worker/STATUS.md`'s 2026-08-04
+   entry says they go to `www.bandincc.it/grazie/`; that was wrong, and is now
+   marked as such. They were deliberately **not** repointed yet:
+   `staging.bandincc.pages.dev` answers 404 until the first Cloudflare staging
+   deploy, while the Netlify `/grazie/` still answers 200, so switching early
+   would land every test checkout on a 404. The welcome email links the
+   production site and needs nothing.
+
+   **Verify on the first push to `staging`:**
+   - the run is green, and its summary shows the "Staging deployed" link and
+     the embargoed-bandi list;
+   - `https://staging.bandincc.pages.dev/abbonamento/` shows the amber
+     "ambiente di prova" banner — the proof that the `test` build shipped, not
+     a production artifact;
+   - `curl -sI https://staging.bandincc.pages.dev/` carries
+     `x-robots-tag: noindex`;
+   - `bandincc.it` is untouched: the Pages dashboard's Production deployment is
+     still the last `master` one;
+   - if the page asks for a Cloudflare login, an Access policy is on for the
+     project's previews. Decide then whether the colleague needs an Access
+     identity, or whether previews should be public, as Netlify staging was.
+
+   **Then repoint the two test Payment Links** — Stripe Dashboard in test
+   mode → Payment Links → each link → Edit → After payment → Redirect →
+   `https://staging.bandincc.pages.dev/grazie/` (trailing slash). Run one test
+   checkout from `https://staging.bandincc.pages.dev/abbonamento/` and confirm
+   it lands on the staging `/grazie/`. Neither Stripe key reachable from the
+   dev machine can write Payment Links (both lack `payment_links_write`), so
+   this is a Dashboard job.
+
+   **[ ] Second half — retire Netlify. Later, once the first half is
+   verified.** Removing the workflow stops new deploys; it does not take the
+   old site down. Until this is done `spiffy-semifreddo-87751b.netlify.app`
+   stays public, serving the last build it received, and that build goes stale
+   with the first Cloudflare staging deploy. In order:
+   0. **Check the test Payment Links no longer point at Netlify** (above).
+      Deleting the site first strands every test checkout on a dead host.
+   1. Netlify → the site → Site configuration → Build & deploy: check whether
+      it is linked to the repo. If it is, it has been building `staging` on its
+      own — the only thing `netlify.toml` was ever for — and may still be.
+      Deleting the site ends that too.
+   2. Delete the site in Netlify. This is what takes the URL down.
+   3. Delete `netlify.toml` from the repo — not before step 2, since a linked
+      site would then build without it.
+   4. Remove the `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` repository secrets,
+      and revoke that personal access token in Netlify.
+   5. Close the Netlify account if nothing else lives on it.
+   6. Drop the remaining current-state Netlify mentions: the `netlify.toml`
+      bullet and the two "Netlify site still up" notes in `CLAUDE.md`, the
+      header comment in `staging-deploy.yml`, and the "old address" paragraph
+      in `data/README.md`. Dated history in `stripe-worker/STATUS.md` stays as
+      it is.
 7. **[ ] Documentation sweep.** `CLAUDE.md` (CI/CD, "The welcome email",
    hosting), `stripe-worker/README.md`, `data/README.md`, and the
-   public-repo caveats that will no longer be true.
+   public-repo caveats that will no longer be true. The staging half —
+   every Netlify URL and `netlify-deploy.yml` reference — was already swept
+   with step 6 on 2026-09-10.
 
 ### Notes
 
@@ -447,7 +523,7 @@ release delay"; do not re-derive them here.
 | File and pay the 2026-Q3 OSS return | 31.10.2026 | Can |
 | Update finance Google Sheet | 08.09.2026 | Can |
 | Germany: automation start | 20.09.2026 | Can |
-| Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting: step 4 (DNS) done 10.09.2026 bar the GitHub custom-domain removal (from 12.09), steps 5–7 left* | 20.09.2026 | Can |
+| Research + implement paid service improvements — *MailerLite paid done 07.09.2026; GitHub stays Free; hosting: step 4 (DNS) done 10.09.2026 bar the GitHub custom-domain removal (from 12.09); staging moved to a Cloudflare preview 10.09.2026 (unmerged, first run unverified); Netlify retirement, steps 5 and 7 left* | 20.09.2026 | Can |
 | Questionnaire | 30.09.2026 | Davide |
 | Germany law/market research | 30.09.2026 | Davide |
 | Research company location country for tax | 30.09.2026 | Davide |

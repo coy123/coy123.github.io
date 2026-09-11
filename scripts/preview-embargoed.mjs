@@ -19,7 +19,7 @@
 //   node scripts/preview-embargoed.mjs --markdown  -> a GitHub job-summary table
 //   node scripts/preview-embargoed.mjs --file X    -> read X instead of data/data.json
 //
-// `--markdown` is what .github/workflows/netlify-deploy.yml appends to
+// `--markdown` is what .github/workflows/staging-deploy.yml appends to
 // $GITHUB_STEP_SUMMARY after a staging deploy, so the colleague gets a clickable
 // list without opening a terminal. Same data, second rendering — deliberately
 // one script rather than two that can disagree.
@@ -57,11 +57,17 @@ const value = (name) => {
   return i === -1 ? undefined : args[i + 1]
 }
 
-// Netlify's auto-generated site name for the staging site. It is NOT
-// `staging--bandincc.netlify.app`: that branch-subdomain form assumes a site
-// named `bandincc`, which does not exist, so every link it produced 404'd.
-const STAGING = 'https://spiffy-semifreddo-87751b.netlify.app'
-const PRODUCTION = 'https://www.bandincc.it'
+// The staging branch alias on Cloudflare Pages. staging-deploy.yml publishes
+// with `--branch=staging`, a preview deployment of the `bandincc` project, and
+// Pages keeps `<branch>.<project>.pages.dev` pointed at the latest one — so
+// this URL is stable across deploys, unlike the per-deployment hash URL.
+//
+// Until 2026-09-10 staging was the Netlify site spiffy-semifreddo-87751b
+// .netlify.app. It no longer receives deploys; a link there shows a stale build.
+const STAGING = 'https://staging.bandincc.pages.dev'
+// The apex, not www: www only 301s here (a Cloudflare Redirect Rule), so a
+// printed www link costs every click a redirect.
+const PRODUCTION = 'https://bandincc.it'
 
 const file = value('--file') ?? 'data/data.json'
 
@@ -131,7 +137,7 @@ const describe = (row, { held }) => {
 
 /**
  * The GitHub job-summary rendering, appended to $GITHUB_STEP_SUMMARY by
- * .github/workflows/netlify-deploy.yml after a staging deploy.
+ * .github/workflows/staging-deploy.yml after a staging deploy.
  *
  * Link destinations are wrapped in <angle brackets>. CommonMark does balance
  * parentheses inside a bare destination, so "(MI)" would survive on its own,

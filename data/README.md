@@ -75,7 +75,7 @@ reach it, easiest first.
 ### 1. From the Actions run (recommended)
 
 Push to `staging`, then open the run under the repo's **Actions** tab →
-**Deploy to Netlify**. Once it is green, the run summary lists every bando
+**Deploy staging to Cloudflare Pages**. Once it is green, the run summary lists every bando
 currently being held back, each one a link straight to its live staging page.
 
 Nothing to install, no slug to work out. Wait for the whole run to finish — the
@@ -101,8 +101,12 @@ right now?" after you have.
 ### 3. By hand
 
 ```
-https://spiffy-semifreddo-87751b.netlify.app/bandi/<slug>/
+https://staging.bandincc.pages.dev/bandi/<slug>/
 ```
+
+Staging moved there from Netlify on 2026-09-10. The old address,
+`spiffy-semifreddo-87751b.netlify.app`, no longer receives deploys and is being
+shut down — anything it shows is out of date, so do not use it to check a bando.
 
 ### Building the slug by hand
 
